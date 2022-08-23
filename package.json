@@ -10,7 +10,7 @@
     "build-types": "tsc --project tsconfig.json",
     "build": "npm run build-rollup && npm run build-types",
     "eslint": "eslint ./src --ext .js,.ts",
-    "test": "jest --",
+    "test": "jest --coverage --",
     "typedoc": "typedoc",
     "typedoc-serve": "npm run typedoc && npx serve -n docs"
   },
