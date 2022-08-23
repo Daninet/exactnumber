@@ -3,9 +3,9 @@ name: Build
 on:
   push:
     branches:
-      - '!*'
-    tags:
-      - 'v*'
+      - master
+    # tags:
+    #   - 'v*'
 
 jobs:
   build-wasm:
