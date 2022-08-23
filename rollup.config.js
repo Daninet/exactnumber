@@ -15,7 +15,7 @@ const TERSER_CONFIG = {
 const LICENSE_CONFIG = {
   banner: {
     commentStyle: 'ignored',
-    content: `exactmath v${packageJson.version} (https://www.npmjs.com/package/exactmath)
+    content: `exactnumber v${packageJson.version} (https://www.npmjs.com/package/exactnumber)
     (c) Dani Biro
     @license MIT`,
   },
@@ -26,7 +26,7 @@ const getBundleConfig = (minified = false) => ({
   output: [
     {
       file: `dist/index.umd${minified ? '.min' : ''}.js`,
-      name: 'exactmath',
+      name: 'exactnumber',
       format: 'umd',
     },
     {

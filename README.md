@@ -1,9 +1,9 @@
-# ExactMath
+# ExactNumber
 
-[![npm package](https://img.shields.io/npm/v/exactmath.svg)](http://npmjs.org/package/exactmath)
-[![codecov](https://codecov.io/gh/Daninet/exactmath/branch/master/graph/badge.svg)](https://codecov.io/gh/Daninet/exactmath)
-[![Build status](https://github.com/Daninet/exactmath/workflows/Build/badge.svg?branch=master)](https://github.com/Daninet/exactmath/actions)
-[![JSDelivr downloads](https://data.jsdelivr.com/v1/package/npm/exactmath/badge)](https://www.jsdelivr.com/package/npm/exactmath)
+[![npm package](https://img.shields.io/npm/v/exactnumber.svg)](http://npmjs.org/package/exactnumber)
+[![codecov](https://codecov.io/gh/Daninet/exactnumber/branch/master/graph/badge.svg)](https://codecov.io/gh/Daninet/exactnumber)
+[![Build status](https://github.com/Daninet/exactnumber/workflows/Build/badge.svg?branch=master)](https://github.com/Daninet/exactnumber/actions)
+[![JSDelivr downloads](https://data.jsdelivr.com/v1/package/npm/exactnumber/badge)](https://www.jsdelivr.com/package/npm/exactnumber)
 
 Arbitrary-precision decimals. Enables making precise math calculations with rational numbers, without precision loss.
 
@@ -47,7 +47,7 @@ console.log(ExactNumber('10e16').add(5).toString());
 - Supports bitwise operators (`and`, `or`, `xor`, `shiftLeft`, `shiftRight`)
 - Approximation algorithms for irrational numbers (_experimental_)
 - Supports all modern browsers, web workers, Node.js and Deno
-- Includes TypeScript type definitions: [documentation](https://daninet.github.io/exactmath)
+- Includes TypeScript type definitions: [documentation](https://daninet.github.io/exactnumber)
 - Zero external dependencies
 - Uses `BigInt` type under the hood. It automatically switches back and forth between fixed-precision and fractional representations.
 - Tries to deliver the best possible performance
@@ -56,23 +56,23 @@ console.log(ExactNumber('10e16').add(5).toString());
 ## Installation
 
 ```
-npm i exactmath
+npm i exactnumber
 ```
 
-It can also be used directly from HTML (via [jsDelivr](https://www.jsdelivr.com/package/npm/exactmath)):
+It can also be used directly from HTML (via [jsDelivr](https://www.jsdelivr.com/package/npm/exactnumber)):
 
 ```html
-<!-- loads the full, minified library into the global `exactmath` variable -->
-<script src="https://cdn.jsdelivr.net/npm/exactmath"></script>
+<!-- loads the full, minified library into the global `exactnumber` variable -->
+<script src="https://cdn.jsdelivr.net/npm/exactnumber"></script>
 
 <!-- or loads the non-minified library -->
-<script src="https://cdn.jsdelivr.net/npm/exactmath/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exactnumber/dist/index.umd.js"></script>
 ```
 
 ## Usage
 
 ```js
-import { ExactNumber as N } from 'exactmath';
+import { ExactNumber as N } from 'exactnumber';
 
 N(1).add('3').toString(); // 4
 
@@ -88,7 +88,7 @@ N('0b1100').bitwiseAnd('0b1010').toString(2); // 1000
 N.max('1/1', '10/2', 3).toString(); // 5
 N.fromBase('123', 4).toString(); // 27
 
-import { PI, sin } from 'exactmath';
+import { PI, sin } from 'exactnumber';
 PI(10); // 3.1415926535
 
 const PI_OVER_2 = N(PI(10)).div(2);

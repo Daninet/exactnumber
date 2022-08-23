@@ -1,5 +1,5 @@
 {
-  "name": "exactmath",
+  "name": "exactnumber",
   "description": "Arbitrary-precision decimals. Enables making precise math calculations with rational numbers, without precision loss.",
   "version": "0.7.0",
   "main": "dist/index.umd.js",
@@ -37,13 +37,13 @@
     "approximation"
   ],
   "bugs": {
-    "url": "https://github.com/Daninet/exactmath/issues"
+    "url": "https://github.com/Daninet/exactnumber/issues"
   },
-  "homepage": "https://github.com/Daninet/exactmath#readme",
+  "homepage": "https://github.com/Daninet/exactnumber#readme",
   "author": "Dani Biró <danibiro93@gmail.com> (https://danibiro.com)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Daninet/exactmath.git"
+    "url": "git+https://github.com/Daninet/exactnumber.git"
   },
   "license": "MIT",
   "devDependencies": {
