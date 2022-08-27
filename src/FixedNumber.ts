@@ -581,14 +581,10 @@ export class FixedNumber implements ExactNumberType {
       throw new Error('Invalid parameter');
     }
 
-    if (radix === 10) {
-      return maxDigits === undefined ? this.toString() : this.toFixed(maxDigits, true);
-    }
-
     const num = this.normalize();
     if (num.decimalPos === 0) return num.number.toString(radix);
 
-    const loopEnd = maxDigits === undefined ? Number.MAX_SAFE_INTEGER : maxDigits + 1;
+    const loopEnd = maxDigits === undefined ? Number.MAX_SAFE_INTEGER : maxDigits;
 
     let intPart = num.intPart() as FixedNumber;
     let fracPart = num.sub(intPart);
@@ -603,8 +599,6 @@ export class FixedNumber implements ExactNumberType {
 
     let digits = [] as string[];
     while (!fracPart.isZero()) {
-      if (digits.length === loopEnd) break;
-
       const mul = fracPart.mul(radix);
       const mulStr = mul.toString();
 
@@ -614,15 +608,15 @@ export class FixedNumber implements ExactNumberType {
         break;
       }
 
+      if (digits.length === loopEnd) {
+        break;
+      }
+
       const q = Math.abs(mul.intPart().toNumber());
       digits.push(q.toString(radix));
       fracPart = mul.fracPart();
 
       match.set(mulStr, digits.length);
-    }
-
-    if (digits.length === loopEnd) {
-      digits.pop();
     }
 
     return [isNegative ? '-' : '', intPart.number.toString(radix), digits.length ? '.' : '', ...digits].join('');

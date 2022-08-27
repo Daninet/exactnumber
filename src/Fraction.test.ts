@@ -1,5 +1,5 @@
 import { Fraction } from './Fraction';
-import { ModType, RoundingMode } from './types';
+import { ExactNumberParameter, ModType, RoundingMode } from './types';
 
 describe('Fraction', () => {
   it('parse string', () => {
@@ -106,6 +106,15 @@ describe('Fraction', () => {
     expect(run('5/1', '2/1')).toBe('10/1');
     expect(run('4/3', '5/4')).toBe('5/3');
     expect(run('4/3', '-5/4')).toBe('-5/3');
+  });
+
+  it('divToInt()', () => {
+    const run = (a: ExactNumberParameter, b: ExactNumberParameter) => new Fraction(a, 1n).divToInt(b).toString();
+
+    expect(run('5/7', '1/3')).toBe('2');
+
+    expect(() => run('1', '0')).toThrow('Division by zero');
+    expect(() => run('0', '0')).toThrow('Division by zero');
   });
 
   it('mod()', () => {

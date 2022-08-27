@@ -131,7 +131,7 @@ export class Fraction implements ExactNumberType {
 
   divToInt(x: number | bigint | string | ExactNumberType): ExactNumberType {
     const num = this.div(x);
-    return num.round();
+    return num.trunc();
   }
 
   mod(r: number | bigint | string | ExactNumberType, type = ModType.TRUNCATED): ExactNumberType {

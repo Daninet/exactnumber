@@ -106,6 +106,6 @@ sin(PI_OVER_2, 5); // 1.00000
 
 ## Copyright
 
-License = MIT
+License: MIT
 
 Copyright © 2022 Dani Biró
