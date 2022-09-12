@@ -22,7 +22,7 @@ describe('exponential', () => {
   it('exp compare with JS', () => {
     for (let i = -12; i <= 8; i += 0.04) {
       const jsResult = Math.exp(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 10).toFixed(10);
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
       const exactResult = exp(i.toString(), 10);
       expect(exactResult).toBe(jsRounded);
     }

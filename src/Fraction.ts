@@ -178,22 +178,22 @@ export class Fraction implements ExactNumberType {
   floor(decimals?: number) {
     if (this.denominator === 1n) return new FixedNumber(this.numerator);
 
-    return this.round(RoundingMode.TO_NEGATIVE, decimals);
+    return this.round(decimals, RoundingMode.TO_NEGATIVE);
   }
 
   ceil(decimals?: number) {
     if (this.denominator === 1n) return new FixedNumber(this.numerator);
 
-    return this.round(RoundingMode.TO_POSITIVE, decimals);
+    return this.round(decimals, RoundingMode.TO_POSITIVE);
   }
 
   trunc(decimals?: number) {
     if (this.denominator === 1n) return new FixedNumber(this.numerator);
 
-    return this.round(RoundingMode.TO_ZERO, decimals);
+    return this.round(decimals, RoundingMode.TO_ZERO);
   }
 
-  round(roundingMode?: RoundingMode, decimals?: number) {
+  round(decimals?: number, roundingMode?: RoundingMode): FixedNumber {
     decimals = decimals === undefined ? 0 : decimals;
 
     if (!Number.isSafeInteger(decimals) || decimals < 0) {
@@ -208,7 +208,7 @@ export class Fraction implements ExactNumberType {
 
     if (remainder.isZero()) {
       // nothing is lost
-      return fixedPart.round(roundingMode, decimals);
+      return fixedPart.round(decimals, roundingMode);
     }
 
     // 0.105 might got cutted to 0.1, which might round incorrectly
@@ -216,16 +216,16 @@ export class Fraction implements ExactNumberType {
 
     const correctedFixedNum = new FixedNumber(`${fixedPart.toFixed(decimals + 1)}1`);
 
-    const res = correctedFixedNum.round(roundingMode, decimals);
+    const res = correctedFixedNum.round(decimals, roundingMode);
     return res;
   }
 
-  roundToDigits(roundingMode: RoundingMode, digits: number) {
+  roundToDigits(digits: number, roundingMode: RoundingMode): FixedNumber {
     if (!Number.isSafeInteger(digits) || digits < 1) {
       throw new Error('Invalid value for digits');
     }
 
-    if (this.isZero()) return this;
+    if (this.isZero()) return new FixedNumber(0n);
 
     let x = this.abs();
 
@@ -243,13 +243,9 @@ export class Fraction implements ExactNumberType {
       divisions--;
     }
 
-    let roundedNumber = x.round(roundingMode, digits);
+    let roundedNumber = x.round(digits, roundingMode) as FixedNumber;
 
-    if (divisions < 0) {
-      roundedNumber = roundedNumber.div(10n ** BigInt(-divisions)) as FixedNumber;
-    } else {
-      roundedNumber = roundedNumber.mul(10n ** BigInt(divisions)) as FixedNumber;
-    }
+    roundedNumber = roundedNumber._incExponent(divisions);
 
     return this.sign() === -1 ? roundedNumber.neg() : roundedNumber;
   }
@@ -465,19 +461,11 @@ export class Fraction implements ExactNumberType {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  toFixed(digits: number, trimTrailingZeros?: boolean): string {
-    if (!Number.isSafeInteger(digits) || digits < 0) throw new Error('Invalid parameter');
+  toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO): string {
+    if (!Number.isSafeInteger(decimals) || decimals < 0) throw new Error('Invalid parameter');
 
-    let { numerator } = this;
-
-    if (digits > 0) {
-      numerator *= 10n ** BigInt(digits);
-    }
-
-    const n = numerator / this.denominator;
-
-    const res = bigIntToStr(n, digits, Boolean(trimTrailingZeros));
-    return res;
+    const [number, decimalPos] = this.round(decimals, roundingMode).serialize();
+    return bigIntToStr(number, decimalPos, false);
   }
 
   private toRepeatingParts(maxDigits: number | undefined): [string, string, string] {
@@ -595,6 +583,13 @@ export class Fraction implements ExactNumberType {
     }
 
     return this.toBase(radix, maxDigits);
+  }
+
+  toPrecision(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
+    if (!Number.isSafeInteger(digits) || digits < 1) throw new Error('Invalid parameter');
+
+    const [number, decimalPos] = this.roundToDigits(digits, roundingMode).serialize();
+    return bigIntToStr(number, decimalPos, false);
   }
 
   valueOf(): number {

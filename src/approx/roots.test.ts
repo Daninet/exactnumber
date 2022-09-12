@@ -17,7 +17,7 @@ describe('roots', () => {
 
     for (let i = 0; i <= 144; i += 0.03) {
       const jsResult = Math.sqrt(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 10).toFixed(10);
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
       const exactResult = sqrt(i.toString(), 10);
       expect(exactResult).toBe(jsRounded);
     }
@@ -51,7 +51,7 @@ describe('roots', () => {
 
     for (let i = -144; i <= 144; i += 0.07) {
       const jsResult = Math.cbrt(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 10).toFixed(10);
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
       const exactResult = cbrt(i.toString(), 10);
       expect(exactResult).toBe(jsRounded);
     }

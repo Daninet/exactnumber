@@ -8,7 +8,7 @@ describe('logarithm', () => {
   it('log', () => {
     for (let i = 0.01; i <= 12; i += 0.04) {
       const jsResult = Math.log(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 11).toFixed(11);
+      const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
       const exactResult = log(i.toString(), 11);
       expect(exactResult).toBe(jsRounded);
     }
@@ -17,7 +17,7 @@ describe('logarithm', () => {
   it('log large', () => {
     for (let i = 10000; i <= 10012; i += 0.04) {
       const jsResult = Math.log(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 10).toFixed(10);
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
       const exactResult = log(i.toString(), 10);
       expect(exactResult).toBe(jsRounded);
     }
@@ -43,7 +43,7 @@ describe('logarithm', () => {
   it('log2', () => {
     for (let i = 0.01; i <= 12; i += 0.04) {
       const jsResult = Math.log2(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 11).toFixed(11);
+      const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
       const exactResult = log2(i.toString(), 11);
       expect(exactResult).toBe(jsRounded);
     }
@@ -52,7 +52,7 @@ describe('logarithm', () => {
   it('log10', () => {
     for (let i = 0.01; i <= 12; i += 0.04) {
       const jsResult = Math.log10(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 11).toFixed(11);
+      const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
       const exactResult = log10(i.toString(), 11);
       expect(exactResult).toBe(jsRounded);
     }

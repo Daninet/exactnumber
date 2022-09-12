@@ -16,7 +16,7 @@ describe('trigonometry', () => {
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.sin(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 11).toFixed(11);
+      const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
       const exactResult = sin(i.toString(), 11);
       expect(exactResult).toBe(jsRounded);
     }
@@ -49,7 +49,7 @@ describe('trigonometry', () => {
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.cos(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 11).toFixed(11);
+      const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
       const exactResult = cos(i.toString(), 11);
       expect(exactResult).toBe(jsRounded);
     }
@@ -68,7 +68,7 @@ describe('trigonometry', () => {
     for (let i = range[0]; i <= range[1]; i += 0.03) {
       const jsResult = Math.tan(i);
       if (Math.abs(jsResult) > 10) continue; // TODO
-      const jsRounded = ExactNumber(jsResult.toString()).round(RoundingMode.TO_ZERO, 11).toFixed(11);
+      const jsRounded = ExactNumber(jsResult.toString()).round(11, RoundingMode.TO_ZERO).toFixed(11);
       const exactResult = tan(i.toString(), 11);
       expect(exactResult).toBe(jsRounded);
     }

@@ -68,7 +68,7 @@ export const cos = (angle: number | bigint | string | ExactNumberType, digits: n
 
   const { x, quadrant } = toLessThanHalfPi(ExactNumber(angle), EXTRA_DIGITS);
 
-  const x2 = x.round(RoundingMode.NEAREST_AWAY_FROM_ZERO, EXTRA_DIGITS).pow(2n).normalize();
+  const x2 = x.round(EXTRA_DIGITS, RoundingMode.NEAREST_AWAY_FROM_ZERO).pow(2n).normalize();
 
   // cos x = 1 - x^2/2! + x^4/4! - ...
   let xPow = x2;
@@ -115,7 +115,7 @@ export const cos = (angle: number | bigint | string | ExactNumberType, digits: n
   }
 
   const res = quadrant === 1 || quadrant === 4 ? xk : xk.neg();
-  const strRes = res.round(RoundingMode.TO_ZERO, digits + 3).toFixed(digits);
+  const strRes = res.round(digits + 3, RoundingMode.TO_ZERO).toFixed(digits);
 
   return strRes;
 };

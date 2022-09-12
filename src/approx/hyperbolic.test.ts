@@ -7,7 +7,7 @@ describe('hyperbolic', () => {
     const range = [-4, 4];
     for (let i = range[0]; i <= range[1]; i += 0.004) {
       const jsResult = Math.sinh(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 10).toFixed(10);
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
       const exactResult = ExactNumber(sinh(i.toString(), 10)).toFixed(10);
       expect(exactResult).toBe(jsRounded);
     }
@@ -25,7 +25,7 @@ describe('hyperbolic', () => {
     const range = [-4, 4];
     for (let i = range[0]; i <= range[1]; i += 0.004) {
       const jsResult = Math.cosh(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(RoundingMode.TO_ZERO, 10).toFixed(10);
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
       const exactResult = ExactNumber(cosh(i.toString(), 10)).toFixed(10);
       expect(exactResult).toBe(jsRounded);
     }

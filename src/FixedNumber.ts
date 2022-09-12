@@ -180,22 +180,22 @@ export class FixedNumber implements ExactNumberType {
   floor(decimals?: number) {
     if (this.decimalPos === 0) return this;
 
-    return this.round(RoundingMode.TO_NEGATIVE, decimals);
+    return this.round(decimals, RoundingMode.TO_NEGATIVE);
   }
 
   ceil(decimals?: number) {
     if (this.decimalPos === 0) return this;
 
-    return this.round(RoundingMode.TO_POSITIVE, decimals);
+    return this.round(decimals, RoundingMode.TO_POSITIVE);
   }
 
   trunc(decimals?: number) {
     if (this.decimalPos === 0) return this;
 
-    return this.round(RoundingMode.TO_ZERO, decimals);
+    return this.round(decimals, RoundingMode.TO_ZERO);
   }
 
-  round(roundingMode?: RoundingMode, decimals?: number) {
+  round(decimals?: number, roundingMode?: RoundingMode) {
     decimals = decimals === undefined ? 0 : decimals;
     if (!Number.isSafeInteger(decimals) || decimals < 0) {
       throw new Error('Invalid value for decimals');
@@ -288,18 +288,35 @@ export class FixedNumber implements ExactNumberType {
       }
     }
 
-      if (Number(fracStr[0]) < 5) {
-        return new FixedNumber(numberToZero, decimals);
-      }
-
-      const res = this.number < 0 ? numberToZero - 1n : numberToZero + 1n;
-      return new FixedNumber(res, decimals);
+    if (Number(fracStr[0]) < 5) {
+      return new FixedNumber(numberToZero, decimals);
     }
 
-    throw new Error('Invalid rounding mode. Use the predefined values from the RoundingMode enum.');
+    const res = this.number < 0 ? numberToZero - 1n : numberToZero + 1n;
+    return new FixedNumber(res, decimals);
   }
 
-  roundToDigits(roundingMode: RoundingMode, digits: number) {
+  _incExponent(amount: number): FixedNumber {
+    if (amount === 0) return this;
+    let newNumber = this.number;
+    let newDecimalPos = this.decimalPos;
+
+    if (amount < 0) {
+      newDecimalPos -= amount;
+    } else {
+      // amount >= 0
+      const maxChange = Math.min(amount, this.decimalPos);
+      newDecimalPos -= maxChange;
+      const rem = amount - maxChange;
+      if (rem > 0) {
+        newNumber *= 10n ** BigInt(rem);
+      }
+    }
+
+    return new FixedNumber(newNumber, newDecimalPos);
+  }
+
+  roundToDigits(digits: number, roundingMode: RoundingMode): FixedNumber {
     if (!Number.isSafeInteger(digits) || digits < 1) {
       throw new Error('Invalid value for digits');
     }
@@ -309,17 +326,12 @@ export class FixedNumber implements ExactNumberType {
 
     // move the number to the [0.1, 1) interval
     const str = absNumber.toString();
-    const newNumber = new FixedNumber(`0.${str}`);
-    let roundedNumber = newNumber.round(roundingMode, digits);
+    const numberBetweenZeroAndOne = new FixedNumber(absNumber, str.length);
+    let roundedNumber = numberBetweenZeroAndOne.round(digits, roundingMode);
 
-    const totalDigits = str.length;
-    const wholeDigits = totalDigits - this.decimalPos;
+    const integerDigits = str.length - this.decimalPos;
 
-    if (wholeDigits < 0) {
-      roundedNumber = roundedNumber.div(10n ** BigInt(-wholeDigits)) as FixedNumber;
-    } else {
-      roundedNumber = roundedNumber.mul(10n ** BigInt(wholeDigits)) as FixedNumber;
-    }
+    roundedNumber = roundedNumber._incExponent(integerDigits);
 
     return isNegative ? roundedNumber.neg() : roundedNumber;
   }
@@ -544,24 +556,21 @@ export class FixedNumber implements ExactNumberType {
     return Number(this.toString());
   }
 
-  toFixed(digits: number, trimTrailingZeros?: boolean): string {
-    if (!Number.isSafeInteger(digits) || digits < 0) throw new Error('Invalid parameter');
+  toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO): string {
+    if (!Number.isSafeInteger(decimals) || decimals < 0) throw new Error('Invalid parameter');
 
-    const extraDigitsNeeded = digits - this.decimalPos;
-
-    const exp = 10n ** BigInt(Math.abs(extraDigitsNeeded));
-    const num = extraDigitsNeeded < 0 ? this.number / exp : this.number * exp;
-
-    const res = bigIntToStr(num, digits, Boolean(trimTrailingZeros));
-    return res;
+    const rounded = this.round(decimals, roundingMode);
+    return bigIntToStr(rounded.number, decimals, false);
   }
 
-  toExponential(digits: number): string {
+  toExponential(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
     if (!Number.isSafeInteger(digits) || digits < 0) throw new Error('Invalid parameter');
 
-    const isNegative = this.number < 0n;
-    const absNumber = isNegative ? -this.number : this.number;
-    const str = absNumber.toString();
+    const rounded = this.roundToDigits(digits + 1, roundingMode).normalize();
+
+    const isNegative = rounded.sign() === -1;
+    const absNumber = rounded.abs();
+    const str = absNumber.number.toString();
 
     const slicedString =
       str.length <= digits ? `${str}${'0'.repeat(digits - str.length + 1)}` : str.slice(0, digits + 1);
@@ -569,10 +578,11 @@ export class FixedNumber implements ExactNumberType {
     const strWithPoint =
       slicedString.length > 1 ? `${slicedString.slice(0, 1)}.${slicedString.slice(1)}` : slicedString;
 
-    const fractionalDigitsBefore = this.decimalPos;
+    const fractionalDigitsBefore = absNumber.decimalPos;
     const fractionalDigitsAfter = str.length - 1;
     const exponent = fractionalDigitsAfter - fractionalDigitsBefore;
-    return `${isNegative ? '-' : ''}${strWithPoint}e${exponent >= 0 ? '+' : ''}${exponent}`;
+    const res = `${isNegative ? '-' : ''}${strWithPoint}e${exponent >= 0 ? '+' : ''}${exponent}`;
+    return res;
   }
 
   private toBase(radix: number, maxDigits?: number): string {
@@ -634,6 +644,14 @@ export class FixedNumber implements ExactNumberType {
     }
 
     return this.toBase(radix, maxDigits);
+  }
+
+  toPrecision(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
+    if (!Number.isSafeInteger(digits) || digits < 1) throw new Error('Invalid parameter');
+
+    const rounded = this.roundToDigits(digits, roundingMode);
+    const res = bigIntToStr(rounded.number, rounded.decimalPos, false);
+    return res;
   }
 
   valueOf(): number {

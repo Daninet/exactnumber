@@ -340,7 +340,7 @@ describe('FixedNumber', () => {
       const tableRow = table[rndMode as keyof typeof table];
 
       values.forEach((num, i) => {
-        const res = new FixedNumber(num).round(rndMode as RoundingMode, digits).toString();
+        const res = new FixedNumber(num).round(digits, rndMode as RoundingMode).toString();
         expect(res).toBe(tableRow[i]);
       });
     });
@@ -382,76 +382,73 @@ describe('FixedNumber', () => {
   });
 
   it('round() tie or not', () => {
-    const run = (a: string, rndMode?: RoundingMode, digits?: number) =>
-      new FixedNumber(a).round(rndMode, digits).toFixed(digits ?? 0);
+    const run = (a: string, decimals?: number, rndMode?: RoundingMode) =>
+      new FixedNumber(a).round(decimals, rndMode).toFixed(decimals ?? 0);
 
-    expect(run('1.400', RoundingMode.NEAREST_TO_POSITIVE)).toBe('1');
-    expect(run('1.5', RoundingMode.NEAREST_TO_NEGATIVE)).toBe('1');
-    expect(run('1.50', RoundingMode.NEAREST_TO_NEGATIVE)).toBe('1');
-    expect(run('1.500', RoundingMode.NEAREST_TO_NEGATIVE)).toBe('1');
-    expect(run('-1.500', RoundingMode.NEAREST_TO_POSITIVE)).toBe('-1');
-    expect(run('-1.501', RoundingMode.NEAREST_TO_POSITIVE)).toBe('-2');
-    expect(run('1.51', RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
-    expect(run('1.501', RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
-    expect(run('1.5010', RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
+    expect(run('1.400', 0, RoundingMode.NEAREST_TO_POSITIVE)).toBe('1');
+    expect(run('1.5', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('1');
+    expect(run('1.50', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('1');
+    expect(run('1.500', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('1');
+    expect(run('-1.500', 0, RoundingMode.NEAREST_TO_POSITIVE)).toBe('-1');
+    expect(run('-1.501', 0, RoundingMode.NEAREST_TO_POSITIVE)).toBe('-2');
+    expect(run('1.51', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
+    expect(run('1.501', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
+    expect(run('1.5010', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
   });
 
   it('round() special cases', () => {
-    const run = (a: string, rndMode?: RoundingMode, digits?: number) =>
-      new FixedNumber(a).round(rndMode, digits).toFixed(digits ?? 0);
+    const run = (a: string, decimals?: number, rndMode?: RoundingMode) =>
+      new FixedNumber(a).round(decimals, rndMode).toFixed(decimals ?? 0);
 
     expect(run('0')).toBe('0');
     expect(run('-0')).toBe('0');
-    expect(run('0', RoundingMode.TO_ZERO, 2)).toBe('0.00');
-    expect(run('0.1', RoundingMode.TO_ZERO, 2)).toBe('0.10');
-    expect(run('0.11', RoundingMode.TO_ZERO, 2)).toBe('0.11');
-    expect(run('0.111', RoundingMode.TO_ZERO, 2)).toBe('0.11');
-    expect(run('0.111', RoundingMode.TO_POSITIVE, 2)).toBe('0.12');
-    expect(run('1', RoundingMode.TO_ZERO, 2)).toBe('1.00');
+    expect(run('0', 2, RoundingMode.TO_ZERO)).toBe('0.00');
+    expect(run('0.1', 2, RoundingMode.TO_ZERO)).toBe('0.10');
+    expect(run('0.11', 2, RoundingMode.TO_ZERO)).toBe('0.11');
+    expect(run('0.111', 2, RoundingMode.TO_ZERO)).toBe('0.11');
+    expect(run('0.111', 2, RoundingMode.TO_POSITIVE)).toBe('0.12');
+    expect(run('1', 2, RoundingMode.TO_ZERO)).toBe('1.00');
 
-    expect(run('0.834631259841', RoundingMode.AWAY_FROM_ZERO, 2)).toBe('0.84');
-    expect(run('0.640652', RoundingMode.NEAREST_TO_ZERO, 2)).toBe('0.64');
+    expect(run('0.834631259841', 2, RoundingMode.AWAY_FROM_ZERO)).toBe('0.84');
+    expect(run('0.640652', 2, RoundingMode.NEAREST_TO_ZERO)).toBe('0.64');
+
+    expect(() => run('1.23', 0, '3' as RoundingMode)).toThrow(
+      'Invalid rounding mode. Use the predefined values from the RoundingMode enum.',
+    );
   });
 
   it('roundToDigits()', () => {
-    const run = (a: string, rndMode: RoundingMode, digits: number) =>
-      new FixedNumber(a).roundToDigits(rndMode, digits).toString();
+    const run = (a: string, digits: number, rndMode: RoundingMode) =>
+      new FixedNumber(a).roundToDigits(digits, rndMode).toString();
 
-    expect(run('0', RoundingMode.TO_ZERO, 2)).toBe('0');
-    expect(run('-0', RoundingMode.TO_ZERO, 3)).toBe('0');
+    expect(run('0', 2, RoundingMode.TO_ZERO)).toBe('0');
+    expect(run('-0', 3, RoundingMode.TO_ZERO)).toBe('0');
 
-    expect(run('-12345', RoundingMode.TO_ZERO, 1)).toBe('-10000');
-    expect(run('-12345', RoundingMode.TO_ZERO, 7)).toBe('-12345');
+    expect(run('-12345', 1, RoundingMode.TO_ZERO)).toBe('-10000');
+    expect(run('-12345', 7, RoundingMode.TO_ZERO)).toBe('-12345');
 
-    expect(run('123.45', RoundingMode.TO_ZERO, 1)).toBe('100');
-    expect(run('123.45', RoundingMode.TO_ZERO, 3)).toBe('123');
-    expect(run('-123.45', RoundingMode.TO_ZERO, 4)).toBe('-123.4');
-    expect(run('-123.45', RoundingMode.TO_ZERO, 5)).toBe('-123.45');
-    expect(run('123.45', RoundingMode.TO_ZERO, 6)).toBe('123.45');
+    expect(run('123.45', 1, RoundingMode.TO_ZERO)).toBe('100');
+    expect(run('123.45', 3, RoundingMode.TO_ZERO)).toBe('123');
+    expect(run('-123.45', 4, RoundingMode.TO_ZERO)).toBe('-123.4');
+    expect(run('-123.45', 5, RoundingMode.TO_ZERO)).toBe('-123.45');
+    expect(run('123.45', 6, RoundingMode.TO_ZERO)).toBe('123.45');
 
-    expect(run('129.000', RoundingMode.TO_ZERO, 2)).toBe('120');
-    expect(run('129.000', RoundingMode.TO_POSITIVE, 2)).toBe('130');
-    expect(run('129.000', RoundingMode.TO_ZERO, 6)).toBe('129');
+    expect(run('129.000', 2, RoundingMode.TO_ZERO)).toBe('120');
+    expect(run('129.000', 2, RoundingMode.TO_POSITIVE)).toBe('130');
+    expect(run('129.000', 6, RoundingMode.TO_ZERO)).toBe('129');
 
-    expect(run('0.0001234', RoundingMode.TO_ZERO, 1)).toBe('0.0001');
-    expect(run('-0.0001234', RoundingMode.TO_ZERO, 2)).toBe('-0.00012');
+    expect(run('0.0001234', 1, RoundingMode.TO_ZERO)).toBe('0.0001');
+    expect(run('-0.0001234', 2, RoundingMode.TO_ZERO)).toBe('-0.00012');
 
-    expect(run('45.452', RoundingMode.NEAREST_AWAY_FROM_ZERO, 1)).toBe('50');
-    expect(run('45.452', RoundingMode.NEAREST_AWAY_FROM_ZERO, 2)).toBe('45');
-    expect(run('45.452', RoundingMode.NEAREST_AWAY_FROM_ZERO, 3)).toBe('45.5');
-    expect(run('45.452', RoundingMode.NEAREST_AWAY_FROM_ZERO, 4)).toBe('45.45');
-    expect(run('45.452', RoundingMode.NEAREST_AWAY_FROM_ZERO, 5)).toBe('45.452');
-    expect(run('45.452', RoundingMode.NEAREST_AWAY_FROM_ZERO, 6)).toBe('45.452');
-  });
+    expect(run('45.452', 1, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('50');
+    expect(run('45.452', 2, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('45');
+    expect(run('45.452', 3, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('45.5');
+    expect(run('45.452', 4, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('45.45');
+    expect(run('45.452', 5, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('45.452');
+    expect(run('45.452', 6, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('45.452');
 
-  it('sign()', () => {
-    const run = (a: string) => new FixedNumber(a).sign();
-
-    expect(run('0')).toBe(1);
-    expect(run('-1.234')).toBe(-1);
-    expect(run('1.234')).toBe(1);
-    expect(run('-.234')).toBe(-1);
-    expect(run('.234')).toBe(1);
+    expect(() => run('1.23', 0, RoundingMode.TO_ZERO)).toThrow('Invalid value for digits');
+    expect(() => run('1.23', '1' as any, RoundingMode.TO_ZERO)).toThrow('Invalid value for digits');
   });
 
   it('intPart()', () => {
