@@ -27,9 +27,6 @@ jobs:
       - name: Build sources
         run: npm run build-rollup
 
-      - name: Build TypeScript types
-        run: npm run build-types
-
       - name: Run linter
         run: npm run eslint
 
