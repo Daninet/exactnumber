@@ -9,6 +9,9 @@ describe('Fraction', () => {
     expect(run('-0')).toStrictEqual([0n, 1n]);
     expect(run('2')).toStrictEqual([2n, 1n]);
     expect(run('3/4')).toStrictEqual([3n, 4n]);
+
+    expect(() => run('2.((4))')).toThrow('Cannot parse string "2.((4))"');
+    expect(() => run('2.(4')).toThrow('Cannot parse string "2.(4"');
   });
 
   it('parse repeating decimals', () => {
@@ -35,6 +38,20 @@ describe('Fraction', () => {
     expect(run('1.(3)E2')).toStrictEqual([400n, 3n]);
     expect(run('1.(3)e-1')).toStrictEqual([2n, 15n]);
     expect(run('1.(3)e-2')).toStrictEqual([1n, 75n]);
+  });
+
+  it('initializes with other types', () => {
+    const run = (x: any) => new Fraction(x, 1n).toString();
+
+    const errorMsg = 'Unsupported parameter!';
+
+    expect(() => run(false)).toThrow(errorMsg);
+    expect(() => run(true)).toThrow(errorMsg);
+    expect(() => run(null)).toThrow(errorMsg);
+    expect(() => run(undefined)).toThrow(errorMsg);
+    expect(() => run([])).toThrow(errorMsg);
+    expect(() => run({})).toThrow(errorMsg);
+    expect(() => run(/1/)).toThrow(errorMsg);
   });
 
   it('toBase()', () => {
@@ -75,7 +92,7 @@ describe('Fraction', () => {
     const run = (a: string) => new Fraction(a, 1n).toFraction();
 
     expect(run('0/1')).toBe('0/1');
-    expect(run('0/100')).toBe('0/1');
+    expect(run('0/-100')).toBe('0/1');
     expect(run('0/0.02')).toBe('0/1');
     expect(run('6/3')).toBe('2/1');
     expect(run('5/20')).toBe('1/4');
@@ -88,6 +105,8 @@ describe('Fraction', () => {
     const run = (a: string, b: string) => new Fraction(a, 1n).add(b).toFraction();
 
     expect(run('2/1', '3/1')).toBe('5/1');
+    expect(run('4/2', '5/2')).toBe('9/2');
+    expect(run('9/-2', '5/2')).toBe('-2/1');
     expect(run('4/3', '5/2')).toBe('23/6');
     expect(run('4/3', '-5/2')).toBe('-7/6');
   });
@@ -96,6 +115,8 @@ describe('Fraction', () => {
     const run = (a: string, b: string) => new Fraction(a, 1n).sub(b).toFraction();
 
     expect(run('5/1', '2/1')).toBe('3/1');
+    expect(run('4/2', '5/2')).toBe('-1/2');
+    expect(run('9/-2', '5/2')).toBe('-7/1');
     expect(run('4/3', '-5/2')).toBe('23/6');
     expect(run('4/3', '5/2')).toBe('-7/6');
   });
@@ -106,12 +127,33 @@ describe('Fraction', () => {
     expect(run('5/1', '2/1')).toBe('10/1');
     expect(run('4/3', '5/4')).toBe('5/3');
     expect(run('4/3', '-5/4')).toBe('-5/3');
+    expect(run('4/-3', '-5/4')).toBe('5/3');
+    expect(run('-4/-3', '-5/4')).toBe('-5/3');
+
+    expect(run('4/3', '0/4')).toBe('0/1');
+  });
+
+  it('div()', () => {
+    const run = (a: string, b: string) => new Fraction(a, 1n).div(b).toFraction();
+
+    expect(run('5/1', '2/1')).toBe('5/2');
+    expect(run('4/3', '5/4')).toBe('16/15');
+    expect(run('4/3', '-5/4')).toBe('-16/15');
+    expect(run('4/-6', '-5/8')).toBe('16/15');
+    expect(run('-4/-6', '-5/8')).toBe('-16/15');
+
+    expect(() => run('1', '0/1')).toThrow('Division by zero');
   });
 
   it('divToInt()', () => {
     const run = (a: ExactNumberParameter, b: ExactNumberParameter) => new Fraction(a, 1n).divToInt(b).toString();
 
+    expect(run('2/4', '4/8')).toBe('1');
     expect(run('5/7', '1/3')).toBe('2');
+    expect(run('5/7', '1/4')).toBe('2');
+    expect(run('1', '-1')).toBe('-1');
+    expect(run('-1', '1')).toBe('-1');
+    expect(run('-1', '-1')).toBe('1');
 
     expect(() => run('1', '0')).toThrow('Division by zero');
     expect(() => run('0', '0')).toThrow('Division by zero');
@@ -147,6 +189,20 @@ describe('Fraction', () => {
         expect(run(x, y, modType as ModType)).toBe(results[index]);
       }
     }
+  });
+
+  it('pow()', () => {
+    const run = (a: ExactNumberParameter, b: ExactNumberParameter) => new Fraction(a, 1n).pow(b).toFraction();
+
+    expect(run('5', '3')).toBe('125/1');
+    expect(run('5', '0')).toBe('1/1');
+    expect(run('-5/7', '0')).toBe('1/1');
+    expect(run('-5/7', '2/2')).toBe('-5/7');
+    expect(run('4/-10', '4/2')).toBe('4/25');
+    expect(run('-5/7', '4/2')).toBe('25/49');
+
+    expect(() => run('-5/7', '-1')).toThrow('Unsupported parameter');
+    expect(() => run('2', '1/7')).toThrow('Unsupported parameter');
   });
 
   it('round()', () => {
@@ -287,5 +343,12 @@ describe('Fraction', () => {
     expect(run('-19.51(7890)', 5)).toBe('-19.51789');
     expect(run('-19.51(7890)', 6)).toBe('-19.51(7890)');
     expect(run('-19.51(7890)', 7)).toBe('-19.51(7890)');
+  });
+
+  it('valueOf()', () => {
+    const run = (x: string) => new Fraction(x, 1n).valueOf();
+
+    expect(() => run('0')).toThrow('Unsafe conversion to Number type! Use toNumber() instead.');
+    expect(() => run('2')).toThrow('Unsafe conversion to Number type! Use toNumber() instead.');
   });
 });

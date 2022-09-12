@@ -139,7 +139,7 @@ export interface ExactNumberType {
 
   /** Returns the numerator and the denominator of the current number.
    * By default it simplifies the fraction */
-  getFractionParts(normalize: boolean): { numerator: ExactNumberType; denominator: ExactNumberType };
+  getFractionParts(normalize?: boolean): { numerator: ExactNumberType; denominator: ExactNumberType };
 
   /** Returns opimized internal representation of the current number (e.g. it simplifies fractions using GCD)
    * This is may be a slow operation, but in some cases normalization might help with performance of repeated operations. */
@@ -154,7 +154,7 @@ export interface ExactNumberType {
   /** Converts current value to a JavaScript Number */
   toNumber(): number;
 
-  /** Returns string representation of the current number in a fractional format like 1/2. It always simplifies the fraction before output. */
+  /** Returns string representation of the current number in a fractional format like "1/2". It always simplifies the fraction before output. */
   toFraction(): string;
 
   /** Returns string representation in decimal format.

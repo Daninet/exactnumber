@@ -33,6 +33,8 @@ describe('Bitwise operations', () => {
       expect(run(bits, bNum)).toBe(ref);
       expect(run(bNum, bits)).toBe(ref);
     }
+
+    expect(run('3', '4/2')).toBe('2');
   });
 
   it('bitwiseOr()', () => {
@@ -57,6 +59,8 @@ describe('Bitwise operations', () => {
       expect(run(bits, bNum)).toBe(ref);
       expect(run(bNum, bits)).toBe(ref);
     }
+
+    expect(run('3', '4/2')).toBe('3');
   });
 
   it('bitwiseXor()', () => {
@@ -81,6 +85,7 @@ describe('Bitwise operations', () => {
       expect(run(bits, bNum)).toBe(ref);
       expect(run(bNum, bits)).toBe(ref);
     }
+    expect(run('3', '4/2')).toBe('1');
   });
 
   it('shiftLeft()', () => {

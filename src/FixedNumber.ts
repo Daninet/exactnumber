@@ -111,13 +111,9 @@ export class FixedNumber implements ExactNumberType {
 
   pow(x: number | bigint | string | ExactNumberType): ExactNumberType {
     const operand = parseParameter(x);
-    if (!operand.isInteger()) {
-      throw new Error('Invalid parameter');
-    }
-
     const exp = operand.toNumber();
-    if (!Number.isSafeInteger(exp)) {
-      throw new Error('Invalid parameter');
+    if (!Number.isSafeInteger(exp) || exp < 0) {
+      throw new Error('Unsupported parameter');
     }
 
     const res = new FixedNumber(this.number ** BigInt(exp), this.decimalPos * exp);
@@ -168,13 +164,13 @@ export class FixedNumber implements ExactNumberType {
     throw new Error('Invalid ModType');
   }
 
-  abs(): ExactNumberType {
+  abs(): FixedNumber {
     const res = new FixedNumber(this.number < 0 ? -this.number : this.number, this.decimalPos);
     return res;
   }
 
   neg() {
-    return this.mul(-1n);
+    return this.mul(-1n) as FixedNumber;
   }
 
   inv(): ExactNumberType {
@@ -233,6 +229,19 @@ export class FixedNumber implements ExactNumberType {
       return new FixedNumber(res, decimals);
     }
 
+    if (
+      ![
+        undefined,
+        RoundingMode.NEAREST_TO_ZERO,
+        RoundingMode.NEAREST_AWAY_FROM_ZERO,
+        RoundingMode.NEAREST_TO_POSITIVE,
+        RoundingMode.NEAREST_TO_NEGATIVE,
+        RoundingMode.NEAREST_TO_EVEN,
+      ].includes(roundingMode)
+    ) {
+      throw new Error('Invalid rounding mode. Use the predefined values from the RoundingMode enum.');
+    }
+
     let fracStr = (fracPart < 0n ? -fracPart : fracPart).toString();
 
     if (fracStr.length < expectedFracDecimals) {
@@ -279,14 +288,6 @@ export class FixedNumber implements ExactNumberType {
       }
     }
 
-    if (
-      roundingMode === undefined ||
-      roundingMode === RoundingMode.NEAREST_TO_ZERO ||
-      roundingMode === RoundingMode.NEAREST_AWAY_FROM_ZERO ||
-      roundingMode === RoundingMode.NEAREST_TO_POSITIVE ||
-      roundingMode === RoundingMode.NEAREST_TO_NEGATIVE ||
-      roundingMode === RoundingMode.NEAREST_TO_EVEN
-    ) {
       if (Number(fracStr[0]) < 5) {
         return new FixedNumber(numberToZero, decimals);
       }
@@ -512,7 +513,7 @@ export class FixedNumber implements ExactNumberType {
     return this.number % 10n ** BigInt(this.decimalPos) === 0n;
   }
 
-  serialize() {
+  serialize(): [bigint, number] {
     return [this.number, this.decimalPos];
   }
 

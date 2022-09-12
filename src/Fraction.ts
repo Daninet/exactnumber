@@ -17,7 +17,7 @@ export class Fraction implements ExactNumberType {
     x = x.trim();
     const m = x.match(/^(-?[0-9]*)\.([0-9]+)?\(([0-9]+)\)(?:[eE]([+-]?[0-9]+))?$/);
     if (!m) {
-      throw new Error(`Cannot parse number "${x}"`);
+      throw new Error(`Cannot parse string "${x}"`);
     }
 
     const wholePart = m[1] === '-' ? '-0' : m[1];
@@ -101,13 +101,13 @@ export class Fraction implements ExactNumberType {
       return new Fraction(this.numerator + numerator, this.denominator);
     }
 
-    if (false) {
-      const commonDenominator = this.lcm(this.denominator, denominator);
-      const lMultiplier = commonDenominator / this.denominator;
-      const rMultiplier = commonDenominator / denominator;
+    // if (false) {
+    //   const commonDenominator = this.lcm(this.denominator, denominator);
+    //   const lMultiplier = commonDenominator / this.denominator;
+    //   const rMultiplier = commonDenominator / denominator;
 
-      return new Fraction(this.numerator * lMultiplier + numerator * rMultiplier, commonDenominator);
-    }
+    //   return new Fraction(this.numerator * lMultiplier + numerator * rMultiplier, commonDenominator);
+    // }
 
     return new Fraction(this.numerator * denominator + numerator * this.denominator, denominator * this.denominator);
   }
@@ -161,9 +161,12 @@ export class Fraction implements ExactNumberType {
   }
 
   pow(x: number | bigint | string | ExactNumberType): ExactNumberType {
-    const { numerator, denominator } = this.parseParameter(x);
-    if (denominator !== 1n) throw new Error('Unsupported parameter');
-    const res = new Fraction(this.numerator ** numerator, this.denominator ** numerator);
+    const param = this.parseParameter(x);
+    if (!param.isInteger() || param.sign() === -1) {
+      throw new Error('Unsupported parameter');
+    }
+    const intNum = param.numerator / param.denominator;
+    const res = new Fraction(this.numerator ** intNum, this.denominator ** intNum);
     return res;
   }
 
@@ -317,11 +320,11 @@ export class Fraction implements ExactNumberType {
     return this.mul(-1n);
   }
 
-  intPart(): ExactNumberType {
+  intPart() {
     return this.trunc();
   }
 
-  fracPart(): ExactNumberType {
+  fracPart() {
     return this.sub(this.trunc());
   }
 
@@ -381,7 +384,7 @@ export class Fraction implements ExactNumberType {
     return this.numerator % this.denominator === 0n;
   }
 
-  serialize() {
+  serialize(): [bigint, bigint] {
     return [this.numerator, this.denominator];
   }
 
@@ -514,11 +517,11 @@ export class Fraction implements ExactNumberType {
     return res;
   }
 
-  toExponential(digits: number): string {
+  toExponential(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
     if (!Number.isSafeInteger(digits) || digits < 0) throw new Error('Invalid parameters');
 
     const fixedNum = this.toFixedNumber(digits);
-    return fixedNum.toExponential(digits);
+    return fixedNum.toExponential(digits, roundingMode);
   }
 
   toFraction(): string {
@@ -541,14 +544,14 @@ export class Fraction implements ExactNumberType {
     }
 
     if (radix === 10) {
-      return maxDigits === undefined ? this.toRepeatingDigits(maxDigits) : this.toFixed(maxDigits, true);
+      return maxDigits === undefined ? this.toRepeatingDigits(maxDigits) : trimTrailingZeros(this.toFixed(maxDigits));
     }
 
     const num = this.normalize();
 
     const loopEnd = maxDigits === undefined ? Number.MAX_SAFE_INTEGER : maxDigits + 1;
 
-    let intPart = num.intPart() as FixedNumber;
+    let intPart = num.intPart();
     let fracPart = num.sub(intPart);
 
     const isNegative = num.sign() === -1;

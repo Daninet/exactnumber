@@ -143,6 +143,26 @@ describe('FixedNumber', () => {
     expect(run('-1000', '0.06')).toBe('-60');
   });
 
+  it('pow()', () => {
+    const run = (a: ExactNumberParameter, b: ExactNumberParameter) => new FixedNumber(a).pow(b).toString();
+
+    expect(run('0.0123', '0')).toBe('1');
+    expect(run('2', '0')).toBe('1');
+    expect(run('-2', '0')).toBe('1');
+    expect(run('0', 2)).toBe('0');
+    expect(run('12.34', 1n)).toBe('12.34');
+    expect(run('2', new FixedNumber('1'))).toBe('2');
+    expect(run('2', new Fraction('4', 2))).toBe('4');
+    expect(run('2', '3')).toBe('8');
+    expect(run('0.1', '2')).toBe('0.01');
+    expect(run('0.1', '10')).toBe('0.0000000001');
+
+    expect(() => run('2', '-1')).toThrow('Unsupported parameter');
+    expect(() => run('2', '-2')).toThrow('Unsupported parameter');
+    expect(() => run('2', '0.5')).toThrow('Unsupported parameter');
+    expect(() => run('2', '10e500')).toThrow('Unsupported parameter');
+  });
+
   it('div()', () => {
     const run = (a: ExactNumberParameter, b: ExactNumberParameter) => new FixedNumber(a).div(b).toString();
 
@@ -175,23 +195,6 @@ describe('FixedNumber', () => {
 
     expect(() => run('1', '0')).toThrow('Division by zero');
     expect(() => run('0', '0')).toThrow('Division by zero');
-  });
-
-  it('pow()', () => {
-    const run = (a: ExactNumberParameter, b: ExactNumberParameter) => new FixedNumber(a).pow(b).toString();
-
-    expect(run('0.0123', '0')).toBe('1');
-    expect(run('2', '0')).toBe('1');
-    expect(run('0', 2)).toBe('0');
-    expect(run('12.34', 1n)).toBe('12.34');
-    expect(run('2', new FixedNumber('1'))).toBe('2');
-    expect(run('2', new Fraction('4', 2))).toBe('4');
-    expect(run('2', '3')).toBe('8');
-    expect(run('0.1', '2')).toBe('0.01');
-    expect(run('0.1', '10')).toBe('0.0000000001');
-
-    expect(() => run('2', '0.5')).toThrow('Invalid parameter');
-    expect(() => run('2', '10e500')).toThrow('Invalid parameter');
   });
 
   it('mod()', () => {
@@ -231,6 +234,8 @@ describe('FixedNumber', () => {
         expect(run(x, y, modType as ModType)).toBe(results[index]);
       }
     }
+
+    expect(() => run('1', '2', '3' as ModType)).toThrow('Invalid ModType');
   });
 
   it('abs()', () => {
@@ -473,6 +478,16 @@ describe('FixedNumber', () => {
     expect(run('12340.26700')).toBe('0.267');
   });
 
+  it('sign()', () => {
+    const run = (a: string) => new FixedNumber(a).sign();
+
+    expect(run('0')).toBe(1);
+    expect(run('-1.234')).toBe(-1);
+    expect(run('1.234')).toBe(1);
+    expect(run('-.234')).toBe(-1);
+    expect(run('.234')).toBe(1);
+  });
+
   it('cmp()', () => {
     const run = (a: string, b: string) => new FixedNumber(a).cmp(b);
 
@@ -551,25 +566,6 @@ describe('FixedNumber', () => {
     expect(run('0.0123', '0.0123000')).toBe(true);
   });
 
-  it('getFractionParts()', () => {
-    const run = (a: ExactNumberParameter, normalize?: boolean) => {
-      const res = new FixedNumber(a).getFractionParts(normalize);
-      const res2 = new FixedNumber(a).convertToFraction().getFractionParts(normalize);
-      expect(res.numerator.toString()).toBe(res2.numerator.toString());
-      expect(res.denominator.toString()).toBe(res2.denominator.toString());
-      return { numerator: res.numerator.toString(), denominator: res.denominator.toString() };
-    };
-
-    expect(run('2')).toStrictEqual({ numerator: '2', denominator: '1' });
-    expect(run('0')).toStrictEqual({ numerator: '0', denominator: '1' });
-    expect(run('-5')).toStrictEqual({ numerator: '-5', denominator: '1' });
-    expect(run('0.4')).toStrictEqual({ numerator: '2', denominator: '5' }); // test normalization (4 / 10 = 2 / 5)
-    expect(run('-0.4')).toStrictEqual({ numerator: '-2', denominator: '5' });
-
-    expect(run('0.4', true)).toStrictEqual({ numerator: '2', denominator: '5' });
-    expect(run('0.4', false)).toStrictEqual({ numerator: '4', denominator: '10' });
-  });
-
   it('clamp()', () => {
     const run = (a: ExactNumberParameter, min: ExactNumberParameter, max: ExactNumberParameter) =>
       new FixedNumber(a).clamp(min, max).toString();
@@ -627,6 +623,131 @@ describe('FixedNumber', () => {
     expect(run('-.1')).toBe(false);
   });
 
+  it('getFractionParts()', () => {
+    const run = (a: ExactNumberParameter, normalize?: boolean) => {
+      const res = new FixedNumber(a).getFractionParts(normalize);
+      const res2 = new FixedNumber(a).convertToFraction().getFractionParts(normalize);
+      expect(res.numerator.toString()).toBe(res2.numerator.toString());
+      expect(res.denominator.toString()).toBe(res2.denominator.toString());
+      return { numerator: res.numerator.toString(), denominator: res.denominator.toString() };
+    };
+
+    expect(run('2')).toStrictEqual({ numerator: '2', denominator: '1' });
+    expect(run('0')).toStrictEqual({ numerator: '0', denominator: '1' });
+    expect(run('-5')).toStrictEqual({ numerator: '-5', denominator: '1' });
+    expect(run('0.4')).toStrictEqual({ numerator: '2', denominator: '5' }); // test normalization (4 / 10 = 2 / 5)
+    expect(run('-0.4')).toStrictEqual({ numerator: '-2', denominator: '5' });
+
+    expect(run('0.4', true)).toStrictEqual({ numerator: '2', denominator: '5' });
+    expect(run('0.4', false)).toStrictEqual({ numerator: '4', denominator: '10' });
+  });
+
+  it('toNumber()', () => {
+    const run = (a: string) => new FixedNumber(a).toNumber();
+
+    expect(run('0')).toBe(0);
+    expect(run('-0')).toBe(0);
+    expect(run('-1')).toBe(-1);
+    expect(run('-1.00000')).toBe(-1);
+    expect(run('-1.5')).toBe(-1.5);
+    expect(run('.023456')).toBe(0.023456);
+    expect(run(Number.MAX_VALUE.toString())).toBe(Number.MAX_VALUE);
+    expect(new FixedNumber(Number.MAX_VALUE.toString()).mul(2).toNumber()).toBe(Infinity);
+  });
+
+  it('toFixed()', () => {
+    const run = (x: string, digits: number, rndMode?: RoundingMode) => new FixedNumber(x).toFixed(digits, rndMode);
+
+    expect(run('0', 0)).toBe('0');
+    expect(run('0', 1)).toBe('0.0');
+    expect(run('2', 3)).toBe('2.000');
+    expect(run('-123', 2)).toBe('-123.00');
+    expect(run('0.45600', 0)).toBe('0');
+    expect(run('0.45600', 1)).toBe('0.4');
+    expect(run('0.45600', 2)).toBe('0.45');
+    expect(run('0.45600', 6)).toBe('0.456000');
+    expect(run('-123.45600', 0)).toBe('-123');
+    expect(run('-123.45600', 1)).toBe('-123.4');
+    expect(run('-123.45600', 6)).toBe('-123.456000');
+
+    expect(() => run('-1.45', -1)).toThrow('Invalid parameter');
+    expect(() => run('-1.45', 0.5)).toThrow('Invalid parameter');
+  });
+
+  it('toFixed() rounding modes', () => {
+    for (const rndMode of Object.values(RoundingMode)) {
+      for (let i = 0; i < 10; i++) {
+        let num = new FixedNumber('123.45600');
+        expect(num.toFixed(i, rndMode)).toBe(num.round(i, rndMode).toFixed(i));
+        num = new FixedNumber('-123.45600');
+        expect(num.toFixed(i, rndMode)).toBe(num.round(i, rndMode).toFixed(i));
+      }
+    }
+  });
+
+  it('toPrecision()', () => {
+    const run = (x: string, digits: number) => new FixedNumber(x).toPrecision(digits);
+
+    expect(run('0', 1)).toBe('0');
+    expect(run('0', 2)).toBe('0.0');
+    expect(run('2', 3)).toBe('2.00');
+    expect(run('-123', 2)).toBe('-120');
+    expect(run('-123', 3)).toBe('-123');
+    expect(run('-123', 4)).toBe('-123.0');
+    expect(run('123', 5)).toBe('123.00');
+    expect(run('0.0045600', 1)).toBe('0.004');
+    expect(run('-0.0045600', 2)).toBe('-0.0045');
+    expect(run('0.0045600', 3)).toBe('0.00456');
+    expect(run('0.0045600', 6)).toBe('0.00456000');
+
+    expect(() => run('-1.45', -1)).toThrow('Invalid parameter');
+    expect(() => run('-1.45', 0)).toThrow('Invalid parameter');
+    expect(() => run('-1.45', 0.5)).toThrow('Invalid parameter');
+  });
+
+  // it('toPrecision() rounding modes', () => {
+  //   for (const rndMode of Object.values(RoundingMode)) {
+  //     for (let i = 0; i < 10; i++) {
+  //       let num = new FixedNumber('123.45600');
+  //       expect(num.toPrecision(i, rndMode)).toBe(num.roundToDigits(rndMode, i).toPrecision(i));
+  //       num = new FixedNumber('-123.45600');
+  //       expect(num.toPrecision(i, rndMode)).toBe(num.roundToDigits(rndMode, i).toPrecision(i));
+  //     }
+  //   }
+  // });
+
+  it('toExponential()', () => {
+    const run = (a: string, digits: number) => new FixedNumber(a).toExponential(digits);
+
+    expect(run('0', 0)).toBe('0e+0');
+    expect(run('-0', 0)).toBe('0e+0');
+    expect(run('0', 5)).toBe('0.00000e+0');
+    expect(run('123', 0)).toBe('1e+2');
+    expect(run('123', 1)).toBe('1.2e+2');
+    expect(run('123', 2)).toBe('1.23e+2');
+    expect(run('123', 3)).toBe('1.230e+2');
+    expect(run('1234', 4)).toBe('1.2340e+3');
+    expect(run('123.456', 0)).toBe('1e+2');
+    expect(run('123.45600', 0)).toBe('1e+2');
+    expect(run('123.45600', 2)).toBe('1.23e+2');
+    expect(run('123.45600', 5)).toBe('1.23456e+2');
+    expect(run('123.456', 10)).toBe('1.2345600000e+2');
+    expect(run('-123.456', 3)).toBe('-1.234e+2');
+    expect(run('10.0300', 0)).toBe('1e+1');
+    expect(run('-10.0300', 1)).toBe('-1.0e+1');
+    expect(run('-10.0300', 2)).toBe('-1.00e+1');
+    expect(run('10.0300', 3)).toBe('1.003e+1');
+    expect(run('10.0300', 6)).toBe('1.003000e+1');
+
+    expect(run('.123', 0)).toBe('1e-1');
+    expect(run('.0123', 0)).toBe('1e-2');
+    expect(run('.0123', 1)).toBe('1.2e-2');
+    expect(run('-.0123', 3)).toBe('-1.230e-2');
+
+    expect(() => run('-1.45', -1)).toThrow('Invalid parameter');
+    expect(() => run('-1.45', 0.5)).toThrow('Invalid parameter');
+  });
+
   it('toString() with radix', () => {
     const run = (a: string, radix: number) => new FixedNumber(a).toString(radix);
 
@@ -643,6 +764,13 @@ describe('FixedNumber', () => {
     expect(run('0.012', 6)).toBe('0.0(0233151220401052455413443)');
     expect(run('-0.012', 6)).toBe('-0.0(0233151220401052455413443)');
     expect(run('-15.012', 6)).toBe('-23.0(0233151220401052455413443)');
+
+    expect(run('100', 5)).toBe('400');
+    expect(run('-123', 7)).toBe('-234');
+    expect(run('123.045', 15)).toBe('83.0a(1d)');
+    expect(() => run('1', '2' as any)).toThrow('Invalid radix');
+    expect(() => run('1', 1)).toThrow('Invalid radix');
+    expect(() => run('1', 17)).toThrow('Invalid radix');
   });
 
   it('toString() with radix + maxDigits', () => {
@@ -673,64 +801,16 @@ describe('FixedNumber', () => {
     expect(run('-15.012', 6, 1)).toBe('-23.0');
     expect(run('-15.012', 6, 6)).toBe('-23.002331');
     expect(run('-15.012', 6, 100)).toBe('-23.0(0233151220401052455413443)');
-  });
 
-  it('toNumber()', () => {
-    const run = (a: string) => new FixedNumber(a).toNumber();
+    expect(run('123.045', 15, 0)).toBe('83');
+    expect(run('123.045', 15, 1)).toBe('83.0');
+    expect(run('123.045', 15, 2)).toBe('83.0a');
+    expect(run('123.045', 15, 3)).toBe('83.0a1');
+    expect(run('123.045', 15, 4)).toBe('83.0a(1d)');
+    expect(run('-123.045', 15, 5)).toBe('-83.0a(1d)');
 
-    expect(run('0')).toBe(0);
-    expect(run('-0')).toBe(0);
-    expect(run('-1')).toBe(-1);
-    expect(run('-1.00000')).toBe(-1);
-    expect(run('-1.5')).toBe(-1.5);
-    expect(run('.023456')).toBe(0.023456);
-    expect(run(Number.MAX_VALUE.toString())).toBe(Number.MAX_VALUE);
-    expect(new FixedNumber(Number.MAX_VALUE.toString()).mul(2).toNumber()).toBe(Infinity);
-  });
-
-  it('toExponential()', () => {
-    const run = (a: string, digits: number) => new FixedNumber(a).toExponential(digits);
-
-    expect(run('0', 0)).toBe('0e+0');
-    expect(run('-0', 0)).toBe('0e+0');
-    expect(run('0', 5)).toBe('0.00000e+0');
-    expect(run('123', 0)).toBe('1e+2');
-    expect(run('123', 1)).toBe('1.2e+2');
-    expect(run('123', 2)).toBe('1.23e+2');
-    expect(run('123', 3)).toBe('1.230e+2');
-    expect(run('1234', 4)).toBe('1.2340e+3');
-    expect(run('123.456', 0)).toBe('1e+2');
-    expect(run('123.45600', 0)).toBe('1e+2');
-    expect(run('123.45600', 2)).toBe('1.23e+2');
-    expect(run('123.45600', 5)).toBe('1.23456e+2');
-    expect(run('123.456', 10)).toBe('1.2345600000e+2');
-    expect(run('-123.456', 3)).toBe('-1.234e+2');
-    expect(run('10.0300', 0)).toBe('1e+1');
-    expect(run('-10.0300', 1)).toBe('-1.0e+1');
-    expect(run('-10.0300', 2)).toBe('-1.00e+1');
-    expect(run('10.0300', 3)).toBe('1.003e+1');
-    expect(run('10.0300', 6)).toBe('1.003000e+1');
-
-    expect(run('.123', 0)).toBe('1e-1');
-    expect(run('.0123', 0)).toBe('1e-2');
-    expect(run('.0123', 1)).toBe('1.2e-2');
-    expect(run('-.0123', 3)).toBe('-1.230e-2');
-  });
-
-  it('toFixed()', () => {
-    const run = (x: string, digits: number) => new FixedNumber(x).toFixed(digits);
-
-    expect(run('0', 0)).toBe('0');
-    expect(run('0', 1)).toBe('0.0');
-    expect(run('2', 3)).toBe('2.000');
-    expect(run('-123', 2)).toBe('-123.00');
-    expect(run('0.45600', 0)).toBe('0');
-    expect(run('0.45600', 1)).toBe('0.4');
-    expect(run('0.45600', 2)).toBe('0.45');
-    expect(run('0.45600', 6)).toBe('0.456000');
-    expect(run('-123.45600', 0)).toBe('-123');
-    expect(run('-123.45600', 1)).toBe('-123.4');
-    expect(run('-123.45600', 6)).toBe('-123.456000');
+    expect(() => run('1', 2, -1)).toThrow('Invalid parameter');
+    expect(() => run('1', 2, '1' as any)).toThrow('Invalid parameter');
   });
 
   it('toFraction()', () => {
@@ -762,27 +842,6 @@ describe('FixedNumber', () => {
     expect(run(' -123.45600 ')).toBe('-123.456');
     expect(run('00.0010')).toBe('0.001');
     expect(run('-00.0010')).toBe('-0.001');
-  });
-
-  it('toString() other bases', () => {
-    const run = (x: string, radix: number, maxDigits?: number) => new FixedNumber(x).toString(radix, maxDigits);
-
-    expect(run('100', 5)).toBe('400');
-    expect(run('-123', 7)).toBe('-234');
-    expect(run('123.045', 15)).toBe('83.0a(1d)');
-
-    expect(run('123.045', 15, 0)).toBe('83');
-    expect(run('123.045', 15, 1)).toBe('83.0');
-    expect(run('123.045', 15, 2)).toBe('83.0a');
-    expect(run('123.045', 15, 3)).toBe('83.0a1');
-    expect(run('123.045', 15, 4)).toBe('83.0a(1d)');
-    expect(run('-123.045', 15, 5)).toBe('-83.0a(1d)');
-
-    expect(() => run('1', '2' as any)).toThrow('Invalid radix');
-    expect(() => run('1', 1)).toThrow('Invalid radix');
-    expect(() => run('1', 17)).toThrow('Invalid radix');
-    expect(() => run('1', 2, -1)).toThrow('Invalid parameter');
-    expect(() => run('1', 2, '1' as any)).toThrow('Invalid parameter');
   });
 
   it('valueOf()', () => {
