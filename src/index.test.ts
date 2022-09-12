@@ -8,6 +8,7 @@ describe('API', () => {
       'ModType',
       'ExactNumberType',
       'ExactNumberParameter',
+      'trimTrailingZeros',
       'nthroot',
       'sqrt',
       'cbrt',

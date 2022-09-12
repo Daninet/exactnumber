@@ -1,3 +1,4 @@
+/** Trims trailing zeros from numbers in fixed-point format (1.23000 -> 1.23) */
 export const trimTrailingZeros = (num: string): string => {
   let zeropos = num.length;
   while (zeropos > 0 && ['0', '.'].includes(num.charAt(zeropos - 1))) zeropos--;
@@ -34,14 +35,14 @@ export const bigIntToStr = (num: bigint, pointRightPos: number, trimZeros: boole
   return isNegative ? `-${str}` : str;
 };
 
-export const modpow = (base: bigint, exp: bigint, mod: bigint) => {
-  let res = 1n;
-  while (exp > 0n) {
-    if (exp % 2n) {
-      res = (res * base) % mod;
-    }
-    base = base ** 2n % mod;
-    exp /= 2n;
-  }
-  return res;
-};
+// export const modpow = (base: bigint, exp: bigint, mod: bigint) => {
+//   let res = 1n;
+//   while (exp > 0n) {
+//     if (exp % 2n) {
+//       res = (res * base) % mod;
+//     }
+//     base = base ** 2n % mod;
+//     exp /= 2n;
+//   }
+//   return res;
+// };
