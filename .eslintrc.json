@@ -17,7 +17,8 @@
     "no-restricted-syntax": "off",
     "guard-for-in": "off",
     "no-bitwise": "off",
-    "no-continue": "off"
+    "no-continue": "off",
+    "no-underscore-dangle": "off"
   },
   "ignorePatterns": []
 }
