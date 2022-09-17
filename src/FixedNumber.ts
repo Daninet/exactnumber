@@ -204,28 +204,27 @@ export class FixedNumber implements ExactNumberType {
     const shift = this.decimalPos - decimals;
     const exp = 10n ** BigInt(Math.abs(shift));
 
-    const numberToZero = shift > 0 ? this.number / exp : this.number * exp;
+    const outDigits = shift > 0 ? this.number / exp : this.number * exp;
 
     if (roundingMode === RoundingMode.TO_ZERO) {
-      return new FixedNumber(numberToZero, decimals);
+      return new FixedNumber(outDigits, decimals);
     }
 
-    const expectedFracDecimals = shift > 0 ? Math.abs(shift) : decimals;
-    const fracPart = shift > 0 ? this.number % exp : numberToZero % 10n ** BigInt(decimals);
-    if (fracPart === 0n) return new FixedNumber(numberToZero, decimals);
+    const extraDigits = shift > 0 ? this.number % exp : 0n;
+    if (extraDigits === 0n) return new FixedNumber(outDigits, decimals);
 
     if (roundingMode === RoundingMode.AWAY_FROM_ZERO) {
-      const res = this.number < 0n ? numberToZero - 1n : numberToZero + 1n;
+      const res = this.number < 0n ? outDigits - 1n : outDigits + 1n;
       return new FixedNumber(res, decimals);
     }
 
     if (roundingMode === RoundingMode.TO_POSITIVE) {
-      const res = this.number < 0n ? numberToZero : numberToZero + 1n;
+      const res = this.number < 0n ? outDigits : outDigits + 1n;
       return new FixedNumber(res, decimals);
     }
 
     if (roundingMode === RoundingMode.TO_NEGATIVE) {
-      const res = this.number >= 0n ? numberToZero : numberToZero - 1n;
+      const res = this.number >= 0n ? outDigits : outDigits - 1n;
       return new FixedNumber(res, decimals);
     }
 
@@ -242,16 +241,18 @@ export class FixedNumber implements ExactNumberType {
       throw new Error('Invalid rounding mode. Use the predefined values from the RoundingMode enum.');
     }
 
-    let fracStr = (fracPart < 0n ? -fracPart : fracPart).toString();
-
-    if (fracStr.length < expectedFracDecimals) {
-      fracStr = '0'.repeat(expectedFracDecimals - fracStr.length) + fracStr;
+    let extraDigitsStr = (extraDigits < 0n ? -extraDigits : extraDigits).toString();
+    // '00123' extra part will appear in extraDigitsStr as '123'
+    // -> in this case we can exclude the tie case by setting the extra part to zero
+    const expectedFracDecimals = shift > 0 ? shift : 0;
+    if (extraDigitsStr.length < expectedFracDecimals) {
+      extraDigitsStr = '0';
     }
 
-    let isTie = fracStr[0] === '5';
+    let isTie = extraDigitsStr[0] === '5';
     if (isTie) {
-      for (let i = 1; i < fracStr.length; i++) {
-        if (fracStr[i] !== '0') {
+      for (let i = 1; i < extraDigitsStr.length; i++) {
+        if (extraDigitsStr[i] !== '0') {
           isTie = false;
           break;
         }
@@ -260,39 +261,39 @@ export class FixedNumber implements ExactNumberType {
 
     if (isTie) {
       if (roundingMode === RoundingMode.NEAREST_TO_ZERO) {
-        return new FixedNumber(numberToZero, decimals);
+        return new FixedNumber(outDigits, decimals);
       }
 
       if (roundingMode === RoundingMode.NEAREST_AWAY_FROM_ZERO) {
-        const res = this.number < 0n ? numberToZero - 1n : numberToZero + 1n;
+        const res = this.number < 0n ? outDigits - 1n : outDigits + 1n;
         return new FixedNumber(res, decimals);
       }
 
       if (roundingMode === undefined || roundingMode === RoundingMode.NEAREST_TO_POSITIVE) {
-        const res = this.number < 0n ? numberToZero : numberToZero + 1n;
+        const res = this.number < 0n ? outDigits : outDigits + 1n;
         return new FixedNumber(res, decimals);
       }
 
       if (roundingMode === RoundingMode.NEAREST_TO_NEGATIVE) {
-        const res = this.number >= 0n ? numberToZero : numberToZero - 1n;
+        const res = this.number >= 0n ? outDigits : outDigits - 1n;
         return new FixedNumber(res, decimals);
       }
 
       if (roundingMode === RoundingMode.NEAREST_TO_EVEN) {
-        if (numberToZero % 2n === 0n) {
-          return new FixedNumber(numberToZero, decimals);
+        if (outDigits % 2n === 0n) {
+          return new FixedNumber(outDigits, decimals);
         }
 
-        const res = numberToZero < 0n ? numberToZero - 1n : numberToZero + 1n;
+        const res = outDigits < 0n ? outDigits - 1n : outDigits + 1n;
         return new FixedNumber(res, decimals);
       }
     }
 
-    if (Number(fracStr[0]) < 5) {
-      return new FixedNumber(numberToZero, decimals);
+    if (Number(extraDigitsStr[0]) < 5) {
+      return new FixedNumber(outDigits, decimals);
     }
 
-    const res = this.number < 0 ? numberToZero - 1n : numberToZero + 1n;
+    const res = this.number < 0 ? outDigits - 1n : outDigits + 1n;
     return new FixedNumber(res, decimals);
   }
 

@@ -394,6 +394,26 @@ describe('FixedNumber', () => {
     expect(run('1.51', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
     expect(run('1.501', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
     expect(run('1.5010', 0, RoundingMode.NEAREST_TO_NEGATIVE)).toBe('2');
+
+    expect(run('52', 1, RoundingMode.TO_ZERO)).toBe('52.0');
+    expect(run('5.2', 1, RoundingMode.TO_ZERO)).toBe('5.2');
+    expect(run('5.5', 0, RoundingMode.TO_ZERO)).toBe('5');
+    expect(run('5.5', 1, RoundingMode.TO_ZERO)).toBe('5.5');
+    expect(run('5.5', 2, RoundingMode.TO_ZERO)).toBe('5.50');
+
+    expect(run('52', 1, RoundingMode.NEAREST_TO_POSITIVE)).toBe('52.0');
+    expect(run('5.2', 1, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.2');
+    expect(run('5.5', 0, RoundingMode.NEAREST_TO_POSITIVE)).toBe('6');
+    expect(run('5.5', 1, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.5');
+    expect(run('5.5', 2, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.50');
+    expect(run('5.54', 1, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.5');
+    expect(run('5.55', 1, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.6');
+    expect(run('5.55', 2, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.55');
+    expect(run('5.554', 2, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.55');
+    expect(run('5.555000', 2, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.56');
+    expect(run('5.555000', 3, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.555');
+    expect(run('5.555', 2, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.56');
+    expect(run('5.09', 1, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.1');
   });
 
   it('round() special cases', () => {
@@ -432,6 +452,11 @@ describe('FixedNumber', () => {
     expect(run('-123.45', 4, RoundingMode.TO_ZERO)).toBe('-123.4');
     expect(run('-123.45', 5, RoundingMode.TO_ZERO)).toBe('-123.45');
     expect(run('123.45', 6, RoundingMode.TO_ZERO)).toBe('123.45');
+
+    expect(run('52', 10, RoundingMode.NEAREST_TO_POSITIVE)).toBe('52');
+    expect(run('5.2', 10, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.2');
+    expect(run('5.5', 10, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.5');
+    expect(run('5.09', 10, RoundingMode.NEAREST_TO_POSITIVE)).toBe('5.09');
 
     expect(run('129.000', 2, RoundingMode.TO_ZERO)).toBe('120');
     expect(run('129.000', 2, RoundingMode.TO_POSITIVE)).toBe('130');
