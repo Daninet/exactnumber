@@ -1,7 +1,7 @@
 module.exports = {
   roots: ['<rootDir>/src'],
-  collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts'],
-  testMatch: ['<rootDir>/src/**/*.{spec,test}.{js,ts}'],
+  collectCoverageFrom: ['src/**/*.{js,ts}', '!src/**/*.d.ts'],
+  testMatch: ['<rootDir>/src/**/*.test.{js,ts}'],
   testEnvironment: 'node',
   preset: 'ts-jest',
   modulePaths: [],
@@ -11,9 +11,4 @@ module.exports = {
   },
   resetMocks: true,
   setupFiles: ['./setupTests.ts'],
-  globals: {
-    'ts-jest': {
-      isolatedModules: true, // disable type checking
-    },
-  },
 };
