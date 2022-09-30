@@ -385,7 +385,7 @@ export class Fraction implements ExactNumberType {
   }
 
   toNumber(): number {
-    return Number(this.numerator) / Number(this.denominator);
+    return Number(this.toPrecision(20));
   }
 
   convertToFraction() {

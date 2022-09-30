@@ -79,7 +79,7 @@ describe('Fraction', () => {
     expect(run('43/13', 3)).toBe('10.(022)');
   });
 
-  it('toString()', () => {
+  it('toFraction()', () => {
     const run = (x: string, y: string) => new Fraction(x, y).toFraction();
 
     expect(run('1', '1')).toBe('1/1');
@@ -343,6 +343,31 @@ describe('Fraction', () => {
     expect(run('-19.51(7890)', 5)).toBe('-19.51789');
     expect(run('-19.51(7890)', 6)).toBe('-19.51(7890)');
     expect(run('-19.51(7890)', 7)).toBe('-19.51(7890)');
+  });
+
+  it('toNumber()', () => {
+    const run = (a: string, b: string) => new Fraction(a, b).toNumber();
+
+    expect(run('0', '1')).toBe(0);
+    expect(run('-0', '1')).toBe(0);
+    expect(run('-1', '2')).toBe(-0.5);
+    expect(run('-1.00000', '1')).toBe(-1);
+    expect(run('-1.5', '1')).toBe(-1.5);
+    expect(run('.023456', '-1')).toBe(-0.023456);
+    expect(run(Number.MAX_VALUE.toString(), '1')).toBe(Number.MAX_VALUE);
+    expect(run('9'.repeat(300), '1'.repeat(300))).toBe(9);
+  });
+
+  it('toString() + maxDigits', () => {
+    const run = (x: string, digits: number) => new Fraction(x, 10n).toString(10, digits);
+
+    expect(run('-1916.51(7890)', 0)).toBe('-191');
+    expect(run('-1916.51(7890)', 1)).toBe('-191.6');
+    expect(run('-1916.51(7890)', 3)).toBe('-191.651');
+    expect(run('-1916.51(7890)', 4)).toBe('-191.6517');
+    expect(run('-1916.51(7890)', 6)).toBe('-191.651789');
+    expect(run('-1916.51(7890)', 7)).toBe('-191.651(7890)');
+    expect(run('-1916.51(7890)', 8)).toBe('-191.651(7890)');
   });
 
   it('valueOf()', () => {

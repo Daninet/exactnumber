@@ -554,7 +554,7 @@ export class FixedNumber implements ExactNumberType {
   }
 
   toNumber(): number {
-    return Number(this.toString());
+    return Number(this.toPrecision(20));
   }
 
   toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO): string {
