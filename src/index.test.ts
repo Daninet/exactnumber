@@ -25,6 +25,10 @@ describe('API', () => {
       'atan',
       'sinh',
       'cosh',
+      'tanh',
+      'asinh',
+      'acosh',
+      'atanh',
     ]);
     expect(API.ExactNumber(12).toString()).toBe('12');
   });

@@ -63,3 +63,12 @@ export const cosh = (x: number | bigint | string | ExactNumberType, digits: numb
 
   return xk.toFixed(digits);
 };
+
+export const tanh = (angle: number | bigint | string | ExactNumberType, digits: number) => {
+  const angleNum = ExactNumber(angle);
+  if (angleNum.isZero()) return '0';
+
+  // tanh x = sinh x / cosh x;
+  const res = ExactNumber(sinh(angle, digits + 10)).div(cosh(angle, digits + 10));
+  return res.toFixed(digits);
+};

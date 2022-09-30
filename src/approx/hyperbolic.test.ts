@@ -1,6 +1,6 @@
 import { RoundingMode } from '../types';
 import { ExactNumber } from '../ExactNumber';
-import { cosh, sinh } from './hyperbolic';
+import { cosh, sinh, tanh } from './hyperbolic';
 
 describe('hyperbolic', () => {
   it('sinh', () => {
@@ -36,6 +36,24 @@ describe('hyperbolic', () => {
 
     for (let i = 1; i < 350; i++) {
       expect(cosh('7/12', i)).toBe(COSH_7_OVER_12.slice(0, i + 2));
+    }
+  });
+
+  it('tanh', () => {
+    const range = [-4, 4];
+    for (let i = range[0]; i <= range[1]; i += 0.004) {
+      const jsResult = Math.tanh(i).toString();
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
+      const exactResult = ExactNumber(tanh(i.toString(), 10)).toFixed(10);
+      expect(exactResult).toBe(jsRounded);
+    }
+  });
+
+  it('tanh 7/12', () => {
+    const TANH_7_OVER_12 = tanh('7/12', 350);
+
+    for (let i = 1; i < 350; i++) {
+      expect(tanh('7/12', i)).toBe(TANH_7_OVER_12.slice(0, i + 2));
     }
   });
 });

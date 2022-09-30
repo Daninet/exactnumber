@@ -100,9 +100,11 @@ sin(PI_OVER_2, 5); // 1.00000
 - Roots: `sqrt()`, `cbrt()`, `nthroot()`
 - Exponentials: `pow()`, `exp()`
 - Logarithms: `log()`, `logn()`, `log10()`, `log2()`,
-- Trigonometric functions: `PI()`, `sin()`, `cos()`, `tan()`
+- Constants: `PI()`
+- Trigonometric functions: `sin()`, `cos()`, `tan()`
 - Inverse trigonometric functions: `asin()`, `acos()`, `atan()`
-- Hyperbolic functions: `sinh()`, `cosh()`
+- Hyperbolic functions: `sinh()`, `cosh()`, `tanh()`
+- Inverse hyperbolic functions: `asinh()`, `acosh()`, `atanh()`
 
 ## Copyright
 
