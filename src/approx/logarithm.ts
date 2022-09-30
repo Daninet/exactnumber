@@ -33,8 +33,8 @@ export const log = (x: number | bigint | string | ExactNumberType, digits: numbe
   let xk = ExactNumber(y);
 
   while (true) {
-    let terms = ExactNumber(0);
-    for (let i = 0; i < 4; i++) {
+    let terms = ExactNumber(0n);
+    for (let i = 0; i < 2; i++) {
       numerator = numerator.mul(y2);
       denominator += 2n;
       const term = numerator.div(denominator);

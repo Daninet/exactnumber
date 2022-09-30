@@ -35,7 +35,11 @@ export const nthroot = (n: number, x: number | bigint | string | ExactNumberType
   const c0 = new Fraction(n - 1, n);
   const c1 = new Fraction(xNum, n);
 
-  const initialGuess = approximateNthRoot(n, xNum.toNumber());
+  const xNumAsNumber = xNum.toNumber();
+  const initialGuess = Number.isFinite(xNumAsNumber)
+    ? approximateNthRoot(n, xNumAsNumber)
+    : approximateNthRoot(n, xNumAsNumber < 0 ? Number.MIN_VALUE : Number.MAX_VALUE);
+
   let xk = new FixedNumber(initialGuess) as ExactNumberType;
 
   // Newton's method
