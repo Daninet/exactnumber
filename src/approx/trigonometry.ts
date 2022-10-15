@@ -3,6 +3,9 @@ import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType, RoundingMode } from '../types';
 import { ConstantCache } from './constant';
 
+// TODO: https://en.wikipedia.org/wiki/Niven%27s_theorem
+// On Lambert's Proof of the Irrationality of π: https://www.jstor.org/stable/2974737
+
 // Faster solution here -> https://arxiv.org/pdf/1706.08835.pdf
 const PIcalc = (digits: number) => {
   if (digits === 0) return '3';

@@ -850,6 +850,8 @@ describe('FixedNumber', () => {
     expect(run('0')).toBe('0');
     expect(run('-0')).toBe('0');
     expect(run('2')).toBe('2');
+    expect(run('100')).toBe('100');
+    expect(run('-100.0')).toBe('-100');
     expect(run('  123 ')).toBe('123');
     expect(run('  -123 ')).toBe('-123');
     expect(run('123456789')).toBe('123456789');

@@ -58,6 +58,7 @@ describe('Fraction', () => {
     const run = (a: string, radix: number) => new Fraction(a, 1n).toString(radix);
 
     expect(run('0', 2)).toBe('0');
+    expect(run('100', 2)).toBe('1100100');
     expect(run('16', 2)).toBe('10000');
     expect(run('-16', 2)).toBe('-10000');
     expect(run('16.000', 2)).toBe('10000');
@@ -356,6 +357,18 @@ describe('Fraction', () => {
     expect(run('.023456', '-1')).toBe(-0.023456);
     expect(run(Number.MAX_VALUE.toString(), '1')).toBe(Number.MAX_VALUE);
     expect(run('9'.repeat(300), '1'.repeat(300))).toBe(9);
+  });
+
+  it('toString()', () => {
+    const run = (x: string) => new Fraction(x, 1n).toString();
+
+    expect(run('0')).toBe('0');
+    expect(run('-0')).toBe('0');
+    expect(run('1')).toBe('1');
+    expect(run('10')).toBe('10');
+    expect(run('-1000')).toBe('-1000');
+    expect(run('1000.00')).toBe('1000');
+    expect(run('1000.01')).toBe('1000.01');
   });
 
   it('toString() + maxDigits', () => {
