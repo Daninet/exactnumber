@@ -142,6 +142,7 @@ describe('Fraction', () => {
     expect(run('4/3', '-5/4')).toBe('-16/15');
     expect(run('4/-6', '-5/8')).toBe('16/15');
     expect(run('-4/-6', '-5/8')).toBe('-16/15');
+    expect(run('401.65', '9')).toBe('8033/180');
 
     expect(() => run('1', '0/1')).toThrow('Division by zero');
   });
@@ -201,8 +202,11 @@ describe('Fraction', () => {
     expect(run('-5/7', '2/2')).toBe('-5/7');
     expect(run('4/-10', '4/2')).toBe('4/25');
     expect(run('-5/7', '4/2')).toBe('25/49');
+    expect(run('-5/7', '-1')).toBe('-7/5');
+    expect(run('-5/7', '-4/2')).toBe('49/25');
+    expect(run('5/-7', '-6/2')).toBe('-343/125');
+    expect(run('5/7', '-6/2')).toBe('343/125');
 
-    expect(() => run('-5/7', '-1')).toThrow('Unsupported parameter');
     expect(() => run('2', '1/7')).toThrow('Unsupported parameter');
   });
 
@@ -318,6 +322,7 @@ describe('Fraction', () => {
     expect(run('-1/28').toRepeatingDigits(undefined)).toBe('-0.03(571428)');
     expect(run('15/7').toRepeatingDigits(undefined)).toBe('2.(142857)');
     expect(run('15').toRepeatingDigits(undefined)).toBe('15');
+    expect(run('401.65/9').toRepeatingDigits(undefined)).toBe('44.62(7)');
   });
 
   it('correct transients', () => {

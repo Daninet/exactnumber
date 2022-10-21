@@ -162,12 +162,15 @@ export class Fraction implements ExactNumberType {
 
   pow(x: number | bigint | string | ExactNumberType): ExactNumberType {
     const param = this.parseParameter(x);
-    if (!param.isInteger() || param.sign() === -1) {
+    if (!param.isInteger()) {
       throw new Error('Unsupported parameter');
     }
-    const intNum = param.numerator / param.denominator;
-    const res = new Fraction(this.numerator ** intNum, this.denominator ** intNum);
-    return res;
+
+    const exp = param.numerator / param.denominator;
+    const absExp = exp < 0 ? -exp : exp;
+
+    const res = new Fraction(this.numerator ** absExp, this.denominator ** absExp);
+    return exp < 0 ? res.inv() : res;
   }
 
   inv(): ExactNumberType {

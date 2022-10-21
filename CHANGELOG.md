@@ -1,3 +1,7 @@
+## 0.9.2 (October 21, 2022)
+
+- Support for negative powers
+
 ## 0.9.1 (October 15, 2022)
 
 - Fix trimming of trailing zeros
