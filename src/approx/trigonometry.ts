@@ -31,39 +31,33 @@ export const PI = (digits: number) => {
   return PI_CACHE.get(digits).toFixed(digits);
 };
 
-const toLessThanHalfPi = (x: ExactNumberType, digits: number) => {
-  const pi = new FixedNumber(PI(digits));
+const evaluateAngle = (x: ExactNumberType, digits: number) => {
+  const pi = new FixedNumber(PI(digits + 5));
   const twoPi = pi.mul(2n);
-  x = x.mod(twoPi);
+  const roundedX = x.round(digits + 5, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  // a number between [0, 1)
+  const turns = roundedX
+    .abs()
+    .div(twoPi)
+    .fracPart()
+    .round(digits + 5);
 
-  // x is in the [-2PI, 2PI] interval now
+  const quadrant = turns.div('0.25').floor().toNumber() + 1;
 
-  if (x.gt(pi)) {
-    x = x.sub(twoPi);
-  } else if (x.lt(pi.neg())) {
-    x = x.add(twoPi);
+  let subHalfPiAngle = twoPi.mul(turns);
+  let quadrantDegrees = turns.mul(360n);
+  if (quadrant === 4) {
+    subHalfPiAngle = twoPi.sub(subHalfPiAngle);
+    quadrantDegrees = ExactNumber(360).sub(quadrantDegrees);
+  } else if (quadrant === 3) {
+    subHalfPiAngle = subHalfPiAngle.sub(pi);
+    quadrantDegrees = quadrantDegrees.sub(180);
+  } else if (quadrant === 2) {
+    subHalfPiAngle = pi.sub(subHalfPiAngle);
+    quadrantDegrees = ExactNumber(180).sub(quadrantDegrees);
   }
 
-  // x is in the [-PI, PI] interval now
-
-  const halfPi = pi.div(2n);
-
-  let quadrant = 0;
-
-  if (x.gte(halfPi)) {
-    quadrant = 2;
-    x = pi.sub(x);
-  } else if (x.gte(0n)) {
-    quadrant = 1;
-  } else if (x.gte(halfPi.neg())) {
-    quadrant = 4;
-    x = x.neg();
-  } else {
-    quadrant = 3;
-    x = pi.sub(x.neg());
-  }
-
-  return { quadrant, x };
+  return { quadrantDegrees: quadrantDegrees.round(digits), quadrant, subHalfPiAngle };
 };
 
 // cos x = 1 - x^2/2! + x^4/4! - ...
@@ -75,7 +69,7 @@ function* cosGenerator(x: ExactNumberType, digits: number) {
   let termDenominator = 2n;
   let sum = ExactNumber(1n).sub(xPow.div(termDenominator).trunc(digits + 10));
   let i = 3n;
-  let rndErrors = 1;
+  // let rndErrors = 1;
 
   while (true) {
     // term = x^4/4! - x^6/6!
@@ -91,38 +85,46 @@ function* cosGenerator(x: ExactNumberType, digits: number) {
     termNumerator = termNumerator.sub(xPow);
 
     const term = termNumerator.div(termDenominator).trunc(digits + 10);
-    rndErrors++;
+    // rndErrors++;
 
     sum = sum.add(term);
     // max lagrange error = x^(k+1)/(k+1)!
     // const le = xPow.mul(x).div(termDenominator * i);
 
-    yield { term, sum, rndErrors };
+    yield { term, sum };
   }
 }
+
+export const cosResultHandler = (quadrant: number, value: string | ExactNumberType, digits: number) => {
+  let convertedValue = ExactNumber(value);
+  if (quadrant === 2 || quadrant === 3) {
+    convertedValue = convertedValue.neg();
+  }
+  const strRes = convertedValue.toFixed(digits);
+  return strRes;
+};
 
 export const cos = (angle: number | bigint | string | ExactNumberType, digits: number) => {
   const EXTRA_DIGITS = digits + 10;
 
-  const { x, quadrant } = toLessThanHalfPi(ExactNumber(angle), EXTRA_DIGITS);
+  const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(ExactNumber(angle), digits);
 
-  const maxError = ExactNumber(`1e-${digits + 10}`);
+  if (quadrantDegrees.isZero()) return cosResultHandler(quadrant, '1', digits);
+  if (quadrantDegrees.eq(30n)) {
+    return cosResultHandler(quadrant, ExactNumber(sqrt(3n, digits + 5)).div(2n), digits);
+  }
+  if (quadrantDegrees.eq(45n)) {
+    return cosResultHandler(quadrant, ExactNumber(sqrt(2n, digits + 5)).div(2n), digits);
+  }
+  if (quadrantDegrees.eq(60n)) return cosResultHandler(quadrant, '0.5', digits);
+  if (quadrantDegrees.eq(90n)) return cosResultHandler(quadrant, '0', digits);
+
+  const maxError = ExactNumber(`1e-${EXTRA_DIGITS}`);
 
   const gen = cosGenerator(x, digits);
-  for (const { term, sum, rndErrors } of gen) {
+  for (const { term, sum } of gen) {
     if (term.lt(maxError)) {
-      const a = sum.trunc(digits);
-      const err = term.add(maxError.mul(rndErrors));
-      const b = sum.add(err).trunc(digits);
-
-      if (a.eq(b)) {
-        const res = quadrant === 1 || quadrant === 4 ? sum : sum.neg();
-        const strRes = res.round(digits + 3, RoundingMode.TO_ZERO).toFixed(digits);
-        return strRes;
-      }
-      // rounding errors are too large
-      // has to retry with higher precision
-      return ExactNumber(cos(angle, EXTRA_DIGITS + 50)).toFixed(digits);
+      return cosResultHandler(quadrant, sum, digits);
     }
   }
 
@@ -140,13 +142,13 @@ export const tan = (angle: number | bigint | string | ExactNumberType, digits: n
   if (angleNum.isZero()) return '0';
 
   // tan x = sqrt((1 - cos(2x)) / 1 + cos(2x))
-  const { quadrant, x } = toLessThanHalfPi(angleNum, digits + 10);
+  const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, digits + 10);
   const cos2x = ExactNumber(cos(x.mul(2n), digits + 10));
   const res = ExactNumber(1n)
     .sub(cos2x)
     .div(ExactNumber(1n).add(cos2x))
     .round(digits + 10);
-  // console.log(res);
+  // console.log(angle, x.toFixed(digits), quadrant, quadrantDegrees.toFixed(digits));
   const root = sqrt(res, digits);
 
   return quadrant === 1 || quadrant === 3 ? root : `-${root}`;

@@ -30,7 +30,7 @@ describe('trigonometry', () => {
     }
   });
 
-  it.skip('cos reduce to half pi', () => {
+  it('cos reduce to half pi', () => {
     const pi = ExactNumber(PI(100));
     const piOverTwo = pi.div(2);
 

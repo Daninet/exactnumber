@@ -36,7 +36,8 @@ export const log = (x: number | bigint | string | ExactNumberType, digits: numbe
   // fastest convergence at 1
   // ln(x) = 2 * ln(sqrt(x))
   let reductions = 0;
-  while (input.sub(1n).abs().gt('0.1')) {
+  const reductionLimit = ExactNumber('0.1');
+  while (input.sub(1n).abs().gt(reductionLimit)) {
     input = new FixedNumber(sqrt(input, digits + 10));
     reductions++;
   }
