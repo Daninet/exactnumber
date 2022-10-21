@@ -1,6 +1,7 @@
 ## 0.9.2 (October 21, 2022)
 
 - Support for negative powers
+- Improved approximations
 
 ## 0.9.1 (October 15, 2022)
 

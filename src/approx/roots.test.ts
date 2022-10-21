@@ -85,5 +85,25 @@ describe('roots', () => {
     expect(nthroot(5, -3, 20)).toBe('-1.24573093961551732596');
     expect(nthroot(6, 3, 20)).toBe('1.20093695517600272667');
     expect(nthroot(7, 3, 20)).toBe('1.16993081275868688646');
+
+    expect(nthroot(2, 0, 20)).toBe('0.00000000000000000000');
+    expect(nthroot(3, 0, 20)).toBe('0.00000000000000000000');
+    expect(nthroot(2, '1e30', 3)).toBe(`1${'0'.repeat(15)}.000`);
+    expect(nthroot(3, '1e300', 3)).toBe(`1${'0'.repeat(100)}.000`);
+    expect(nthroot(3, '1e600', 3)).toBe(`1${'0'.repeat(200)}.000`);
+    expect(nthroot(3, '-1e600', 3)).toBe(`-1${'0'.repeat(200)}.000`);
+    expect(nthroot(3, '1e-30', 3)).toBe('0.000');
+    expect(nthroot(3, '1e-300', 3)).toBe('0.000');
+    expect(nthroot(3, '1e-600', 3)).toBe('0.000');
+    expect(nthroot(3, '-1e-600', 3)).toBe('0.000');
+  });
+
+  it('nthroot 193', () => {
+    for (let i = 0; i <= 144; i += 0.07) {
+      const jsResult = (i ** (1 / 193)).toString();
+      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
+      const exactResult = nthroot(193, i.toString(), 10);
+      expect(exactResult).toBe(jsRounded);
+    }
   });
 });

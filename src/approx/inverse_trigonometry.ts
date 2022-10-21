@@ -3,6 +3,32 @@ import { ExactNumberType } from '../types';
 import { sqrt } from './roots';
 import { PI } from './trigonometry';
 
+// atan x = x - x^3/3 + x^5/5 - x^7/7 + ...
+function* atanGenerator(x: ExactNumberType, digits: number) {
+  const x2 = x.pow(2n).normalize();
+  const x4 = x2.pow(2n).normalize();
+  let denominator = 3n;
+
+  let sum = x.sub(x.mul(x2).div(denominator));
+
+  let xPow = x.mul(x4);
+
+  while (true) {
+    // x^5/d - x^7/(d + 2)
+    // = x^5 * (-ax^2 + (a + 2)) / (a * (a + 2))
+    denominator += 2n;
+    const denominator2 = denominator + 2n;
+    const numerator = xPow.mul(x2.mul(-denominator).add(denominator2));
+    const term = numerator.div(denominator * denominator2);
+    denominator = denominator2;
+    xPow = xPow.mul(x4);
+
+    sum = sum.add(term).trunc(digits + 10);
+
+    yield { term, sum };
+  }
+}
+
 export const atan = (value: number | bigint | string | ExactNumberType, digits: number) => {
   let x = ExactNumber(value);
 
@@ -16,45 +42,25 @@ export const atan = (value: number | bigint | string | ExactNumberType, digits: 
   // Ensure |x| < 0.42
   // atan(x) = 2 * atan(x / (1 + sqrt(1 + x^2)))
   let reductionSteps = 0;
-  while (x.abs().gt('0.42')) {
+  const reductionLimit = ExactNumber('0.42');
+  while (x.abs().gt(reductionLimit)) {
     const root = ExactNumber(sqrt(x.pow(2n).add(1n), digits + 10));
     x = x.div(root.add(1n));
     reductionSteps++;
   }
 
-  // atan(x) = x - x^3/3 + x^5/5 - x^7/7 + ...
-  const x2 = x.pow(2).normalize();
-  const x4 = x2.pow(2).normalize();
+  const maxError = ExactNumber(`1e-${digits + 10}`);
 
-  let denominator = 3n;
-
-  let xk = x.sub(x.mul(x2).div(denominator)) as ExactNumberType;
-
-  let xPow = x.mul(x4);
-
-  const maxError = ExactNumber(1n).div(10n ** BigInt(digits + 10));
-
-  while (true) {
-    // x^5/d - x^7/(d + 2)
-    // = x^5 * (-ax^2 + (a + 2)) / (a * (a + 2))
-    denominator += 2n;
-    const denominator2 = denominator + 2n;
-    const numerator = xPow.mul(x2.mul(-denominator).add(denominator2));
-    const term = numerator.div(denominator * denominator2);
-    denominator = denominator2;
-    xPow = xPow.mul(x4);
-
-    xk = xk.add(term).trunc(digits + 10);
-
+  const gen = atanGenerator(x, digits);
+  for (const { term, sum } of gen) {
     if (term.abs().lt(maxError)) {
-      break;
+      // undo argument reduction
+      const res = sum.mul(2n ** BigInt(reductionSteps));
+      return res.toFixed(digits);
     }
   }
 
-  // undo argument reduction
-  xk = xk.mul(2n ** BigInt(reductionSteps));
-
-  return xk.toFixed(digits);
+  return '';
 };
 
 export const asin = (value: number | bigint | string | ExactNumberType, digits: number): string => {

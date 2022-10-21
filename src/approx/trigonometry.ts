@@ -2,6 +2,7 @@ import { FixedNumber } from '../FixedNumber';
 import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType, RoundingMode } from '../types';
 import { ConstantCache } from './constant';
+import { sqrt } from './roots';
 
 // TODO: https://en.wikipedia.org/wiki/Niven%27s_theorem
 // On Lambert's Proof of the Irrationality of π: https://www.jstor.org/stable/2974737
@@ -46,16 +47,15 @@ const toLessThanHalfPi = (x: ExactNumberType, digits: number) => {
   // x is in the [-PI, PI] interval now
 
   const halfPi = pi.div(2n);
-  const q = x.div(halfPi);
 
   let quadrant = 0;
 
-  if (q.gte(halfPi)) {
+  if (x.gte(halfPi)) {
     quadrant = 2;
     x = pi.sub(x);
-  } else if (q.gte(0n)) {
+  } else if (x.gte(0n)) {
     quadrant = 1;
-  } else if (q.gte(halfPi.neg())) {
+  } else if (x.gte(halfPi.neg())) {
     quadrant = 4;
     x = x.neg();
   } else {
@@ -66,20 +66,15 @@ const toLessThanHalfPi = (x: ExactNumberType, digits: number) => {
   return { quadrant, x };
 };
 
-export const cos = (angle: number | bigint | string | ExactNumberType, digits: number) => {
-  const EXTRA_DIGITS = digits + 10;
+// cos x = 1 - x^2/2! + x^4/4! - ...
+function* cosGenerator(x: ExactNumberType, digits: number) {
+  const x2 = x.round(digits + 10, RoundingMode.NEAREST_AWAY_FROM_ZERO).pow(2n);
 
-  const { x, quadrant } = toLessThanHalfPi(ExactNumber(angle), EXTRA_DIGITS);
-
-  const x2 = x.round(EXTRA_DIGITS, RoundingMode.NEAREST_AWAY_FROM_ZERO).pow(2n).normalize();
-
-  // cos x = 1 - x^2/2! + x^4/4! - ...
   let xPow = x2;
 
   let termDenominator = 2n;
-  let xk = ExactNumber(1n).sub(xPow.div(termDenominator).trunc(EXTRA_DIGITS));
+  let sum = ExactNumber(1n).sub(xPow.div(termDenominator).trunc(digits + 10));
   let i = 3n;
-  const maxError = ExactNumber(1n).div(10n ** BigInt(EXTRA_DIGITS));
   let rndErrors = 1;
 
   while (true) {
@@ -95,32 +90,43 @@ export const cos = (angle: number | bigint | string | ExactNumberType, digits: n
     xPow = xPow.mul(x2);
     termNumerator = termNumerator.sub(xPow);
 
-    const term = termNumerator.div(termDenominator).trunc(EXTRA_DIGITS);
+    const term = termNumerator.div(termDenominator).trunc(digits + 10);
     rndErrors++;
 
-    xk = xk.add(term);
+    sum = sum.add(term);
     // max lagrange error = x^(k+1)/(k+1)!
     // const le = xPow.mul(x).div(termDenominator * i);
 
+    yield { term, sum, rndErrors };
+  }
+}
+
+export const cos = (angle: number | bigint | string | ExactNumberType, digits: number) => {
+  const EXTRA_DIGITS = digits + 10;
+
+  const { x, quadrant } = toLessThanHalfPi(ExactNumber(angle), EXTRA_DIGITS);
+
+  const maxError = ExactNumber(`1e-${digits + 10}`);
+
+  const gen = cosGenerator(x, digits);
+  for (const { term, sum, rndErrors } of gen) {
     if (term.lt(maxError)) {
-      const a = xk.trunc(digits);
+      const a = sum.trunc(digits);
       const err = term.add(maxError.mul(rndErrors));
-      const b = xk.add(err).trunc(digits);
+      const b = sum.add(err).trunc(digits);
 
       if (a.eq(b)) {
-        break;
-      } else {
-        // rounding errors are too large
-        // has to retry with higher precision
-        return ExactNumber(cos(angle, EXTRA_DIGITS + 50)).toFixed(digits);
+        const res = quadrant === 1 || quadrant === 4 ? sum : sum.neg();
+        const strRes = res.round(digits + 3, RoundingMode.TO_ZERO).toFixed(digits);
+        return strRes;
       }
+      // rounding errors are too large
+      // has to retry with higher precision
+      return ExactNumber(cos(angle, EXTRA_DIGITS + 50)).toFixed(digits);
     }
   }
 
-  const res = quadrant === 1 || quadrant === 4 ? xk : xk.neg();
-  const strRes = res.round(digits + 3, RoundingMode.TO_ZERO).toFixed(digits);
-
-  return strRes;
+  return '';
 };
 
 export const sin = (angle: number | bigint | string | ExactNumberType, digits: number): string => {
@@ -133,9 +139,15 @@ export const tan = (angle: number | bigint | string | ExactNumberType, digits: n
   const angleNum = ExactNumber(angle);
   if (angleNum.isZero()) return '0';
 
-  // tan x = sin x / cos x;
-  const res = ExactNumber(sin(angle, digits + 10)).div(cos(angle, digits + 10));
-  return res.toFixed(digits);
+  // tan x = sqrt((1 - cos(2x)) / 1 + cos(2x))
+  const { quadrant, x } = toLessThanHalfPi(angleNum, digits + 10);
+  const cos2x = ExactNumber(cos(x.mul(2n), digits + 10));
+  const res = ExactNumber(1n)
+    .sub(cos2x)
+    .div(ExactNumber(1n).add(cos2x))
+    .round(digits + 10);
+  // console.log(res);
+  const root = sqrt(res, digits);
 
-  // TODO: tan x = sqrt(1 / (cos x)^2 - 1)
+  return quadrant === 1 || quadrant === 3 ? root : `-${root}`;
 };

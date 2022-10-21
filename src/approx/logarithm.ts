@@ -4,6 +4,25 @@ import { ExactNumberType } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
 
+// ln(x) = ln((1 + y)/(1 - y)) = 2(y + y^3/3 + y^5/5 + y^7/7 + ...)
+// y = (x - 1)/(x + 1) (|y| < 1)
+function* logGenerator(y: ExactNumberType, digits: number) {
+  const y2 = y.pow(2n).normalize();
+
+  let numerator = y;
+  let denominator = 1n;
+
+  let sum = ExactNumber(y);
+
+  while (true) {
+    numerator = numerator.mul(y2);
+    denominator += 2n;
+    const term = numerator.div(denominator).trunc(digits + 10);
+    sum = sum.add(term);
+    yield { term, sum };
+  }
+}
+
 export const log = (x: number | bigint | string | ExactNumberType, digits: number) => {
   let input = ExactNumber(x);
   if (input.isOne()) {
@@ -25,29 +44,17 @@ export const log = (x: number | bigint | string | ExactNumberType, digits: numbe
   // ln(x) = ln((1 + y)/(1 - y)) = 2(y + y^3/3 + y^5/5 + y^7/7 + ...)
   // y = (x - 1)/(x + 1) (|y| < 1)
   const y = input.sub(1n).div(input.add(1n));
-  const y2 = y.pow(2n).normalize();
 
-  let numerator = y;
-  let denominator = 1n;
-
-  let xk = ExactNumber(y);
-
-  while (true) {
-    let terms = ExactNumber(0n);
-    for (let i = 0; i < 2; i++) {
-      numerator = numerator.mul(y2);
-      denominator += 2n;
-      const term = numerator.div(denominator);
-      terms = terms.add(term).trunc(digits + 10);
+  const gen = logGenerator(y, digits);
+  for (const { term, sum } of gen) {
+    if (term.isZero()) {
+      // undo reductions
+      const res = sum.mul(2n ** BigInt(reductions + 1));
+      return res.toFixed(digits);
     }
-    if (terms.isZero()) {
-      break;
-    }
-    xk = xk.add(terms);
   }
 
-  xk = xk.mul(2n ** BigInt(reductions + 1));
-  return xk.toFixed(digits);
+  return '';
 };
 
 export const logn = (n: number, x: number | bigint | string | ExactNumberType, digits: number) => {
