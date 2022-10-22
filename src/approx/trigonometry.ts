@@ -35,12 +35,16 @@ const evaluateAngle = (x: ExactNumberType, digits: number) => {
   const pi = new FixedNumber(PI(digits + 5));
   const twoPi = pi.mul(2n);
   const roundedX = x.round(digits + 5, RoundingMode.NEAREST_AWAY_FROM_ZERO);
-  // a number between [0, 1)
-  const turns = roundedX
-    .abs()
-    .div(twoPi)
-    .fracPart()
-    .round(digits + 5);
+  // a number between (-1, 1)
+  let turns = roundedX.div(twoPi).fracPart();
+
+  // normalize into the [0, 1) interval
+  if (turns.lt(0n)) {
+    turns = turns.add(1n);
+  }
+
+  // limit precision
+  turns = turns.round(digits + 5);
 
   const quadrant = turns.div('0.25').floor().toNumber() + 1;
 
@@ -95,9 +99,9 @@ function* cosGenerator(x: ExactNumberType, digits: number) {
   }
 }
 
-export const cosResultHandler = (quadrant: number, value: string | ExactNumberType, digits: number) => {
+const resultHandler = (value: string | ExactNumberType, shouldNegate: boolean, digits: number) => {
   let convertedValue = ExactNumber(value);
-  if (quadrant === 2 || quadrant === 3) {
+  if (shouldNegate) {
     convertedValue = convertedValue.neg();
   }
   const strRes = convertedValue.toFixed(digits);
@@ -109,22 +113,24 @@ export const cos = (angle: number | bigint | string | ExactNumberType, digits: n
 
   const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(ExactNumber(angle), digits);
 
-  if (quadrantDegrees.isZero()) return cosResultHandler(quadrant, '1', digits);
+  const shouldNegate = quadrant === 2 || quadrant === 3;
+
+  if (quadrantDegrees.isZero()) return resultHandler('1', shouldNegate, digits);
   if (quadrantDegrees.eq(30n)) {
-    return cosResultHandler(quadrant, ExactNumber(sqrt(3n, digits + 5)).div(2n), digits);
+    return resultHandler(ExactNumber(sqrt(3n, digits + 5)).div(2n), shouldNegate, digits);
   }
   if (quadrantDegrees.eq(45n)) {
-    return cosResultHandler(quadrant, ExactNumber(sqrt(2n, digits + 5)).div(2n), digits);
+    return resultHandler(ExactNumber(sqrt(2n, digits + 5)).div(2n), shouldNegate, digits);
   }
-  if (quadrantDegrees.eq(60n)) return cosResultHandler(quadrant, '0.5', digits);
-  if (quadrantDegrees.eq(90n)) return cosResultHandler(quadrant, '0', digits);
+  if (quadrantDegrees.eq(60n)) return resultHandler('0.5', shouldNegate, digits);
+  if (quadrantDegrees.eq(90n)) return resultHandler('0', shouldNegate, digits);
 
   const maxError = ExactNumber(`1e-${EXTRA_DIGITS}`);
 
   const gen = cosGenerator(x, digits);
   for (const { term, sum } of gen) {
     if (term.lt(maxError)) {
-      return cosResultHandler(quadrant, sum, digits);
+      return resultHandler(sum, shouldNegate, digits);
     }
   }
 
@@ -139,17 +145,32 @@ export const sin = (angle: number | bigint | string | ExactNumberType, digits: n
 
 export const tan = (angle: number | bigint | string | ExactNumberType, digits: number): string => {
   const angleNum = ExactNumber(angle);
-  if (angleNum.isZero()) return '0';
+
+  const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, digits + 5);
+
+  const shouldNegate = quadrant === 1 || quadrant === 3;
+
+  if (quadrantDegrees.isZero()) return resultHandler('0', shouldNegate, digits);
+  if (quadrantDegrees.eq(30n)) {
+    return resultHandler(ExactNumber(1n).div(sqrt(3n, digits + 5)), shouldNegate, digits);
+  }
+  if (quadrantDegrees.eq(45n)) {
+    return resultHandler('1', shouldNegate, digits);
+  }
+  if (quadrantDegrees.eq(60n)) return resultHandler(sqrt(3n, digits + 5), shouldNegate, digits);
+  if (quadrantDegrees.eq(90n)) {
+    throw new Error('+/- Infinity');
+  }
 
   // tan x = sqrt((1 - cos(2x)) / 1 + cos(2x))
-  const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, digits + 10);
-  const cos2x = ExactNumber(cos(x.mul(2n), digits + 10));
+  const cos2x = ExactNumber(cos(x.mul(2n), digits + 5));
+
   const res = ExactNumber(1n)
     .sub(cos2x)
     .div(ExactNumber(1n).add(cos2x))
-    .round(digits + 10);
-  // console.log(angle, x.toFixed(digits), quadrant, quadrantDegrees.toFixed(digits));
+    .round(digits + 5);
+
   const root = sqrt(res, digits);
 
-  return quadrant === 1 || quadrant === 3 ? root : `-${root}`;
+  return shouldNegate ? root : `-${root}`;
 };
