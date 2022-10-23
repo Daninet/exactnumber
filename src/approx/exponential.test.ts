@@ -1,4 +1,3 @@
-import { ExactNumber } from '../ExactNumber';
 import { pow, exp } from './exponential';
 import { compareError, testStability } from '../testHelper.test';
 
