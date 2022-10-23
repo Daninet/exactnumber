@@ -1,59 +1,38 @@
-import { RoundingMode } from '../types';
-import { ExactNumber } from '../ExactNumber';
 import { cosh, sinh, tanh } from './hyperbolic';
+import { compareError, testStability } from '../testHelper.test';
 
 describe('hyperbolic', () => {
   it('sinh', () => {
-    const range = [-4, 4];
-    for (let i = range[0]; i <= range[1]; i += 0.004) {
+    for (let i = -4; i <= 4; i += 0.004) {
       const jsResult = Math.sinh(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
-      const exactResult = ExactNumber(sinh(i.toString(), 10)).toFixed(10);
-      expect(exactResult).toBe(jsRounded);
+      compareError(sinh(i.toString(), 30), jsResult);
     }
   });
 
   it('sinh 7/12', () => {
-    const SINH_7_OVER_12 = sinh('7/12', 350).toString();
-
-    for (let i = 1; i < 350; i++) {
-      expect(sinh('7/12', i).toFixed(i)).toBe(SINH_7_OVER_12.slice(0, i + 2));
-    }
+    testStability(decimals => sinh('7/12', decimals), 350);
   });
 
   it('cosh', () => {
-    const range = [-4, 4];
-    for (let i = range[0]; i <= range[1]; i += 0.004) {
+    for (let i = -4; i <= 4; i += 0.004) {
       const jsResult = Math.cosh(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
-      const exactResult = ExactNumber(cosh(i.toString(), 10)).toFixed(10);
-      expect(exactResult).toBe(jsRounded);
+      compareError(cosh(i.toString(), 30), jsResult);
     }
   });
 
   it('cosh 7/12', () => {
-    const COSH_7_OVER_12 = cosh('7/12', 350).toString();
-
-    for (let i = 1; i < 350; i++) {
-      expect(cosh('7/12', i).toFixed(i)).toBe(COSH_7_OVER_12.slice(0, i + 2));
-    }
+    testStability(decimals => cosh('7/12', decimals), 350);
   });
 
   it('tanh', () => {
     const range = [-4, 4];
     for (let i = range[0]; i <= range[1]; i += 0.004) {
       const jsResult = Math.tanh(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
-      const exactResult = ExactNumber(tanh(i.toString(), 10)).toFixed(10);
-      expect(exactResult).toBe(jsRounded);
+      compareError(tanh(i.toString(), 30), jsResult);
     }
   });
 
   it('tanh 7/12', () => {
-    const TANH_7_OVER_12 = tanh('7/12', 350).toString();
-
-    for (let i = 1; i < 350; i++) {
-      expect(tanh('7/12', i).toFixed(i)).toBe(TANH_7_OVER_12.slice(0, i + 2));
-    }
+    testStability(decimals => tanh('7/12', decimals), 350);
   });
 });

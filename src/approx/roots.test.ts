@@ -1,6 +1,5 @@
-import { RoundingMode } from '../types';
-import { ExactNumber } from '../ExactNumber';
 import { sqrt, cbrt, nthroot } from './roots';
+import { compareError, testStability } from '../testHelper.test';
 
 describe('roots', () => {
   it('handles errors', () => {
@@ -17,30 +16,18 @@ describe('roots', () => {
 
     for (let i = 0; i <= 144; i += 0.03) {
       const jsResult = Math.sqrt(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
-      const exactResult = sqrt(i.toString(), 10).toFixed(10);
-      expect(exactResult).toBe(jsRounded);
+      compareError(sqrt(i.toString(), 30), jsResult);
     }
   });
 
   it('sqrt 2', () => {
     expect(sqrt(2, 0).toFixed(0)).toBe('1');
-
-    const ref = sqrt(2, 1000).toFixed(1000);
-
-    for (let i = 1; i < 1000; i++) {
-      expect(sqrt(2, i).toFixed(i)).toBe(ref.slice(0, i + 2));
-    }
+    testStability(decimals => sqrt(2, decimals), 1000);
   });
 
   it('sqrt 3', () => {
     expect(sqrt(3, 0).toFixed(0)).toBe('1');
-
-    const ref = sqrt(3, 1000).toFixed(1000);
-
-    for (let i = 1; i < 1000; i++) {
-      expect(sqrt(3, i).toFixed(i)).toBe(ref.slice(0, i + 2));
-    }
+    testStability(decimals => sqrt(3, decimals), 1000);
   });
 
   it('cbrt', () => {
@@ -51,30 +38,18 @@ describe('roots', () => {
 
     for (let i = -144; i <= 144; i += 0.07) {
       const jsResult = Math.cbrt(i).toString();
-      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
-      const exactResult = cbrt(i.toString(), 10).toFixed(10);
-      expect(exactResult).toBe(jsRounded);
+      compareError(cbrt(i.toString(), 30), jsResult);
     }
   });
 
   it('cbrt 2', () => {
     expect(cbrt(2, 0).toFixed(0)).toBe('1');
-
-    const ref = cbrt(2, 500).toFixed(500);
-
-    for (let i = 1; i < 500; i++) {
-      expect(cbrt(2, i).toFixed(i)).toBe(ref.slice(0, i + 2));
-    }
+    testStability(decimals => cbrt(2, decimals), 500);
   });
 
   it('cbrt 3', () => {
     expect(cbrt(3, 0).toFixed(0)).toBe('1');
-
-    const ref = cbrt(3, 500).toFixed(500);
-
-    for (let i = 1; i < 500; i++) {
-      expect(cbrt(3, i).toFixed(i)).toBe(ref.slice(0, i + 2));
-    }
+    testStability(decimals => cbrt(3, decimals), 500);
   });
 
   it('nthroot', () => {
@@ -101,9 +76,7 @@ describe('roots', () => {
   it('nthroot 193', () => {
     for (let i = 0; i <= 144; i += 0.07) {
       const jsResult = (i ** (1 / 193)).toString();
-      const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
-      const exactResult = nthroot(193, i.toString(), 10).toFixed(10);
-      expect(exactResult).toBe(jsRounded);
+      compareError(nthroot(193, i.toString(), 30), jsResult);
     }
   });
 });

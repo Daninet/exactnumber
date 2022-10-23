@@ -1,6 +1,6 @@
-import { RoundingMode } from '../types';
 import { ExactNumber } from '../ExactNumber';
 import { pow, exp } from './exponential';
+import { compareError, testStability } from '../testHelper.test';
 
 describe('exponential', () => {
   it('pow', () => {
@@ -24,9 +24,8 @@ describe('exponential', () => {
           expect(() => pow(b, e, 9)).toThrow('Complex numbers are not supported');
           continue;
         }
-        const jsRounded = ExactNumber(jsResult).toPrecision(12, RoundingMode.NEAREST_TO_ZERO);
-        const exactResult = ExactNumber(pow(b, e, 20)).toPrecision(12, RoundingMode.NEAREST_TO_ZERO);
-        expect(exactResult).toBe(jsRounded);
+
+        compareError(pow(b, e, 20), jsResult);
       }
     }
   });
@@ -43,25 +42,15 @@ describe('exponential', () => {
   it('exp compare with JS', () => {
     for (let i = -12; i <= 20; i += 0.03) {
       const jsResult = Math.exp(i).toString();
-      const jsRounded = ExactNumber(jsResult).toPrecision(10, RoundingMode.TO_ZERO);
-      const exactResult = exp(i.toString(), 15).toPrecision(10, RoundingMode.TO_ZERO);
-      expect(exactResult).toBe(jsRounded);
+      compareError(exp(i.toString(), 20), jsResult);
     }
   });
 
   it('exp 1 many digits', () => {
-    const ref = exp(1, 500).toString();
-
-    for (let i = 1; i < 500; i++) {
-      expect(exp(1n, i).toFixed(i)).toBe(ref.slice(0, i + 2));
-    }
+    testStability(decimals => exp(1, decimals), 500);
   });
 
   it('exp 3/7 many digits', () => {
-    const ref = exp('3/7', 500).toString();
-
-    for (let i = 1; i < 500; i++) {
-      expect(exp('3/7', i).toFixed(i)).toBe(ref.slice(0, i + 2));
-    }
+    testStability(decimals => exp('3/7', decimals), 500);
   });
 });
