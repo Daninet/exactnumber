@@ -14,10 +14,10 @@ describe('inverse trigonometry', () => {
   });
 
   it('atan many digits', () => {
-    const ref = atan('7/12', 150);
+    const ref = atan('7/12', 150).toFixed(150);
 
     for (let i = 1; i < 120; i++) {
-      expect(atan('7/12', i)).toBe(ref.slice(0, i + 2));
+      expect(atan('7/12', i).toFixed(i)).toBe(ref.slice(0, i + 2));
     }
   });
 
@@ -32,10 +32,10 @@ describe('inverse trigonometry', () => {
   });
 
   it('asin many digits', () => {
-    const ref = asin('7/12', 120);
+    const ref = asin('7/12', 120).toFixed(120);
 
     for (let i = 1; i < 110; i++) {
-      expect(asin('7/12', i)).toBe(ref.slice(0, i + 2));
+      expect(asin('7/12', i).toFixed(i)).toBe(ref.slice(0, i + 2));
     }
   });
 
@@ -50,10 +50,10 @@ describe('inverse trigonometry', () => {
   });
 
   it('acos many digits', () => {
-    const ref = acos('7/12', 110);
+    const ref = acos('7/12', 110).toFixed(110);
 
     for (let i = 1; i < 100; i++) {
-      expect(acos('7/12', i)).toBe(ref.slice(0, i + 2));
+      expect(acos('7/12', i).toFixed(i)).toBe(ref.slice(0, i + 2));
     }
   });
 });

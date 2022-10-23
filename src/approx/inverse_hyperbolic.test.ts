@@ -14,10 +14,10 @@ describe('hyperbolic', () => {
   });
 
   it('asinh 7/12', () => {
-    const ASINH_7_OVER_12 = asinh('7/12', 150);
+    const ASINH_7_OVER_12 = asinh('7/12', 150).toFixed(150);
 
     for (let i = 1; i < 150; i++) {
-      expect(asinh('7/12', i)).toBe(ASINH_7_OVER_12.slice(0, i + 2));
+      expect(asinh('7/12', i).toFixed(i)).toBe(ASINH_7_OVER_12.slice(0, i + 2));
     }
   });
 
@@ -32,10 +32,10 @@ describe('hyperbolic', () => {
   });
 
   it('acosh 17/12', () => {
-    const ACOSH_17_OVER_12 = acosh('17/12', 150);
+    const ACOSH_17_OVER_12 = acosh('17/12', 150).toFixed(150);
 
     for (let i = 1; i < 150; i++) {
-      expect(acosh('17/12', i)).toBe(ACOSH_17_OVER_12.slice(0, i + 2));
+      expect(acosh('17/12', i).toFixed(i)).toBe(ACOSH_17_OVER_12.slice(0, i + 2));
     }
   });
 
@@ -50,10 +50,10 @@ describe('hyperbolic', () => {
   });
 
   it('atanh 7/12', () => {
-    const ATANH_7_OVER_12 = atanh('7/12', 150);
+    const ATANH_7_OVER_12 = atanh('7/12', 150).toFixed(150);
 
     for (let i = 1; i < 150; i++) {
-      expect(atanh('7/12', i)).toBe(ATANH_7_OVER_12.slice(0, i + 2));
+      expect(atanh('7/12', i).toFixed(i)).toBe(ATANH_7_OVER_12.slice(0, i + 2));
     }
   });
 });

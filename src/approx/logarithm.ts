@@ -6,7 +6,7 @@ import { sqrt } from './roots';
 
 // ln(x) = ln((1 + y)/(1 - y)) = 2(y + y^3/3 + y^5/5 + y^7/7 + ...)
 // y = (x - 1)/(x + 1) (|y| < 1)
-function* logGenerator(y: ExactNumberType, digits: number) {
+function* logGenerator(y: ExactNumberType, decimals: number) {
   const y2 = y.pow(2n).normalize();
 
   let numerator = y;
@@ -17,16 +17,16 @@ function* logGenerator(y: ExactNumberType, digits: number) {
   while (true) {
     numerator = numerator.mul(y2);
     denominator += 2n;
-    const term = numerator.div(denominator).trunc(digits + 10);
+    const term = numerator.div(denominator).trunc(decimals + 10);
     sum = sum.add(term);
     yield { term, sum };
   }
 }
 
-export const log = (x: number | bigint | string | ExactNumberType, digits: number) => {
+export const log = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   let input = ExactNumber(x);
   if (input.isOne()) {
-    return new FixedNumber(0).toFixed(digits);
+    return new FixedNumber(0).trunc(decimals);
   }
 
   if (input.lte(0n)) {
@@ -38,7 +38,7 @@ export const log = (x: number | bigint | string | ExactNumberType, digits: numbe
   let reductions = 0;
   const reductionLimit = ExactNumber('0.1');
   while (input.sub(1n).abs().gt(reductionLimit)) {
-    input = new FixedNumber(sqrt(input, digits + 10));
+    input = new FixedNumber(sqrt(input, decimals + 10));
     reductions++;
   }
 
@@ -46,41 +46,41 @@ export const log = (x: number | bigint | string | ExactNumberType, digits: numbe
   // y = (x - 1)/(x + 1) (|y| < 1)
   const y = input.sub(1n).div(input.add(1n));
 
-  const gen = logGenerator(y, digits);
+  const gen = logGenerator(y, decimals);
   for (const { term, sum } of gen) {
     if (term.isZero()) {
       // undo reductions
       const res = sum.mul(2n ** BigInt(reductions + 1));
-      return res.toFixed(digits);
+      return res.trunc(decimals);
     }
   }
 
-  return '';
+  return ExactNumber(0);
 };
 
-export const logn = (n: number, x: number | bigint | string | ExactNumberType, digits: number) => {
+export const logn = (n: number, x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   if (!Number.isSafeInteger(n) || n < 2) throw new Error('Invalid parameter for N');
 
-  const numerator = log(x, digits + 10);
-  const denominator = log(n, digits + 10);
+  const numerator = log(x, decimals + 10);
+  const denominator = log(n, decimals + 10);
 
   const res = new FixedNumber(numerator).div(denominator);
 
-  return res.toFixed(digits);
+  return res.trunc(decimals);
 };
 
-const LOG_2 = new ConstantCache(digits => log(2n, digits), 200);
+const LOG_2 = new ConstantCache(decimals => log(2n, decimals), 200);
 
-export const log2 = (x: number | bigint | string | ExactNumberType, digits: number) => {
-  const res = new FixedNumber(log(x, digits + 10)).div(LOG_2.get(digits + 10));
+export const log2 = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
+  const res = new FixedNumber(log(x, decimals + 10)).div(LOG_2.get(decimals + 10));
 
-  return res.toFixed(digits);
+  return res.trunc(decimals);
 };
 
-const LOG_10 = new ConstantCache(digits => log(10n, digits), 200);
+const LOG_10 = new ConstantCache(decimals => log(10n, decimals), 200);
 
-export const log10 = (x: number | bigint | string | ExactNumberType, digits: number) => {
-  const res = new FixedNumber(log(x, digits + 10)).div(LOG_10.get(digits + 10));
+export const log10 = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
+  const res = new FixedNumber(log(x, decimals + 10)).div(LOG_10.get(decimals + 10));
 
-  return res.toFixed(digits);
+  return res.trunc(decimals);
 };

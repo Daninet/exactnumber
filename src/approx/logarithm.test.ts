@@ -9,7 +9,7 @@ describe('logarithm', () => {
     for (let i = 0.01; i <= 12; i += 0.04) {
       const jsResult = Math.log(i).toString();
       const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
-      const exactResult = log(i.toString(), 11);
+      const exactResult = log(i.toString(), 11).toFixed(11);
       expect(exactResult).toBe(jsRounded);
     }
   });
@@ -18,25 +18,25 @@ describe('logarithm', () => {
     for (let i = 10000; i <= 10012; i += 0.04) {
       const jsResult = Math.log(i).toString();
       const jsRounded = ExactNumber(jsResult).round(10, RoundingMode.TO_ZERO).toFixed(10);
-      const exactResult = log(i.toString(), 10);
+      const exactResult = log(i.toString(), 10).toFixed(10);
       expect(exactResult).toBe(jsRounded);
     }
   });
 
   it('log 3 many digits', () => {
-    const ref = log(3n, 120);
+    const ref = log(3n, 120).toFixed(120);
 
     for (let i = 1; i < 120; i++) {
-      expect(log(3n, i)).toBe(ref.slice(0, i + 2));
+      expect(log(3n, i).toFixed(i)).toBe(ref.slice(0, i + 2));
     }
   });
 
   it('log 73/7 many digits', () => {
     const fraction = new Fraction(73n, 7n);
-    const ref = log(fraction, 120);
+    const ref = log(fraction, 120).toFixed(120);
 
     for (let i = 1; i < 120; i++) {
-      expect(log(fraction, i)).toBe(ref.slice(0, i + 2));
+      expect(log(fraction, i).toFixed(i)).toBe(ref.slice(0, i + 2));
     }
   });
 
@@ -44,7 +44,7 @@ describe('logarithm', () => {
     for (let i = 0.01; i <= 12; i += 0.04) {
       const jsResult = Math.log2(i).toString();
       const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
-      const exactResult = log2(i.toString(), 11);
+      const exactResult = log2(i.toString(), 11).toFixed(11);
       expect(exactResult).toBe(jsRounded);
     }
   });
@@ -53,7 +53,7 @@ describe('logarithm', () => {
     for (let i = 0.01; i <= 12; i += 0.04) {
       const jsResult = Math.log10(i).toString();
       const jsRounded = ExactNumber(jsResult).round(11, RoundingMode.TO_ZERO).toFixed(11);
-      const exactResult = log10(i.toString(), 11);
+      const exactResult = log10(i.toString(), 11).toFixed(11);
       expect(exactResult).toBe(jsRounded);
     }
   });

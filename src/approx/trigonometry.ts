@@ -8,12 +8,12 @@ import { sqrt } from './roots';
 // On Lambert's Proof of the Irrationality of π: https://www.jstor.org/stable/2974737
 
 // Faster solution here -> https://arxiv.org/pdf/1706.08835.pdf
-const PIcalc = (digits: number) => {
-  if (digits === 0) return '3';
+const PIcalc = (decimals: number): ExactNumberType => {
+  if (decimals === 0) return ExactNumber(3n);
 
   // PI = 3 + 3(1/2)(1/3)(1/4) + 3((1/2)(3/4))(1/5)(1/4^2) + 3((1/2)(3/4)(5/6))(1/7)(1/4^3) + ...
   let i = 1n;
-  let x = 3n * 10n ** BigInt(digits + 20);
+  let x = 3n * 10n ** BigInt(decimals + 20);
   let res = x;
   while (x !== 0n) {
     x = (x * i) / ((i + 1n) * 4n);
@@ -21,20 +21,20 @@ const PIcalc = (digits: number) => {
     res += x / i;
   }
 
-  return `3.${res.toString().slice(1, digits + 1)}`;
+  return ExactNumber(`3.${res.toString().slice(1, decimals + 1)}`);
 };
 
 const PI_CACHE = new ConstantCache(PIcalc, 1000);
 
-export const PI = (digits: number) => {
-  if (digits === 0) return '3';
-  return PI_CACHE.get(digits).toFixed(digits);
+export const PI = (decimals: number): ExactNumberType => {
+  if (decimals === 0) return ExactNumber(3);
+  return PI_CACHE.get(decimals).trunc(decimals);
 };
 
-const evaluateAngle = (x: ExactNumberType, digits: number) => {
-  const pi = new FixedNumber(PI(digits + 5));
+const evaluateAngle = (x: ExactNumberType, decimals: number) => {
+  const pi = new FixedNumber(PI(decimals + 5));
   const twoPi = pi.mul(2n);
-  const roundedX = x.round(digits + 5, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  const roundedX = x.round(decimals + 5, RoundingMode.NEAREST_AWAY_FROM_ZERO);
   // a number between (-1, 1)
   let turns = roundedX.div(twoPi).fracPart();
 
@@ -44,7 +44,7 @@ const evaluateAngle = (x: ExactNumberType, digits: number) => {
   }
 
   // limit precision
-  turns = turns.round(digits + 5);
+  turns = turns.round(decimals + 5);
 
   const quadrant = turns.div('0.25').floor().toNumber() + 1;
 
@@ -61,17 +61,17 @@ const evaluateAngle = (x: ExactNumberType, digits: number) => {
     quadrantDegrees = ExactNumber(180).sub(quadrantDegrees);
   }
 
-  return { quadrantDegrees: quadrantDegrees.round(digits), quadrant, subHalfPiAngle };
+  return { quadrantDegrees: quadrantDegrees.round(decimals), quadrant, subHalfPiAngle };
 };
 
 // cos x = 1 - x^2/2! + x^4/4! - ...
-function* cosGenerator(x: ExactNumberType, digits: number) {
-  const x2 = x.round(digits + 10, RoundingMode.NEAREST_AWAY_FROM_ZERO).pow(2n);
+function* cosGenerator(x: ExactNumberType, decimals: number) {
+  const x2 = x.round(decimals + 10, RoundingMode.NEAREST_AWAY_FROM_ZERO).pow(2n);
 
   let xPow = x2;
 
   let termDenominator = 2n;
-  let sum = ExactNumber(1n).sub(xPow.div(termDenominator).trunc(digits + 10));
+  let sum = ExactNumber(1n).sub(xPow.div(termDenominator).trunc(decimals + 10));
   let i = 3n;
   // let rndErrors = 1;
 
@@ -88,7 +88,7 @@ function* cosGenerator(x: ExactNumberType, digits: number) {
     xPow = xPow.mul(x2);
     termNumerator = termNumerator.sub(xPow);
 
-    const term = termNumerator.div(termDenominator).trunc(digits + 10);
+    const term = termNumerator.div(termDenominator).trunc(decimals + 10);
     // rndErrors++;
 
     sum = sum.add(term);
@@ -99,78 +99,77 @@ function* cosGenerator(x: ExactNumberType, digits: number) {
   }
 }
 
-const resultHandler = (value: string | ExactNumberType, shouldNegate: boolean, digits: number) => {
+const resultHandler = (value: string | ExactNumberType, shouldNegate: boolean, decimals: number): ExactNumberType => {
   let convertedValue = ExactNumber(value);
   if (shouldNegate) {
     convertedValue = convertedValue.neg();
   }
-  const strRes = convertedValue.toFixed(digits);
-  return strRes;
+  return convertedValue.trunc(decimals);
 };
 
-export const cos = (angle: number | bigint | string | ExactNumberType, digits: number) => {
-  const EXTRA_DIGITS = digits + 10;
+export const cos = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
+  const EXTRA_DECIMALS = decimals + 10;
 
-  const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(ExactNumber(angle), digits);
+  const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(ExactNumber(angle), decimals);
 
   const shouldNegate = quadrant === 2 || quadrant === 3;
 
-  if (quadrantDegrees.isZero()) return resultHandler('1', shouldNegate, digits);
+  if (quadrantDegrees.isZero()) return resultHandler('1', shouldNegate, decimals);
   if (quadrantDegrees.eq(30n)) {
-    return resultHandler(ExactNumber(sqrt(3n, digits + 5)).div(2n), shouldNegate, digits);
+    return resultHandler(ExactNumber(sqrt(3n, decimals + 5)).div(2n), shouldNegate, decimals);
   }
   if (quadrantDegrees.eq(45n)) {
-    return resultHandler(ExactNumber(sqrt(2n, digits + 5)).div(2n), shouldNegate, digits);
+    return resultHandler(ExactNumber(sqrt(2n, decimals + 5)).div(2n), shouldNegate, decimals);
   }
-  if (quadrantDegrees.eq(60n)) return resultHandler('0.5', shouldNegate, digits);
-  if (quadrantDegrees.eq(90n)) return resultHandler('0', shouldNegate, digits);
+  if (quadrantDegrees.eq(60n)) return resultHandler('0.5', shouldNegate, decimals);
+  if (quadrantDegrees.eq(90n)) return resultHandler('0', shouldNegate, decimals);
 
-  const maxError = ExactNumber(`1e-${EXTRA_DIGITS}`);
+  const maxError = ExactNumber(`1e-${EXTRA_DECIMALS}`);
 
-  const gen = cosGenerator(x, digits);
+  const gen = cosGenerator(x, decimals);
   for (const { term, sum } of gen) {
     if (term.lt(maxError)) {
-      return resultHandler(sum, shouldNegate, digits);
+      return resultHandler(sum, shouldNegate, decimals);
     }
   }
 
-  return '';
+  return ExactNumber(0);
 };
 
-export const sin = (angle: number | bigint | string | ExactNumberType, digits: number): string => {
-  const pi = new FixedNumber(PI(digits + 10));
+export const sin = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
+  const pi = new FixedNumber(PI(decimals + 10));
   const x = ExactNumber(angle);
-  return cos(pi.div(2n).sub(x), digits);
+  return cos(pi.div(2n).sub(x), decimals);
 };
 
-export const tan = (angle: number | bigint | string | ExactNumberType, digits: number): string => {
+export const tan = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const angleNum = ExactNumber(angle);
 
-  const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, digits + 5);
+  const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, decimals + 5);
 
   const shouldNegate = quadrant === 1 || quadrant === 3;
 
-  if (quadrantDegrees.isZero()) return resultHandler('0', shouldNegate, digits);
+  if (quadrantDegrees.isZero()) return resultHandler('0', shouldNegate, decimals);
   if (quadrantDegrees.eq(30n)) {
-    return resultHandler(ExactNumber(1n).div(sqrt(3n, digits + 5)), shouldNegate, digits);
+    return resultHandler(ExactNumber(1n).div(sqrt(3n, decimals + 5)), shouldNegate, decimals);
   }
   if (quadrantDegrees.eq(45n)) {
-    return resultHandler('1', shouldNegate, digits);
+    return resultHandler('1', shouldNegate, decimals);
   }
-  if (quadrantDegrees.eq(60n)) return resultHandler(sqrt(3n, digits + 5), shouldNegate, digits);
+  if (quadrantDegrees.eq(60n)) return resultHandler(sqrt(3n, decimals + 5), shouldNegate, decimals);
   if (quadrantDegrees.eq(90n)) {
-    throw new Error('+/- Infinity');
+    throw new Error('Out of range');
   }
 
   // tan x = sqrt((1 - cos(2x)) / 1 + cos(2x))
-  const cos2x = ExactNumber(cos(x.mul(2n), digits + 5));
+  const cos2x = ExactNumber(cos(x.mul(2n), decimals + 5));
 
   const res = ExactNumber(1n)
     .sub(cos2x)
     .div(ExactNumber(1n).add(cos2x))
-    .round(digits + 5);
+    .round(decimals + 5);
 
-  const root = sqrt(res, digits);
+  const root = sqrt(res, decimals);
 
-  return shouldNegate ? root : `-${root}`;
+  return shouldNegate ? root : root.neg();
 };

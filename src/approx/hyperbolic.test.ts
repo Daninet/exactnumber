@@ -14,10 +14,10 @@ describe('hyperbolic', () => {
   });
 
   it('sinh 7/12', () => {
-    const SINH_7_OVER_12 = sinh('7/12', 350);
+    const SINH_7_OVER_12 = sinh('7/12', 350).toString();
 
     for (let i = 1; i < 350; i++) {
-      expect(sinh('7/12', i)).toBe(SINH_7_OVER_12.slice(0, i + 2));
+      expect(sinh('7/12', i).toFixed(i)).toBe(SINH_7_OVER_12.slice(0, i + 2));
     }
   });
 
@@ -32,10 +32,10 @@ describe('hyperbolic', () => {
   });
 
   it('cosh 7/12', () => {
-    const COSH_7_OVER_12 = cosh('7/12', 350);
+    const COSH_7_OVER_12 = cosh('7/12', 350).toString();
 
     for (let i = 1; i < 350; i++) {
-      expect(cosh('7/12', i)).toBe(COSH_7_OVER_12.slice(0, i + 2));
+      expect(cosh('7/12', i).toFixed(i)).toBe(COSH_7_OVER_12.slice(0, i + 2));
     }
   });
 
@@ -50,10 +50,10 @@ describe('hyperbolic', () => {
   });
 
   it('tanh 7/12', () => {
-    const TANH_7_OVER_12 = tanh('7/12', 350);
+    const TANH_7_OVER_12 = tanh('7/12', 350).toString();
 
     for (let i = 1; i < 350; i++) {
-      expect(tanh('7/12', i)).toBe(TANH_7_OVER_12.slice(0, i + 2));
+      expect(tanh('7/12', i).toFixed(i)).toBe(TANH_7_OVER_12.slice(0, i + 2));
     }
   });
 });
