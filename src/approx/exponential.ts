@@ -29,7 +29,7 @@ function* expGenerator(x: ExactNumberType, decimals: number) {
 
 // TODO: try computing via exp(x) = sinh(x) + sqrt(1 + sinh(x) ** 2)
 export const exp = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const xVal = ExactNumber(x);
+  const xVal = ExactNumber(x).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
 
   const maxError = ExactNumber(`1e-${decimals + 5}`);
 

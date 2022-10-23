@@ -1,5 +1,5 @@
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberType } from '../types';
+import { ExactNumberType, RoundingMode } from '../types';
 import { sqrt } from './roots';
 import { PI } from './trigonometry';
 
@@ -30,7 +30,7 @@ function* atanGenerator(x: ExactNumberType, decimals: number) {
 }
 
 export const atan = (value: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  let x = ExactNumber(value);
+  let x = ExactNumber(value).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
 
   if (x.isZero()) return ExactNumber(0);
   if (x.abs().isOne()) {
@@ -64,7 +64,7 @@ export const atan = (value: number | bigint | string | ExactNumberType, decimals
 };
 
 export const asin = (value: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const x = ExactNumber(value);
+  const x = ExactNumber(value).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
 
   if (x.isZero()) return ExactNumber(0);
   if (x.abs().isOne()) {
@@ -85,7 +85,7 @@ export const asin = (value: number | bigint | string | ExactNumberType, decimals
 };
 
 export const acos = (value: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const x = ExactNumber(value);
+  const x = ExactNumber(value).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
 
   if (x.isZero()) return ExactNumber(PI(decimals)).div(2n).trunc(decimals);
 

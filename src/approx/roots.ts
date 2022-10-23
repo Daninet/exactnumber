@@ -1,5 +1,5 @@
 import { FixedNumber } from '../FixedNumber';
-import { ExactNumberType } from '../types';
+import { ExactNumberType, RoundingMode } from '../types';
 import { Fraction } from '../Fraction';
 import { ExactNumber } from '../ExactNumber';
 
@@ -62,7 +62,7 @@ export const nthroot = (
   if (n < 0) throw new Error('Negative N is not supported');
   if (n === 0) throw new Error('N cannot be zero');
 
-  const xNum = ExactNumber(x);
+  const xNum = ExactNumber(x).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
   if (n === 1) {
     return xNum.trunc(decimals);
   }

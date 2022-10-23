@@ -1,6 +1,6 @@
 import { FixedNumber } from '../FixedNumber';
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberType } from '../types';
+import { ExactNumberType, RoundingMode } from '../types';
 
 // sinh x = x + x^3/3! + x^5/5! + ...
 function* sinhGenerator(x: ExactNumberType, decimals: number) {
@@ -20,7 +20,7 @@ function* sinhGenerator(x: ExactNumberType, decimals: number) {
 }
 
 export const sinh = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const input = ExactNumber(x);
+  const input = ExactNumber(x).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
 
   const maxError = new FixedNumber(`1e-${decimals + 5}`);
 
@@ -56,7 +56,7 @@ function* coshGenerator(x: ExactNumberType, decimals: number) {
 }
 
 export const cosh = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const input = ExactNumber(x);
+  const input = ExactNumber(x).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
 
   const maxError = new FixedNumber(`1e-${decimals + 5}`);
 
@@ -71,10 +71,10 @@ export const cosh = (x: number | bigint | string | ExactNumberType, decimals: nu
 };
 
 export const tanh = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const angleNum = ExactNumber(angle);
+  const angleNum = ExactNumber(angle).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
   if (angleNum.isZero()) return ExactNumber(0);
 
   // tanh x = sinh x / cosh x;
-  const res = ExactNumber(sinh(angle, decimals + 10)).div(cosh(angle, decimals + 10));
+  const res = ExactNumber(sinh(angleNum, decimals + 10)).div(cosh(angleNum, decimals + 10));
   return res.trunc(decimals);
 };

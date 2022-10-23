@@ -107,10 +107,11 @@ const resultHandler = (value: string | ExactNumberType, shouldNegate: boolean, d
   return convertedValue.trunc(decimals);
 };
 
-export const cos = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
+export const cos = (_angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const EXTRA_DECIMALS = decimals + 10;
 
-  const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(ExactNumber(angle), decimals);
+  const angle = ExactNumber(_angle).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(angle, decimals);
 
   const shouldNegate = quadrant === 2 || quadrant === 3;
 
@@ -138,12 +139,12 @@ export const cos = (angle: number | bigint | string | ExactNumberType, decimals:
 
 export const sin = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const pi = new FixedNumber(PI(decimals + 10));
-  const x = ExactNumber(angle);
+  const x = ExactNumber(angle).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
   return cos(pi.div(2n).sub(x), decimals);
 };
 
 export const tan = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const angleNum = ExactNumber(angle);
+  const angleNum = ExactNumber(angle).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
 
   const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, decimals + 5);
 
