@@ -1,7 +1,8 @@
-## 0.9.2 (October 21, 2022)
+## 0.10.0 (October 23, 2022)
 
 - Support for negative powers
 - Improved approximations
+- Add ExactNumber.range(start, end, increment) helper function
 
 ## 0.9.1 (October 15, 2022)
 
