@@ -13,7 +13,7 @@ describe('trigonometry', () => {
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.sin(i).toString();
-      compareError(sin(i.toString(), 30), jsResult);
+      compareError(sin(i.toString(), 30), jsResult, 10);
     }
   });
 
@@ -40,7 +40,7 @@ describe('trigonometry', () => {
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.cos(i).toString();
-      compareError(cos(i.toString(), 30), jsResult);
+      compareError(cos(i.toString(), 30), jsResult, 10);
     }
   });
 
