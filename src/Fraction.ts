@@ -1,6 +1,6 @@
 import { CommonNumberFields, ExactNumberType, ModType, RoundingMode } from './types';
 import { FixedNumber } from './FixedNumber';
-import { bigIntToStr, trimTrailingZeros } from './util';
+import { trimTrailingZeros } from './util';
 import { ExactNumber } from './ExactNumber';
 
 export class Fraction implements ExactNumberType {
@@ -463,12 +463,10 @@ export class Fraction implements ExactNumberType {
     return { cycleLen, cycleStart };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
   toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO): string {
     if (!Number.isSafeInteger(decimals) || decimals < 0) throw new Error('Invalid parameter');
 
-    const [number, decimalPos] = this.round(decimals, roundingMode).serialize();
-    return bigIntToStr(number, decimalPos, false);
+    return this.round(decimals, roundingMode).toFixed(decimals);
   }
 
   private toRepeatingParts(maxDigits: number | undefined): [string, string, string] {
@@ -591,8 +589,7 @@ export class Fraction implements ExactNumberType {
   toPrecision(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
     if (!Number.isSafeInteger(digits) || digits < 1) throw new Error('Invalid parameter');
 
-    const [number, decimalPos] = this.roundToDigits(digits, roundingMode).serialize();
-    return bigIntToStr(number, decimalPos, false);
+    return this.roundToDigits(digits, roundingMode).toPrecision(digits);
   }
 
   valueOf(): number {
