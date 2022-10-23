@@ -11,31 +11,38 @@ export const trimTrailingZeros = (num: string): string => {
   return num.slice(0, newLength);
 };
 
-export const bigIntToStr = (num: bigint, pointRightPos: number, trimZeros: boolean): string => {
+export const bigIntToStr = (num: bigint, inputDecimals: number, outputDecimals: number, trimZeros: boolean): string => {
   let str = num.toString();
-  if (pointRightPos === 0) return str;
+  if (inputDecimals === 0 && outputDecimals === 0) return str;
 
   const isNegative = str.startsWith('-');
   if (isNegative) {
     str = str.slice(1);
   }
 
-  if (pointRightPos >= str.length) {
-    str = '0'.repeat(pointRightPos - str.length + 1) + str;
+  if (inputDecimals >= str.length) {
+    str = '0'.repeat(inputDecimals - str.length + 1) + str;
   }
 
-  if (pointRightPos > 0) {
-    const start = str.slice(0, -pointRightPos);
-    const end = str.slice(-pointRightPos);
+  if (inputDecimals > 0) {
+    const wholePart = str.slice(0, -inputDecimals);
+    const fracPart = str.slice(-inputDecimals);
 
-    if (end.length !== 0) {
-      str = `${start}.${end}`;
+    const outFracPart =
+      outputDecimals <= inputDecimals
+        ? fracPart.slice(0, outputDecimals)
+        : `${fracPart}${'0'.repeat(outputDecimals - inputDecimals)}`;
+
+    if (outFracPart.length !== 0) {
+      str = `${wholePart}.${outFracPart}`;
       if (trimZeros) {
         str = trimTrailingZeros(str);
       }
     } else {
-      str = start;
+      str = wholePart;
     }
+  } else if (outputDecimals > 0) {
+    str = `${str}.${'0'.repeat(outputDecimals)}`;
   }
 
   return isNegative ? `-${str}` : str;

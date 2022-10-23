@@ -197,12 +197,7 @@ export class FixedNumber implements ExactNumberType {
     return this.round(decimals, RoundingMode.TO_ZERO);
   }
 
-  round(decimals?: number, roundingMode?: RoundingMode) {
-    decimals = decimals === undefined ? 0 : decimals;
-    if (!Number.isSafeInteger(decimals) || decimals < 0) {
-      throw new Error('Invalid value for decimals');
-    }
-
+  private _round(decimals?: number, roundingMode?: RoundingMode) {
     const shift = this.decimalPos - decimals;
     const exp = 10n ** BigInt(Math.abs(shift));
 
@@ -299,6 +294,15 @@ export class FixedNumber implements ExactNumberType {
     return new FixedNumber(res, decimals);
   }
 
+  round(decimals?: number, roundingMode?: RoundingMode) {
+    decimals = decimals === undefined ? 0 : decimals;
+    if (!Number.isSafeInteger(decimals) || decimals < 0) {
+      throw new Error('Invalid value for decimals');
+    }
+
+    return this._round(decimals, roundingMode).normalize();
+  }
+
   _incExponent(amount: number): FixedNumber {
     if (amount === 0) return this;
     let newNumber = this.number;
@@ -319,24 +323,29 @@ export class FixedNumber implements ExactNumberType {
     return new FixedNumber(newNumber, newDecimalPos);
   }
 
+  // move the number to the +-[0.1, 1) interval
+  private toSubZeroNum() {
+    const isNegative = this.number < 0n;
+    const absNumber = isNegative ? -this.number : this.number;
+    const str = absNumber.toString();
+    let subZeroNum = new FixedNumber(absNumber, str.length);
+    if (isNegative) {
+      subZeroNum = subZeroNum.neg();
+    }
+    const exponentDiff = str.length - this.decimalPos;
+    return { subZeroNum, exponentDiff };
+  }
+
   roundToDigits(digits: number, roundingMode: RoundingMode): FixedNumber {
     if (!Number.isSafeInteger(digits) || digits < 1) {
       throw new Error('Invalid value for digits');
     }
 
-    const isNegative = this.number < 0n;
-    const absNumber = isNegative ? -this.number : this.number;
+    const { subZeroNum, exponentDiff } = this.toSubZeroNum();
+    let roundedNumber = subZeroNum.round(digits, roundingMode);
+    roundedNumber = roundedNumber._incExponent(exponentDiff);
 
-    // move the number to the [0.1, 1) interval
-    const str = absNumber.toString();
-    const numberBetweenZeroAndOne = new FixedNumber(absNumber, str.length);
-    let roundedNumber = numberBetweenZeroAndOne.round(digits, roundingMode);
-
-    const integerDigits = str.length - this.decimalPos;
-
-    roundedNumber = roundedNumber._incExponent(integerDigits);
-
-    return isNegative ? roundedNumber.neg() : roundedNumber;
+    return roundedNumber;
   }
 
   intPart(): ExactNumberType {
@@ -562,8 +571,9 @@ export class FixedNumber implements ExactNumberType {
   toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO): string {
     if (!Number.isSafeInteger(decimals) || decimals < 0) throw new Error('Invalid parameter');
 
-    const rounded = this.round(decimals, roundingMode);
-    return bigIntToStr(rounded.number, decimals, false);
+    const rounded = this._round(decimals, roundingMode);
+
+    return bigIntToStr(rounded.number, rounded.decimalPos, decimals, false);
   }
 
   toExponential(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
@@ -643,7 +653,7 @@ export class FixedNumber implements ExactNumberType {
   toString(radix?: number, maxDigits?: number): string {
     if (radix === undefined || radix === 10) {
       const num = maxDigits !== undefined ? this.trunc(maxDigits) : this;
-      return bigIntToStr(num.number, num.decimalPos, true);
+      return bigIntToStr(num.number, num.decimalPos, num.decimalPos, true);
     }
 
     return this.toBase(radix, maxDigits);
@@ -653,8 +663,28 @@ export class FixedNumber implements ExactNumberType {
     if (!Number.isSafeInteger(digits) || digits < 1) throw new Error('Invalid parameter');
 
     const rounded = this.roundToDigits(digits, roundingMode);
-    const res = bigIntToStr(rounded.number, rounded.decimalPos, false);
-    return res;
+    const { subZeroNum, exponentDiff } = rounded.toSubZeroNum();
+
+    const isNegative = subZeroNum.sign() === -1;
+    let subZeroStr = bigIntToStr(subZeroNum.number, subZeroNum.decimalPos, subZeroNum.decimalPos, false);
+    subZeroStr = subZeroStr.slice(isNegative ? 3 : 2); // '-0.' or '0.'
+
+    // cut extra digits
+    subZeroStr = subZeroStr.slice(0, Math.max(digits, exponentDiff));
+
+    const whole = subZeroStr.slice(0, Math.max(0, exponentDiff));
+    const frac = subZeroStr.slice(Math.max(0, exponentDiff));
+
+    const suffixLength = Math.max(0, digits - whole.length - frac.length);
+    const suffix = '0'.repeat(suffixLength);
+    const prefix = '0'.repeat(exponentDiff < 0 ? -exponentDiff : 0);
+
+    let res = whole || '0';
+    if (frac.length + prefix.length + suffixLength > 0) {
+      res += `.${prefix}${frac}${suffix}`;
+    }
+
+    return isNegative ? `-${res}` : res;
   }
 
   valueOf(): number {
