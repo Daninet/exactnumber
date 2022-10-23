@@ -5,7 +5,7 @@
 [![Build status](https://github.com/Daninet/exactnumber/workflows/Build/badge.svg?branch=master)](https://github.com/Daninet/exactnumber/actions)
 [![JSDelivr downloads](https://data.jsdelivr.com/v1/package/npm/exactnumber/badge)](https://www.jsdelivr.com/package/npm/exactnumber)
 
-Arbitrary-precision decimals. Enables making precise math calculations with rational numbers, without precision loss.
+Arbitrary-precision decimals. Enables making math calculations with rational numbers, without precision loss.
 
 ## Quick comparision with JS floating-point arithmetic
 

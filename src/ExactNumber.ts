@@ -1,6 +1,6 @@
 import { Fraction } from './Fraction';
 import { FixedNumber } from './FixedNumber';
-import { ExactNumberType } from './types';
+import { ExactNumberParameter, ExactNumberType } from './types';
 
 export function parseParameter(x: number | bigint | string | ExactNumberType): ExactNumberType {
   if (x instanceof FixedNumber || x instanceof Fraction) {
@@ -33,6 +33,11 @@ type ExactNumberInterface = {
   min: (...params: (number | bigint | string | ExactNumberType)[]) => ExactNumberType;
   max: (...params: (number | bigint | string | ExactNumberType)[]) => ExactNumberType;
   fromBase: (num: string, radix: number) => ExactNumberType;
+  range: (
+    start: number | bigint | string | ExactNumberType,
+    end: number | bigint | string | ExactNumberType,
+    increment?: number | bigint | string | ExactNumberType,
+  ) => Generator<ExactNumberType, void, unknown>;
 };
 
 export const ExactNumber = <ExactNumberInterface>((
@@ -151,3 +156,21 @@ ExactNumber.fromBase = <ExactNumberInterface>((num: string, radix: number) => {
   const res = new Fraction(whole, 1n).add(fracPath).normalize();
   return isNegative ? res.neg() : res;
 });
+
+/** Used to iterate over exact rational numbers.
+ * E.g. Iterating from -2 to 3 with 0.5 increments:
+ * for(const x of ExactNumber.range(-2, 3, '0.5')) {} */
+// eslint-disable-next-line func-names
+ExactNumber.range = function* (
+  _start: ExactNumberParameter,
+  _end: ExactNumberParameter,
+  _increment: ExactNumberParameter,
+) {
+  const end = ExactNumber(_end);
+  const increment = ExactNumber(_increment ?? 1);
+  let i = ExactNumber(_start);
+  while (i.lt(end)) {
+    yield i;
+    i = i.add(increment);
+  }
+};

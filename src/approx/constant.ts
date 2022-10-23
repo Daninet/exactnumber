@@ -1,27 +1,28 @@
+import { ExactNumberType } from '../types';
 import { FixedNumber } from '../FixedNumber';
 
 export class ConstantCache {
-  private fn: (digits: number) => string;
+  private fn: (decimals: number) => ExactNumberType;
   private max: number;
 
-  private cachedDigits = 0;
+  private cachedDecimals = 0;
   private cache: FixedNumber;
 
-  constructor(fn: (digits: number) => string, max: number) {
+  constructor(fn: (decimals: number) => ExactNumberType, max: number) {
     this.fn = fn;
     this.max = max;
   }
 
-  get(digits: number): FixedNumber {
-    if (digits <= this.cachedDigits) {
-      return this.cache.trunc(digits);
+  get(decimals: number): FixedNumber {
+    if (decimals <= this.cachedDecimals) {
+      return this.cache.trunc(decimals);
     }
 
-    const calculated = new FixedNumber(this.fn(digits));
-    const digitsCached = Math.min(this.max, digits);
-    if (this.cachedDigits !== digitsCached) {
-      this.cache = calculated.trunc(digitsCached);
-      this.cachedDigits = digitsCached;
+    const calculated = new FixedNumber(this.fn(decimals));
+    const decimalsCached = Math.min(this.max, decimals);
+    if (this.cachedDecimals !== decimalsCached) {
+      this.cache = calculated.trunc(decimalsCached);
+      this.cachedDecimals = decimalsCached;
     }
 
     return calculated;

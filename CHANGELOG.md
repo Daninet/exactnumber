@@ -1,3 +1,10 @@
+## 0.10.0 (October 23, 2022)
+
+- Support for negative powers without approximation
+- Rewritten approximation functions. API returns ExactNumber object instead of strings
+- Add ExactNumber.range(start, end, increment) helper function
+- Update dependencies
+
 ## 0.9.1 (October 15, 2022)
 
 - Fix trimming of trailing zeros

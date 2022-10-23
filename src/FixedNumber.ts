@@ -112,12 +112,14 @@ export class FixedNumber implements ExactNumberType {
   pow(x: number | bigint | string | ExactNumberType): ExactNumberType {
     const operand = parseParameter(x);
     const exp = operand.toNumber();
-    if (!Number.isSafeInteger(exp) || exp < 0) {
+    if (!Number.isSafeInteger(exp)) {
       throw new Error('Unsupported parameter');
     }
 
-    const res = new FixedNumber(this.number ** BigInt(exp), this.decimalPos * exp);
-    return res;
+    const absExp = Math.abs(exp);
+
+    const res = new FixedNumber(this.number ** BigInt(absExp), this.decimalPos * absExp);
+    return exp < 0 ? res.inv() : res;
   }
 
   div(x: number | bigint | string | ExactNumberType): ExactNumberType {

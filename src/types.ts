@@ -88,10 +88,14 @@ export interface ExactNumberType {
   /** Truncates the number to the specified number of decimals. Same as round(RoundingMode.TO_ZERO). */
   trunc(decimals?: number): ExactNumberType;
 
-  /** Rounds current number to the specified amount of decimals. RoundingMode.NEAREST_TO_POSITIVE is the default */
+  /** Rounds current number to the specified amount of decimals.
+   * RoundingMode.NEAREST_TO_POSITIVE is the default
+   */
   round(decimals?: number, roundingMode?: RoundingMode): ExactNumberType;
 
-  /** Rounds current number to the specified amount of significant digits. */
+  /** Rounds current number to the specified amount of significant digits.
+   * RoundingMode.NEAREST_TO_POSITIVE is the default
+   */
   roundToDigits(digits: number, roundingMode: RoundingMode): ExactNumberType;
 
   /** Returns the integer bitwise-and combined with another integer. */
@@ -145,13 +149,20 @@ export interface ExactNumberType {
    * This is may be a slow operation, but in some cases normalization might help with performance of repeated operations. */
   normalize(): ExactNumberType;
 
-  /** Returns a string representing the number using fixed-point notation, rounded to the specified number of decimals. */
+  /** Returns a string representing the number using fixed-point notation, rounded to the specified number of decimals.
+   * Defaults to RoundingMode.TO_ZERO
+   */
   toFixed(decimals: number, roundingMode?: RoundingMode): string;
 
-  /** Returns a string representing the number in exponential notation. */
+  /** Returns a string representing the number in exponential notation.
+   * Defaults to RoundingMode.TO_ZERO
+   */
   toExponential(digits: number, roundingMode?: RoundingMode): string;
 
-  /** Returns a string representing the number using fixed-point notation, rounded to the specified number of significant digits. In contrary to JS Number.toPrecision(), this function never returns exponential notation. */
+  /** Returns a string representing the number using fixed-point notation, rounded to the specified number of significant digits.
+   * In contrary to JS Number.toPrecision(), this function never returns exponential notation.
+   * Defaults to RoundingMode.TO_ZERO
+   */
   toPrecision(digits: number, roundingMode?: RoundingMode): string;
 
   /** Converts current value to a JavaScript Number */

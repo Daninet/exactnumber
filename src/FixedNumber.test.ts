@@ -156,10 +156,12 @@ describe('FixedNumber', () => {
     expect(run('2', '3')).toBe('8');
     expect(run('0.1', '2')).toBe('0.01');
     expect(run('0.1', '10')).toBe('0.0000000001');
+    expect(run('2', '-1')).toBe('0.5');
+    expect(run('2', '-2')).toBe('0.25');
+    expect(run('-2', '-3')).toBe('-0.125');
 
-    expect(() => run('2', '-1')).toThrow('Unsupported parameter');
-    expect(() => run('2', '-2')).toThrow('Unsupported parameter');
     expect(() => run('2', '0.5')).toThrow('Unsupported parameter');
+    expect(() => run('2', '-0.5')).toThrow('Unsupported parameter');
     expect(() => run('2', '10e500')).toThrow('Unsupported parameter');
   });
 
