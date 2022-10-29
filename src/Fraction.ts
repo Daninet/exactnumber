@@ -39,7 +39,7 @@ export class Fraction implements ExactNumberType {
       return fraction.mul(exp).normalize() as Fraction;
     }
 
-    return fraction.normalize();
+    return fraction.simplify();
   }
 
   private parseParameter(x: number | bigint | string | ExactNumberType): Fraction {
@@ -271,11 +271,11 @@ export class Fraction implements ExactNumberType {
     }
   }
 
-  private lcm(a: bigint, b: bigint): bigint {
-    return (a * b) / this.gcd(a, b);
-  }
+  // private lcm(a: bigint, b: bigint): bigint {
+  //   return (a * b) / this.gcd(a, b);
+  // }
 
-  normalize() {
+  private simplify() {
     let { numerator, denominator } = this;
 
     const gcd = this.gcd(numerator, denominator);
@@ -292,9 +292,27 @@ export class Fraction implements ExactNumberType {
     return new Fraction(numerator, denominator);
   }
 
-  getFractionParts(normalize = true) {
-    const num = normalize ? this.normalize() : this;
+  normalize(): FixedNumber | Fraction {
+    const { numerator, denominator } = this.simplify();
 
+    if (denominator === 1n) {
+      return new FixedNumber(numerator, 0);
+    }
+
+    const frac = new Fraction(numerator, denominator);
+
+    // check if conversion to FixedNumber is possible
+    const { cycleLen, cycleStart } = frac.getDecimalFormat(0);
+
+    if (cycleLen !== 0) {
+      return frac;
+    }
+
+    return frac.round(cycleStart, RoundingMode.TO_ZERO);
+  }
+
+  getFractionParts(normalize = true) {
+    const num = normalize ? this.simplify() : this;
     return {
       numerator: new FixedNumber(num.numerator),
       denominator: new FixedNumber(num.denominator),
@@ -474,10 +492,10 @@ export class Fraction implements ExactNumberType {
       return ['0', '', ''];
     }
 
-    const { cycleLen, cycleStart } = this.normalize().getDecimalFormat(maxDigits);
+    const { cycleLen, cycleStart } = this.simplify().getDecimalFormat(maxDigits);
 
+    // if aborted calculation or terminating decimal
     if (cycleLen === null || cycleLen === 0) {
-      // aborted calculation or terminating decimal
       const outputDigits = maxDigits ?? cycleStart;
       const str = this.toFixed(outputDigits);
       const parts = trimTrailingZeros(str).split('.');
@@ -514,7 +532,7 @@ export class Fraction implements ExactNumberType {
   }
 
   toFraction(): string {
-    const { numerator, denominator } = this.normalize();
+    const { numerator, denominator } = this.getFractionParts(true);
 
     return `${numerator.toString()}/${denominator.toString()}`;
   }
@@ -545,7 +563,7 @@ export class Fraction implements ExactNumberType {
 
     const isNegative = num.sign() === -1;
     if (isNegative) {
-      intPart = intPart.neg() as FixedNumber;
+      intPart = intPart.neg();
       fracPart = fracPart.neg();
     }
 
