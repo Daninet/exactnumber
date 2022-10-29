@@ -1,5 +1,6 @@
+import { limitDecimals } from '../util';
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberType, RoundingMode } from '../types';
+import { ExactNumberType } from '../types';
 import { log } from './logarithm';
 
 // e^x = 1 + x + x^2/2! + x^3/3! + ...
@@ -29,7 +30,7 @@ function* expGenerator(x: ExactNumberType, decimals: number) {
 
 // TODO: try computing via exp(x) = sinh(x) + sqrt(1 + sinh(x) ** 2)
 export const exp = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const xVal = ExactNumber(x).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  const xVal = limitDecimals(ExactNumber(x), decimals);
 
   const maxError = ExactNumber(`1e-${decimals + 5}`);
 
@@ -48,8 +49,8 @@ export const pow = (
   _exponent: number | bigint | string | ExactNumberType,
   decimals: number,
 ): ExactNumberType => {
-  const base = ExactNumber(_base).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
-  const exponent = ExactNumber(_exponent).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  const base = limitDecimals(ExactNumber(_base), decimals);
+  const exponent = limitDecimals(ExactNumber(_exponent), decimals);
 
   if (exponent.isInteger() && Number.isSafeInteger(exponent.toNumber())) {
     return base.pow(exponent).trunc(decimals);
@@ -63,5 +64,5 @@ export const pow = (
 
   const logbase = log(base, decimals + 5);
   const param = exponent.mul(logbase);
-  return exp(param, decimals);
+  return exp(param, decimals + 5).trunc(decimals);
 };

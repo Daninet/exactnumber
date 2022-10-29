@@ -3,6 +3,7 @@ import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType, RoundingMode } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
+import { limitDecimals } from '../util';
 
 // TODO: https://en.wikipedia.org/wiki/Niven%27s_theorem
 // On Lambert's Proof of the Irrationality of π: https://www.jstor.org/stable/2974737
@@ -110,7 +111,7 @@ const resultHandler = (value: string | ExactNumberType, shouldNegate: boolean, d
 export const cos = (_angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const EXTRA_DECIMALS = decimals + 10;
 
-  const angle = ExactNumber(_angle).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  const angle = limitDecimals(ExactNumber(_angle), decimals + 5);
   const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(angle, decimals);
 
   const shouldNegate = quadrant === 2 || quadrant === 3;
@@ -139,12 +140,12 @@ export const cos = (_angle: number | bigint | string | ExactNumberType, decimals
 
 export const sin = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const pi = new FixedNumber(PI(decimals + 10));
-  const x = ExactNumber(angle).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
-  return cos(pi.div(2n).sub(x), decimals);
+  const x = limitDecimals(ExactNumber(angle), decimals + 5);
+  return cos(pi.div(2n).sub(x), decimals + 5).trunc(decimals);
 };
 
 export const tan = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const angleNum = ExactNumber(angle).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  const angleNum = limitDecimals(ExactNumber(angle), decimals + 5);
 
   const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, decimals + 5);
 
@@ -170,7 +171,7 @@ export const tan = (angle: number | bigint | string | ExactNumberType, decimals:
     .div(ExactNumber(1n).add(cos2x))
     .round(decimals + 5);
 
-  const root = sqrt(res, decimals);
+  const root = sqrt(res, decimals + 5).trunc(decimals);
 
   return shouldNegate ? root : root.neg();
 };

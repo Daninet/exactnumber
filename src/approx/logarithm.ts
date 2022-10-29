@@ -1,6 +1,7 @@
+import { limitDecimals } from '../util';
 import { ExactNumber } from '../ExactNumber';
 import { FixedNumber } from '../FixedNumber';
-import { ExactNumberType, RoundingMode } from '../types';
+import { ExactNumberType } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
 
@@ -24,7 +25,7 @@ function* logGenerator(y: ExactNumberType, decimals: number) {
 }
 
 export const log = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  let input = ExactNumber(x).round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  let input = limitDecimals(ExactNumber(x), decimals);
   if (input.isOne()) {
     return new FixedNumber(0).trunc(decimals);
   }

@@ -1,3 +1,6 @@
+import { FixedNumber } from './FixedNumber';
+import { ExactNumberType, RoundingMode } from './types';
+
 /** Trims trailing zeros from numbers in fixed-point format (1.23000 -> 1.23) */
 export const trimTrailingZeros = (num: string): string => {
   const pointPos = num.indexOf('.');
@@ -46,6 +49,16 @@ export const bigIntToStr = (num: bigint, inputDecimals: number, outputDecimals: 
   }
 
   return isNegative ? `-${str}` : str;
+};
+
+// used by the approximation functions to limit input precision (speed optimization)
+export const limitDecimals = (x: ExactNumberType, decimals: number) => {
+  x = x.normalize();
+  if (x instanceof FixedNumber) {
+    return x.round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  }
+
+  return x;
 };
 
 // export const modpow = (base: bigint, exp: bigint, mod: bigint) => {

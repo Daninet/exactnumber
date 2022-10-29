@@ -18,7 +18,7 @@ describe('trigonometry', () => {
   });
 
   it('sin many digits', () => {
-    testStability(decimals => sin('7/12', decimals), 200);
+    testStability(decimals => sin('7/12', decimals), 250);
   });
 
   it('cos reduce to half pi', () => {
@@ -37,27 +37,26 @@ describe('trigonometry', () => {
   });
 
   it('cos', () => {
-    const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
+    const range = [Math.floor(Math.PI * -5), Math.ceil(Math.PI * 5)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.cos(i).toString();
-      compareError(cos(i.toString(), 30), jsResult, 10);
+      compareError(cos(i.toString(), 20), jsResult, 10);
     }
   });
 
   it('cos many digits', () => {
-    testStability(decimals => cos('7/12', decimals), 200);
+    testStability(decimals => cos('7/12', decimals), 250);
   });
 
   it('tan', () => {
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
-    for (let i = range[0]; i <= range[1]; i += 0.03) {
+    for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.tan(i);
-      if (Math.abs(jsResult) > 10) continue; // TODO
-      compareError(tan(i.toString(), 30), jsResult.toString());
+      compareError(tan(i.toString(), 35), jsResult.toString());
     }
   });
 
   it('tan many digits', () => {
-    testStability(decimals => tan('7/12', decimals), 150);
+    testStability(decimals => tan('7/12', decimals), 250);
   });
 });
