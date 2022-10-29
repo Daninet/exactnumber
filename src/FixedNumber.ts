@@ -105,7 +105,8 @@ export class FixedNumber implements ExactNumberType {
     }
 
     const fixedOperand = operand as FixedNumber;
-    const res = new FixedNumber(this.number * fixedOperand.number, this.decimalPos + fixedOperand.decimalPos);
+    const product = this.number * fixedOperand.number;
+    const res = new FixedNumber(product, this.decimalPos + fixedOperand.decimalPos);
     return res;
   }
 
@@ -197,18 +198,33 @@ export class FixedNumber implements ExactNumberType {
     return this.round(decimals, RoundingMode.TO_ZERO);
   }
 
+  private isTieStr(lastDigitsStr: string) {
+    if (lastDigitsStr[0] !== '5') return false;
+    for (let i = 1; i < lastDigitsStr.length; i++) {
+      if (lastDigitsStr[i] !== '0') {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private _round(decimals?: number, roundingMode?: RoundingMode) {
     const shift = this.decimalPos - decimals;
-    const exp = 10n ** BigInt(Math.abs(shift));
+    if (shift <= 0) {
+      return this;
+    }
 
-    const outDigits = shift > 0 ? this.number / exp : this.number * exp;
+    const exp = 10n ** BigInt(shift);
+    const outDigits = this.number / exp;
 
     if (roundingMode === RoundingMode.TO_ZERO) {
       return new FixedNumber(outDigits, decimals);
     }
 
-    const extraDigits = shift > 0 ? this.number % exp : 0n;
-    if (extraDigits === 0n) return new FixedNumber(outDigits, decimals);
+    const extraDigits = this.number % exp;
+    if (extraDigits === 0n) {
+      return new FixedNumber(outDigits, decimals);
+    }
 
     if (roundingMode === RoundingMode.AWAY_FROM_ZERO) {
       const res = this.number < 0n ? outDigits - 1n : outDigits + 1n;
@@ -241,22 +257,11 @@ export class FixedNumber implements ExactNumberType {
     let extraDigitsStr = (extraDigits < 0n ? -extraDigits : extraDigits).toString();
     // '00123' extra part will appear in extraDigitsStr as '123'
     // -> in this case we can exclude the tie case by setting the extra part to zero
-    const expectedFracDecimals = shift > 0 ? shift : 0;
-    if (extraDigitsStr.length < expectedFracDecimals) {
+    if (extraDigitsStr.length < shift) {
       extraDigitsStr = '0';
     }
 
-    let isTie = extraDigitsStr[0] === '5';
-    if (isTie) {
-      for (let i = 1; i < extraDigitsStr.length; i++) {
-        if (extraDigitsStr[i] !== '0') {
-          isTie = false;
-          break;
-        }
-      }
-    }
-
-    if (isTie) {
+    if (this.isTieStr(extraDigitsStr)) {
       if (roundingMode === RoundingMode.NEAREST_TO_ZERO) {
         return new FixedNumber(outDigits, decimals);
       }
@@ -323,16 +328,22 @@ export class FixedNumber implements ExactNumberType {
     return new FixedNumber(newNumber, newDecimalPos);
   }
 
+  private countDigits() {
+    if (this.number === 0n) return 1;
+    let digits = 0;
+    let x = this.number < 0 ? -this.number : this.number;
+    while (x > 0n) {
+      x /= 10n;
+      digits++;
+    }
+    return digits;
+  }
+
   // move the number to the +-[0.1, 1) interval
   private toSubZeroNum() {
-    const isNegative = this.number < 0n;
-    const absNumber = isNegative ? -this.number : this.number;
-    const str = absNumber.toString();
-    let subZeroNum = new FixedNumber(absNumber, str.length);
-    if (isNegative) {
-      subZeroNum = subZeroNum.neg();
-    }
-    const exponentDiff = str.length - this.decimalPos;
+    const digits = this.countDigits();
+    const subZeroNum = new FixedNumber(this.number, digits);
+    const exponentDiff = digits - this.decimalPos;
     return { subZeroNum, exponentDiff };
   }
 

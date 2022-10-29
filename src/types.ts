@@ -1,26 +1,29 @@
 import { Fraction } from './Fraction';
 import { FixedNumber } from './FixedNumber';
 
+// a random, hard to guess number
+const ROUNDING_MODE_BASE = 201000;
+
 export enum RoundingMode {
   /** Rounds to nearest number, with ties rounded towards +Infinity. Similar to Math.round(). */
-  NEAREST_TO_POSITIVE = 'NP',
+  NEAREST_TO_POSITIVE = ROUNDING_MODE_BASE + 8,
   /** Rounds to nearest number, with ties rounded towards -Infinity. */
-  NEAREST_TO_NEGATIVE = 'NN',
+  NEAREST_TO_NEGATIVE = ROUNDING_MODE_BASE + 9,
   /** Rounds to nearest number, with ties rounded towards the nearest even number. */
-  NEAREST_TO_EVEN = 'NE',
+  NEAREST_TO_EVEN = ROUNDING_MODE_BASE + 10,
   /** Rounds to nearest number, with ties rounded towards zero. */
-  NEAREST_TO_ZERO = 'NZ',
+  NEAREST_TO_ZERO = ROUNDING_MODE_BASE + 11,
   /** Rounds to nearest number, with ties rounded away from zero. */
-  NEAREST_AWAY_FROM_ZERO = 'NA',
+  NEAREST_AWAY_FROM_ZERO = ROUNDING_MODE_BASE + 12,
 
   /** Rounds towards +Infinity. Similar to Math.ceil(). */
-  TO_POSITIVE = 'P',
+  TO_POSITIVE = ROUNDING_MODE_BASE + 1,
   /** Rounds towards -Infinity. Similar to Math.floor(). */
-  TO_NEGATIVE = 'N',
+  TO_NEGATIVE = ROUNDING_MODE_BASE + 2,
   /** Rounds towards zero. Similar to Math.trunc(). */
-  TO_ZERO = 'Z',
+  TO_ZERO = ROUNDING_MODE_BASE + 3,
   /** Rounds away from zero */
-  AWAY_FROM_ZERO = 'A',
+  AWAY_FROM_ZERO = ROUNDING_MODE_BASE + 4,
 }
 
 export enum ModType {
@@ -43,6 +46,13 @@ export interface ExactNumberType {
 
   /** Returns this number exponentiated to the given value. */
   pow(x: number | bigint | string | ExactNumberType): ExactNumberType;
+
+  /** Returns b^e mod m (modular exponentiation) */
+  // modpow(
+  //   exponent: number | bigint | string | ExactNumberType,
+  //   modulus: number | bigint | string | ExactNumberType,
+  //   type?: ModType,
+  // ): ExactNumberType;
 
   /** Returns the result of the division of this number by the given one. */
   div(x: number | bigint | string | ExactNumberType): ExactNumberType;

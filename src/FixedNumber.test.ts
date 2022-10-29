@@ -93,6 +93,18 @@ describe('FixedNumber', () => {
     expect(run(new FixedNumber('2.6'))).toBe('2.6');
   });
 
+  it('handles operations with zero', () => {
+    const shiftedZero = new FixedNumber(0n, 3);
+    expect(shiftedZero.toString()).toBe('0');
+    expect(shiftedZero.add('2.1').toString()).toBe('2.1');
+    expect(shiftedZero.add('1.234').toString()).toBe('1.234');
+    expect(shiftedZero.sub('2.1').toString()).toBe('-2.1');
+    expect(shiftedZero.mul('2.1').toString()).toBe('0');
+    expect(shiftedZero.div('2.1').toString()).toBe('0');
+    expect(shiftedZero.normalize().serialize()).toEqual([0n, 0]);
+    expect(shiftedZero.serialize()).toEqual([0n, 3]);
+  });
+
   it('add()', () => {
     const run = (a: ExactNumberParameter, b: ExactNumberParameter) => new FixedNumber(a).add(b).toString();
 
@@ -339,10 +351,10 @@ describe('FixedNumber', () => {
 
   const testRoundTable = (values: string[], table: Record<RoundingMode, string[]>, digits?: number) => {
     Object.keys(table).forEach(rndMode => {
-      const tableRow = table[rndMode as keyof typeof table];
+      const tableRow = table[Number(rndMode)];
 
       values.forEach((num, i) => {
-        const res = new FixedNumber(num).round(digits, rndMode as RoundingMode).toString();
+        const res = new FixedNumber(num).round(digits, Number(rndMode)).toString();
         expect(res).toBe(tableRow[i]);
       });
     });
@@ -434,7 +446,7 @@ describe('FixedNumber', () => {
     expect(run('0.834631259841', 2, RoundingMode.AWAY_FROM_ZERO)).toBe('0.84');
     expect(run('0.640652', 2, RoundingMode.NEAREST_TO_ZERO)).toBe('0.64');
 
-    expect(() => run('1.23', 0, '3' as RoundingMode)).toThrow(
+    expect(() => run('1.23', 0, 3)).toThrow(
       'Invalid rounding mode. Use the predefined values from the RoundingMode enum.',
     );
   });
@@ -700,11 +712,12 @@ describe('FixedNumber', () => {
 
   it('toFixed() rounding modes', () => {
     for (const rndMode of Object.values(RoundingMode)) {
+      if (!Number.isInteger(rndMode)) continue;
       for (let i = 0; i < 10; i++) {
         let num = new FixedNumber('123.45600');
-        expect(num.toFixed(i, rndMode)).toBe(num.round(i, rndMode).toFixed(i));
+        expect(num.toFixed(i, rndMode as RoundingMode)).toBe(num.round(i, rndMode as RoundingMode).toFixed(i));
         num = new FixedNumber('-123.45600');
-        expect(num.toFixed(i, rndMode)).toBe(num.round(i, rndMode).toFixed(i));
+        expect(num.toFixed(i, rndMode as RoundingMode)).toBe(num.round(i, rndMode as RoundingMode).toFixed(i));
       }
     }
   });
