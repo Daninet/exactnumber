@@ -1,3 +1,9 @@
+## 0.11.0 (October 29, 2022)
+
+- Faster rounding and more reliable normalization of fractions
+- ExactNumber.gcd() and ExactNumber.lcm()
+- Limit precision of input binaries at approximations
+
 ## 0.10.0 (October 23, 2022)
 
 - Support for negative powers without approximation

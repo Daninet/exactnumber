@@ -1,35 +1,36 @@
+import { limitDecimals } from '../util';
 import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType } from '../types';
 import { log } from './logarithm';
 import { sqrt } from './roots';
 
 export const asinh = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const input = ExactNumber(x);
+  const input = limitDecimals(ExactNumber(x), decimals);
   if (input.isZero()) return ExactNumber(0);
 
   // asinh(x) = ln(x + sqrt(x^2 + 1))
 
-  const root = sqrt(input.pow(2).add(1n), decimals + 10);
-  const res = log(input.add(root), decimals);
+  const root = sqrt(input.pow(2).add(1n), decimals + 5);
+  const res = log(input.add(root), decimals + 5);
 
-  return res;
+  return res.trunc(decimals);
 };
 
 export const acosh = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const input = ExactNumber(x);
+  const input = limitDecimals(ExactNumber(x), decimals);
   if (input.isOne()) return ExactNumber(0);
   if (input.lt(1n)) throw new Error('Out of range');
 
   // acosh(x) = ln(x + sqrt(x^2 - 1))
 
-  const root = sqrt(input.pow(2).sub(1n), decimals + 10);
-  const res = log(input.add(root), decimals);
+  const root = sqrt(input.pow(2).sub(1n), decimals + 5);
+  const res = log(input.add(root), decimals + 5);
 
-  return res;
+  return res.trunc(decimals);
 };
 
 export const atanh = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const input = ExactNumber(x);
+  const input = limitDecimals(ExactNumber(x), decimals);
   if (input.abs().gte(1n)) throw new Error('Out of range');
   if (input.isZero()) return ExactNumber(0);
 

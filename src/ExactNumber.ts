@@ -38,6 +38,14 @@ type ExactNumberInterface = {
     end: number | bigint | string | ExactNumberType,
     increment?: number | bigint | string | ExactNumberType,
   ) => Generator<ExactNumberType, void, unknown>;
+  gcd: (
+    a: number | bigint | string | ExactNumberType,
+    b: number | bigint | string | ExactNumberType,
+  ) => ExactNumberType;
+  lcm: (
+    a: number | bigint | string | ExactNumberType,
+    b: number | bigint | string | ExactNumberType,
+  ) => ExactNumberType;
 };
 
 export const ExactNumber = <ExactNumberInterface>((
@@ -174,3 +182,29 @@ ExactNumber.range = function* (
     i = i.add(increment);
   }
 };
+
+ExactNumber.gcd = <ExactNumberInterface>((a, b) => {
+  const aNum = ExactNumber(a).abs();
+  const bNum = ExactNumber(b).abs();
+
+  let maxNum = bNum.gt(aNum) ? bNum : aNum;
+  let minNum = maxNum.eq(aNum) ? bNum : aNum;
+
+  while (true) {
+    if (minNum.isZero()) return maxNum;
+    maxNum = maxNum.mod(minNum);
+    if (maxNum.isZero()) return minNum;
+    minNum = minNum.mod(maxNum);
+  }
+});
+
+ExactNumber.lcm = <ExactNumberInterface>((a, b) => {
+  const aNum = ExactNumber(a).abs();
+  const bNum = ExactNumber(b).abs();
+  const product = aNum.mul(bNum);
+  if (product.isZero()) throw new Error('LCM of zero is undefined');
+  const gcd = ExactNumber.gcd(aNum, bNum);
+  return product.div(gcd);
+});
+
+// ExactNumber.modpow

@@ -3,6 +3,8 @@ import { compareError, testStability } from '../testHelper.test';
 
 describe('hyperbolic', () => {
   it('asinh', () => {
+    expect(asinh(0, 30).toString()).toBe('0');
+
     for (let i = -4; i <= 4; i += 0.004) {
       const jsResult = Math.asinh(i).toString();
       compareError(asinh(i.toString(), 30), jsResult);
@@ -14,6 +16,9 @@ describe('hyperbolic', () => {
   });
 
   it('acosh', () => {
+    expect(() => acosh(0, 30)).toThrow('Out of range');
+    expect(acosh(1, 30).toString()).toBe('0');
+
     for (let i = 1; i <= 8; i += 0.004) {
       const jsResult = Math.acosh(i).toString();
       compareError(acosh(i.toString(), 30), jsResult);
@@ -25,6 +30,10 @@ describe('hyperbolic', () => {
   });
 
   it('atanh', () => {
+    expect(atanh(0, 30).toString()).toBe('0');
+    expect(() => atanh('-1.1', 30)).toThrow('Out of range');
+    expect(() => atanh('1.1', 30)).toThrow('Out of range');
+
     for (let i = -0.9999; i <= 0.9999; i += 0.002) {
       const jsResult = Math.atanh(i).toString();
       compareError(atanh(i.toString(), 30), jsResult);

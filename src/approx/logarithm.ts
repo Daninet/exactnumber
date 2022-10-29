@@ -1,3 +1,4 @@
+import { limitDecimals } from '../util';
 import { ExactNumber } from '../ExactNumber';
 import { FixedNumber } from '../FixedNumber';
 import { ExactNumberType } from '../types';
@@ -24,7 +25,7 @@ function* logGenerator(y: ExactNumberType, decimals: number) {
 }
 
 export const log = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  let input = ExactNumber(x);
+  let input = limitDecimals(ExactNumber(x), decimals);
   if (input.isOne()) {
     return new FixedNumber(0).trunc(decimals);
   }
