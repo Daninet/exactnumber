@@ -128,4 +128,18 @@ describe('ExactNumber interface', () => {
 
     expect(() => ExactNumber.fromBase('1x5', 9)).toThrow('Cannot parse number "1x5"');
   });
+
+  it('gcd()', () => {
+    expect(ExactNumber.gcd(12, -8).toString()).toBe('4');
+    expect(ExactNumber.gcd(8, -12).toString()).toBe('4');
+    expect(ExactNumber.gcd('0.8', '0.12').toString()).toBe('0.04');
+    expect(ExactNumber.gcd('0', '0.12').toString()).toBe('0.12');
+  });
+
+  it('lcm()', () => {
+    expect(ExactNumber.lcm(12, -8).toString()).toBe('24');
+    expect(ExactNumber.lcm(8, -12).toString()).toBe('24');
+    expect(ExactNumber.lcm('-0.8', '-0.12').toString()).toBe('2.4');
+    expect(ExactNumber.lcm('0.1', '0.12').toString()).toBe('0.6');
+  });
 });
