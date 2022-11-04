@@ -1,3 +1,5 @@
+## 1.0.0 (November)
+
 ## 0.11.0 (October 29, 2022)
 
 - Faster rounding and more reliable normalization of fractions
