@@ -44,7 +44,7 @@ export const bigIntToStr = (num: bigint, inputDecimals: number, outputDecimals: 
     } else {
       str = wholePart;
     }
-  } else if (outputDecimals > 0) {
+  } else if (outputDecimals > 0 && !trimZeros) {
     str = `${str}.${'0'.repeat(outputDecimals)}`;
   }
 
