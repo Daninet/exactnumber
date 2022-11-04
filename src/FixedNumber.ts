@@ -687,11 +687,11 @@ export class FixedNumber implements ExactNumberType {
     const frac = subZeroStr.slice(Math.max(0, exponentDiff));
 
     const suffixLength = Math.max(0, digits - whole.length - frac.length);
-    const suffix = '0'.repeat(suffixLength);
     const prefix = '0'.repeat(exponentDiff < 0 ? -exponentDiff : 0);
 
     let res = whole || '0';
     if (frac.length + prefix.length + suffixLength > 0) {
+      const suffix = '0'.repeat(suffixLength);
       res += `.${prefix}${frac}${suffix}`;
     }
 

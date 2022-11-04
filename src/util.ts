@@ -2,7 +2,7 @@ import { FixedNumber } from './FixedNumber';
 import { ExactNumberType, RoundingMode } from './types';
 
 /** Trims trailing zeros from numbers in fixed-point format (1.23000 -> 1.23) */
-export const trimTrailingZeros = (num: string): string => {
+export const trimTrailingZerosFromFixed = (num: string): string => {
   const pointPos = num.indexOf('.');
   if (pointPos === -1) return num;
 
@@ -39,7 +39,7 @@ export const bigIntToStr = (num: bigint, inputDecimals: number, outputDecimals: 
     if (outFracPart.length !== 0) {
       str = `${wholePart}.${outFracPart}`;
       if (trimZeros) {
-        str = trimTrailingZeros(str);
+        str = trimTrailingZerosFromFixed(str);
       }
     } else {
       str = wholePart;
