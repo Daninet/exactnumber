@@ -1,5 +1,7 @@
 ## 1.0.0 (November)
 
+- Fixed bug with zeros not being trimmed corectly
+
 ## 0.11.0 (October 29, 2022)
 
 - Faster rounding and more reliable normalization of fractions

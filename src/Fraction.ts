@@ -593,7 +593,11 @@ export class Fraction implements ExactNumberType {
       digits.pop();
     }
 
-    return [isNegative ? '-' : '', intPart.toString(radix), digits.length ? '.' : '', ...digits].join('');
+    const digitsStr = digits.join('');
+
+    const res = `${isNegative ? '-' : ''}${intPart.toString(radix)}${digits.length ? '.' : ''}${digitsStr}`;
+
+    return res;
   }
 
   toString(radix?: number, maxDigits?: number): string {
