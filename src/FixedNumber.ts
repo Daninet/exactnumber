@@ -599,8 +599,11 @@ export class FixedNumber implements ExactNumberType {
     const slicedString =
       str.length <= digits ? `${str}${'0'.repeat(digits - str.length + 1)}` : str.slice(0, digits + 1);
 
-    const strWithPoint =
-      slicedString.length > 1 ? `${slicedString.slice(0, 1)}.${slicedString.slice(1)}` : slicedString;
+    let strWithPoint = slicedString;
+
+    if (slicedString.length > 1) {
+      strWithPoint = `${slicedString.slice(0, 1)}.${slicedString.slice(1)}`;
+    }
 
     const fractionalDigitsBefore = absNumber.decimalPos;
     const fractionalDigitsAfter = str.length - 1;
@@ -654,7 +657,11 @@ export class FixedNumber implements ExactNumberType {
       match.set(mulStr, digits.length);
     }
 
-    return [isNegative ? '-' : '', intPart.number.toString(radix), digits.length ? '.' : '', ...digits].join('');
+    const digitsStr = digits.join('');
+
+    const res = `${isNegative ? '-' : ''}${intPart.number.toString(radix)}${digits.length ? '.' : ''}${digitsStr}`;
+
+    return res;
   }
 
   toFraction(): string {
@@ -674,6 +681,7 @@ export class FixedNumber implements ExactNumberType {
     if (!Number.isSafeInteger(digits) || digits < 1) throw new Error('Invalid parameter');
 
     const rounded = this.roundToDigits(digits, roundingMode);
+
     const { subZeroNum, exponentDiff } = rounded.toSubZeroNum();
 
     const isNegative = subZeroNum.sign() === -1;

@@ -144,8 +144,8 @@ ExactNumber.fromBase = <ExactNumberInterface>((num: string, radix: number) => {
 
   if (repeatingPartStr.length > 0) {
     const numerator =
-      parseDigitsInBase([wholePartStr, nonRepeatingPartStr, repeatingPartStr].join(''), radix) -
-      parseDigitsInBase([wholePartStr, nonRepeatingPartStr].join(''), radix);
+      parseDigitsInBase(`${wholePartStr}${nonRepeatingPartStr}${repeatingPartStr}`, radix) -
+      parseDigitsInBase(`${wholePartStr}${nonRepeatingPartStr}`, radix);
 
     const denominator = parseDigitsInBase(
       (radix - 1).toString(radix).repeat(repeatingPartStr.length) + '0'.repeat(nonRepeatingPartStr.length),
