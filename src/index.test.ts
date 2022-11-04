@@ -6,7 +6,6 @@ describe('API', () => {
       'ExactNumber',
       'RoundingMode',
       'ModType',
-      'trimTrailingZeros',
       'nthroot',
       'sqrt',
       'cbrt',
