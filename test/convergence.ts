@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-import { ExactNumberType } from 'src';
-import { sin, cos, tan, sqrt, cbrt } from '../src/approx';
+import { ExactNumberType, sin, cos, tan, sqrt, cbrt } from 'src';
 
 function run(name: string, fn: (digits: number) => ExactNumberType) {
   const max = 5000;
