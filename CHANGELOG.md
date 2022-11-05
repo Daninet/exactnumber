@@ -2,6 +2,7 @@
 
 - Add modular exponentiation - `powm()`
 - Do not expose `trimTrailingZeros()` anymore. Zero trimming is still available through the third parameter at toFixed(), toExponential() and toPrecision()
+- Radian angles handled more precisely. Trigonometric functions now provide exact results for expressions like `sin(PI/6)=0.5`
 - Not using BigInt literals anymore, because they are not compatible with some FE frameworks
 - Performance improvements by memoizing common BigInt values
 - Fixed bug with zeros not being trimmed corectly
