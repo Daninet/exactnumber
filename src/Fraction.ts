@@ -173,6 +173,31 @@ export class Fraction implements ExactNumberType {
     return exp < _0N ? res.inv() : res;
   }
 
+  powm(
+    _exp: number | bigint | string | ExactNumberType,
+    _mod: number | bigint | string | ExactNumberType,
+    modType?: ModType,
+  ): ExactNumberType {
+    const exp = this.parseParameter(_exp);
+    if (!exp.isInteger()) {
+      throw new Error('Unsupported parameter');
+    }
+
+    let expInt = exp.toNumber();
+
+    const mod = this.parseParameter(_mod);
+    let base = this as Fraction;
+
+    let res = new Fraction(_1N, _1N);
+    while (expInt !== 0) {
+      if (expInt % 2 !== 0) {
+        res = res.mul(base).mod(mod, modType) as Fraction;
+      }
+      base = base.pow(_2N).mod(mod, modType) as Fraction;
+      expInt = Math.floor(expInt / 2);
+    }
+
+    return res;
   }
 
   inv(): ExactNumberType {
