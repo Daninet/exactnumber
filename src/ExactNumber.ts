@@ -1,6 +1,7 @@
 import { Fraction } from './Fraction';
 import { FixedNumber } from './FixedNumber';
 import { ExactNumberParameter, ExactNumberType } from './types';
+import { _0N, _1N } from './util';
 
 export function parseParameter(x: number | bigint | string | ExactNumberType): ExactNumberType {
   if (x instanceof FixedNumber || x instanceof Fraction) {
@@ -20,7 +21,7 @@ export function parseParameter(x: number | bigint | string | ExactNumberType): E
 
   if (typeof x === 'string') {
     if (x.includes('/') || x.includes('(')) {
-      return new Fraction(x, 1n);
+      return new Fraction(x, _1N);
     }
     return new FixedNumber(x);
   }
@@ -62,7 +63,7 @@ export const ExactNumber = <ExactNumberInterface>((
   }
 
   const yVal = parseParameter(y);
-  return new Fraction(xVal, 1n).div(new Fraction(yVal, 1n));
+  return new Fraction(xVal, _1N).div(new Fraction(yVal, _1N));
 });
 
 ExactNumber.min = <ExactNumberInterface>((...params) => {
@@ -98,7 +99,7 @@ ExactNumber.max = <ExactNumberInterface>((...params) => {
 });
 
 const parseDigitsInBase = (str: string, radix: number) => {
-  let res = 0n;
+  let res = _0N;
   for (let i = 0; i < str.length; i++) {
     const c = str.charAt(i);
 
@@ -161,7 +162,7 @@ ExactNumber.fromBase = <ExactNumberInterface>((num: string, radix: number) => {
 
   const fracPath = new Fraction(nonRepeating, BigInt(radix) ** BigInt(nonRepeatingPartStr.length));
 
-  const res = new Fraction(whole, 1n).add(fracPath).normalize();
+  const res = new Fraction(whole, _1N).add(fracPath).normalize();
   return isNegative ? res.neg() : res;
 });
 

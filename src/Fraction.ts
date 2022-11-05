@@ -1,6 +1,6 @@
 import { CommonNumberFields, ExactNumberType, ModType, RoundingMode } from './types';
 import { FixedNumber } from './FixedNumber';
-import { trimTrailingZeros } from './util';
+import { trimTrailingZerosFromFixed, _0N, _10N, _1N, _2N, _5N } from './util';
 import { ExactNumber } from './ExactNumber';
 
 export class Fraction implements ExactNumberType {
@@ -32,7 +32,7 @@ export class Fraction implements ExactNumberType {
 
     if (exponent !== undefined) {
       const isNegativeExp = exponent.startsWith('-');
-      const exp = 10n ** BigInt(isNegativeExp ? exponent.slice(1) : exponent);
+      const exp = _10N ** BigInt(isNegativeExp ? exponent.slice(1) : exponent);
       if (isNegativeExp) {
         return fraction.div(exp).normalize() as Fraction;
       }
@@ -55,18 +55,18 @@ export class Fraction implements ExactNumberType {
       if (!Number.isSafeInteger(x)) {
         throw new Error('Floating point values as numbers are unsafe. Please provide them as a string.');
       }
-      return new Fraction(BigInt(x), 1n);
+      return new Fraction(BigInt(x), _1N);
     }
 
     if (typeof x === 'bigint') {
-      return new Fraction(x, 1n);
+      return new Fraction(x, _1N);
     }
 
     if (typeof x === 'string') {
       const parts = x.split('/');
       if (parts.length > 2) throw new Error(`Cannot parse string '${x}'`);
       const numerator = this.parseRepeatingDecimal(parts[0]);
-      const denominator = parts[1] ? this.parseRepeatingDecimal(parts[1]) : new Fraction(1n, 1n);
+      const denominator = parts[1] ? this.parseRepeatingDecimal(parts[1]) : new Fraction(_1N, _1N);
       const res = numerator.div(denominator) as CommonNumberFields;
       const fraction = res.convertToFraction();
       return fraction;
@@ -89,7 +89,7 @@ export class Fraction implements ExactNumberType {
       this.numerator = frac.numerator;
       this.denominator = frac.denominator;
     }
-    if (this.denominator === 0n) {
+    if (this.denominator === _0N) {
       throw new Error('Division by zero');
     }
   }
@@ -154,7 +154,7 @@ export class Fraction implements ExactNumberType {
     }
 
     if (type === ModType.EUCLIDEAN) {
-      return res.sign() < 0 ? res.add(rFrac.sign() < 0 ? rFrac.neg() : rFrac) : res;
+      return res.sign() === -1 ? res.add(rFrac.sign() === -1 ? rFrac.neg() : rFrac) : res;
     }
 
     throw new Error('Invalid ModType');
@@ -167,10 +167,12 @@ export class Fraction implements ExactNumberType {
     }
 
     const exp = param.numerator / param.denominator;
-    const absExp = exp < 0 ? -exp : exp;
+    const absExp = exp < _0N ? -exp : exp;
 
     const res = new Fraction(this.numerator ** absExp, this.denominator ** absExp);
-    return exp < 0 ? res.inv() : res;
+    return exp < _0N ? res.inv() : res;
+  }
+
   }
 
   inv(): ExactNumberType {
@@ -179,19 +181,19 @@ export class Fraction implements ExactNumberType {
   }
 
   floor(decimals?: number) {
-    if (this.denominator === 1n) return new FixedNumber(this.numerator);
+    if (this.denominator === _1N) return new FixedNumber(this.numerator);
 
     return this.round(decimals, RoundingMode.TO_NEGATIVE);
   }
 
   ceil(decimals?: number) {
-    if (this.denominator === 1n) return new FixedNumber(this.numerator);
+    if (this.denominator === _1N) return new FixedNumber(this.numerator);
 
     return this.round(decimals, RoundingMode.TO_POSITIVE);
   }
 
   trunc(decimals?: number) {
-    if (this.denominator === 1n) return new FixedNumber(this.numerator);
+    if (this.denominator === _1N) return new FixedNumber(this.numerator);
 
     return this.round(decimals, RoundingMode.TO_ZERO);
   }
@@ -228,21 +230,21 @@ export class Fraction implements ExactNumberType {
       throw new Error('Invalid value for digits');
     }
 
-    if (this.isZero()) return new FixedNumber(0n);
+    if (this.isZero()) return new FixedNumber(_0N);
 
     let x = this.abs();
 
     // move the number to the [0.1, 1) interval
     let divisions = 0;
 
-    while (x.gte(1n)) {
-      x = x.div(10n);
+    while (x.gte(_1N)) {
+      x = x.div(_10N);
       divisions++;
     }
 
-    const zeroPointOne = new Fraction(1n, 10n);
+    const zeroPointOne = new Fraction(_1N, _10N);
     while (x.lt(zeroPointOne)) {
-      x = x.mul(10n);
+      x = x.mul(_10N);
       divisions--;
     }
 
@@ -254,8 +256,8 @@ export class Fraction implements ExactNumberType {
   }
 
   private gcd(numerator: bigint, denominator: bigint): bigint {
-    let a = numerator < 0 ? -numerator : numerator;
-    let b = denominator < 0 ? -denominator : denominator;
+    let a = numerator < _0N ? -numerator : numerator;
+    let b = denominator < _0N ? -denominator : denominator;
 
     if (b > a) {
       const temp = a;
@@ -264,9 +266,9 @@ export class Fraction implements ExactNumberType {
     }
 
     while (true) {
-      if (b === 0n) return a;
+      if (b === _0N) return a;
       a %= b;
-      if (a === 0n) return b;
+      if (a === _0N) return b;
       b %= a;
     }
   }
@@ -279,12 +281,12 @@ export class Fraction implements ExactNumberType {
     let { numerator, denominator } = this;
 
     const gcd = this.gcd(numerator, denominator);
-    if (gcd > 1n) {
+    if (gcd > _1N) {
       numerator /= gcd;
       denominator /= gcd;
     }
 
-    if (denominator < 0n) {
+    if (denominator < _0N) {
       numerator = -numerator;
       denominator = -denominator;
     }
@@ -390,7 +392,7 @@ export class Fraction implements ExactNumberType {
   }
 
   isZero() {
-    return this.numerator === 0n;
+    return this.numerator === _0N;
   }
 
   isOne() {
@@ -398,7 +400,7 @@ export class Fraction implements ExactNumberType {
   }
 
   isInteger() {
-    return this.numerator % this.denominator === 0n;
+    return this.numerator % this.denominator === _0N;
   }
 
   serialize(): [bigint, bigint] {
@@ -443,38 +445,38 @@ export class Fraction implements ExactNumberType {
   private getDecimalFormat(maxDigits: number | undefined): { cycleLen: number | null; cycleStart: number } {
     maxDigits = maxDigits === undefined ? Number.MAX_SAFE_INTEGER : maxDigits;
 
-    let d = this.denominator < 0 ? -this.denominator : this.denominator;
+    let d = this.denominator < _0N ? -this.denominator : this.denominator;
 
     let twoExp = 0;
-    while (d % 2n === 0n) {
-      d /= 2n;
+    while (d % _2N === _0N) {
+      d /= _2N;
       twoExp++;
     }
 
     let fiveExp = 0;
-    while (d % 5n === 0n) {
-      d /= 5n;
+    while (d % _5N === _0N) {
+      d /= _5N;
       fiveExp++;
     }
 
     const cycleStart = Math.max(twoExp, fiveExp);
 
-    if (d === 1n) {
+    if (d === _1N) {
       return { cycleLen: 0, cycleStart };
     }
 
     const end = Math.max(1, maxDigits - cycleStart);
 
-    let rem = 10n % d;
+    let rem = _10N % d;
     let cycleLen = 1;
 
     // 10^l ≡ 1 (mod d)
-    while (rem !== 1n) {
+    while (rem !== _1N) {
       if (cycleLen === end) {
         // abort calculation
         return { cycleLen: null, cycleStart };
       }
-      rem = (rem * 10n) % d;
+      rem = (rem * _10N) % d;
       cycleLen++;
     }
 
@@ -498,7 +500,7 @@ export class Fraction implements ExactNumberType {
     if (cycleLen === null || cycleLen === 0) {
       const outputDigits = maxDigits ?? cycleStart;
       const str = this.toFixed(outputDigits);
-      const parts = trimTrailingZeros(str).split('.');
+      const parts = trimTrailingZerosFromFixed(str).split('.');
       return [parts[0], parts[1] ?? '', ''];
     }
 
@@ -538,7 +540,7 @@ export class Fraction implements ExactNumberType {
   }
 
   private toFixedNumber(digits: number): FixedNumber {
-    const numerator = this.numerator * 10n ** BigInt(digits);
+    const numerator = this.numerator * _10N ** BigInt(digits);
     const fixedNum = new FixedNumber(numerator / this.denominator, digits);
     return fixedNum;
   }
@@ -551,7 +553,9 @@ export class Fraction implements ExactNumberType {
     }
 
     if (radix === 10) {
-      return maxDigits === undefined ? this.toRepeatingDigits(maxDigits) : trimTrailingZeros(this.toFixed(maxDigits));
+      return maxDigits === undefined
+        ? this.toRepeatingDigits(maxDigits)
+        : trimTrailingZerosFromFixed(this.toFixed(maxDigits));
     }
 
     const num = this.normalize();

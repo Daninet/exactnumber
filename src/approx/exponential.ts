@@ -1,16 +1,16 @@
-import { limitDecimals } from '../util';
+import { limitDecimals, _0N, _1N, _2N, _4N } from '../util';
 import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType } from '../types';
 import { log } from './logarithm';
 
 // e^x = 1 + x + x^2/2! + x^3/3! + ...
 function* expGenerator(x: ExactNumberType, decimals: number) {
-  let sum = x.add(1n);
+  let sum = x.add(1);
 
-  let denominator = 6n;
-  let i = 4n;
+  let denominator = BigInt(6);
+  let i = _4N;
 
-  const xPow2 = x.pow(2n);
+  const xPow2 = x.pow(_2N);
 
   let xPow = xPow2;
 
@@ -18,9 +18,9 @@ function* expGenerator(x: ExactNumberType, decimals: number) {
     // x^2/2! + x^3/3!
     // = (x^2*(3+x))/3!
 
-    const term = xPow.mul(x.add(i - 1n)).div(denominator);
-    denominator *= i * (i + 1n);
-    i += 2n;
+    const term = xPow.mul(x.add(i - _1N)).div(denominator);
+    denominator *= i * (i + _1N);
+    i += _2N;
     xPow = xPow.mul(xPow2);
     sum = sum.add(term).trunc(decimals + 5);
 
@@ -41,7 +41,7 @@ export const exp = (x: number | bigint | string | ExactNumberType, decimals: num
     }
   }
 
-  return ExactNumber(0);
+  return ExactNumber(_0N);
 };
 
 export const pow = (

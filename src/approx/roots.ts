@@ -2,7 +2,7 @@ import { FixedNumber } from '../FixedNumber';
 import { ExactNumberType } from '../types';
 import { Fraction } from '../Fraction';
 import { ExactNumber } from '../ExactNumber';
-import { limitDecimals } from '../util';
+import { limitDecimals, _0N, _1N } from '../util';
 
 const approximateNthRoot = (n: number, x: ExactNumberType): string => {
   let xNum = x.toNumber();
@@ -69,8 +69,8 @@ export const nthroot = (
   }
 
   if (n % 2 === 0 && xNum.sign() === -1) throw new Error('Complex numbers are not supported');
-  if (xNum.isZero()) return new FixedNumber(0n).trunc(decimals);
-  if (xNum.isOne()) return new FixedNumber(1n).trunc(decimals);
+  if (xNum.isZero()) return new FixedNumber(_0N).trunc(decimals);
+  if (xNum.isOne()) return new FixedNumber(_1N).trunc(decimals);
 
   const res = nthrootWithNewton(n, xNum, decimals);
   return res;
