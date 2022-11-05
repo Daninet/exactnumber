@@ -22,7 +22,7 @@ describe('trigonometry', () => {
   });
 
   it('cos reduce to half pi', () => {
-    const pi = ExactNumber(PI(100));
+    const pi = PI(100);
     const piOverTwo = pi.div(2);
 
     expect(cos(pi.div(3), 6).toFixed(6)).toBe('0.500000');
@@ -49,6 +49,8 @@ describe('trigonometry', () => {
   });
 
   it('tan', () => {
+    // expect(tan(PI(12).div(2), 10).toFixed(10)).toBe('3.1415926535');
+
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.tan(i);

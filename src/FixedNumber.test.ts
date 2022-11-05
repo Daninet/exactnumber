@@ -228,6 +228,9 @@ describe('FixedNumber', () => {
     expect(run('-3.745', '1.25')).toBe('-1.245');
     expect(run('3.745', '-1.25')).toBe('1.245');
     expect(run('-3.745', '-1.25')).toBe('-1.245');
+    expect(run('17.891', '-1.66')).toBe('1.291');
+    expect(run('-712.8929', '-1.79')).toBe('-0.4729');
+    expect(run('-2.8', '-1.789')).toBe('-1.011');
 
     const values = [
       [5, 3],
@@ -742,16 +745,21 @@ describe('FixedNumber', () => {
     expect(() => run('-1.45', 0.5)).toThrow('Invalid parameter');
   });
 
-  // it('toPrecision() rounding modes', () => {
-  //   for (const rndMode of Object.values(RoundingMode)) {
-  //     for (let i = 0; i < 10; i++) {
-  //       let num = new FixedNumber('123.45600');
-  //       expect(num.toPrecision(i, rndMode)).toBe(num.roundToDigits(rndMode, i).toPrecision(i));
-  //       num = new FixedNumber('-123.45600');
-  //       expect(num.toPrecision(i, rndMode)).toBe(num.roundToDigits(rndMode, i).toPrecision(i));
-  //     }
-  //   }
-  // });
+  it('toPrecision() rounding modes', () => {
+    for (const rndMode of Object.values(RoundingMode)) {
+      if (!Number.isInteger(rndMode)) continue;
+      for (let i = 1; i < 10; i++) {
+        let num = new FixedNumber('123.45600');
+        expect(num.toPrecision(i, rndMode as RoundingMode)).toBe(
+          num.roundToDigits(i, rndMode as RoundingMode).toPrecision(i),
+        );
+        num = num.neg();
+        expect(num.toPrecision(i, rndMode as RoundingMode)).toBe(
+          num.roundToDigits(i, rndMode as RoundingMode).toPrecision(i),
+        );
+      }
+    }
+  });
 
   it('toExponential()', () => {
     const run = (a: string, digits: number) => new FixedNumber(a).toExponential(digits);
@@ -796,11 +804,14 @@ describe('FixedNumber', () => {
     expect(run('0.5', 3)).toBe('0.(1)');
     expect(run('-123.500', 10)).toBe('-123.5');
     expect(run('0.4', 3)).toBe('0.(1012)');
-    expect(run('0.3', 16)).toBe('0.4(c)');
+    expect(run('0.300', 16)).toBe('0.4(c)');
     expect(run('0.013', 7)).toBe('0.(00431330261442015456)');
     expect(run('0.012', 6)).toBe('0.0(0233151220401052455413443)');
     expect(run('-0.012', 6)).toBe('-0.0(0233151220401052455413443)');
     expect(run('-15.012', 6)).toBe('-23.0(0233151220401052455413443)');
+    expect(run('-123.500', 6)).toBe('-323.3');
+    expect(run('1234.88', 16)).toBe('4d2.(e147a)');
+    expect(run('-1234.2000', 15)).toBe('-574.3');
 
     expect(run('100', 5)).toBe('400');
     expect(run('-123', 7)).toBe('-234');

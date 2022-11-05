@@ -1,4 +1,4 @@
-import { bigIntToStr } from './util';
+import { bigIntToStr, trimTrailingZerosFromFixed, _0N, _10N, _1N, _24N, _2N } from './util';
 import { Fraction } from './Fraction';
 import { ExactNumber, parseParameter } from './ExactNumber';
 import { ExactNumberType, ModType, RoundingMode } from './types';
@@ -77,8 +77,8 @@ export class FixedNumber implements ExactNumberType {
 
   private scaleNumber(number: bigint, decimalPos: number) {
     const maxPos = Math.max(this.decimalPos, decimalPos);
-    const a = maxPos === this.decimalPos ? this.number : this.number * 10n ** BigInt(maxPos - this.decimalPos);
-    const b = maxPos === decimalPos ? number : number * 10n ** BigInt(maxPos - decimalPos);
+    const a = maxPos === this.decimalPos ? this.number : this.number * _10N ** BigInt(maxPos - this.decimalPos);
+    const b = maxPos === decimalPos ? number : number * _10N ** BigInt(maxPos - decimalPos);
     return { a, b, decimalPos: maxPos };
   }
 
@@ -157,23 +157,23 @@ export class FixedNumber implements ExactNumberType {
     }
 
     if (type === ModType.FLOORED) {
-      return Number(a < 0) ^ Number(b < 0) ? res.add(b) : res;
+      return Number(a < _0N) ^ Number(b < _0N) ? res.add(b) : res;
     }
 
     if (type === ModType.EUCLIDEAN) {
-      return mod < 0 ? res.add(b < 0 ? -b : b) : res;
+      return mod < _0N ? res.add(b < _0N ? -b : b) : res;
     }
 
     throw new Error('Invalid ModType');
   }
 
   abs(): FixedNumber {
-    const res = new FixedNumber(this.number < 0 ? -this.number : this.number, this.decimalPos);
+    const res = new FixedNumber(this.number < _0N ? -this.number : this.number, this.decimalPos);
     return res;
   }
 
   neg() {
-    return this.mul(-1n) as FixedNumber;
+    return this.mul(-_1N) as FixedNumber;
   }
 
   inv(): ExactNumberType {
@@ -214,7 +214,7 @@ export class FixedNumber implements ExactNumberType {
       return this;
     }
 
-    const exp = 10n ** BigInt(shift);
+    const exp = _10N ** BigInt(shift);
     const outDigits = this.number / exp;
 
     if (roundingMode === RoundingMode.TO_ZERO) {
@@ -222,22 +222,22 @@ export class FixedNumber implements ExactNumberType {
     }
 
     const extraDigits = this.number % exp;
-    if (extraDigits === 0n) {
+    if (extraDigits === _0N) {
       return new FixedNumber(outDigits, decimals);
     }
 
     if (roundingMode === RoundingMode.AWAY_FROM_ZERO) {
-      const res = this.number < 0n ? outDigits - 1n : outDigits + 1n;
+      const res = this.number < _0N ? outDigits - _1N : outDigits + _1N;
       return new FixedNumber(res, decimals);
     }
 
     if (roundingMode === RoundingMode.TO_POSITIVE) {
-      const res = this.number < 0n ? outDigits : outDigits + 1n;
+      const res = this.number < _0N ? outDigits : outDigits + _1N;
       return new FixedNumber(res, decimals);
     }
 
     if (roundingMode === RoundingMode.TO_NEGATIVE) {
-      const res = this.number >= 0n ? outDigits : outDigits - 1n;
+      const res = this.number >= _0N ? outDigits : outDigits - _1N;
       return new FixedNumber(res, decimals);
     }
 
@@ -254,7 +254,7 @@ export class FixedNumber implements ExactNumberType {
       throw new Error('Invalid rounding mode. Use the predefined values from the RoundingMode enum.');
     }
 
-    let extraDigitsStr = (extraDigits < 0n ? -extraDigits : extraDigits).toString();
+    let extraDigitsStr = (extraDigits < _0N ? -extraDigits : extraDigits).toString();
     // '00123' extra part will appear in extraDigitsStr as '123'
     // -> in this case we can exclude the tie case by setting the extra part to zero
     if (extraDigitsStr.length < shift) {
@@ -267,26 +267,26 @@ export class FixedNumber implements ExactNumberType {
       }
 
       if (roundingMode === RoundingMode.NEAREST_AWAY_FROM_ZERO) {
-        const res = this.number < 0n ? outDigits - 1n : outDigits + 1n;
+        const res = this.number < _0N ? outDigits - _1N : outDigits + _1N;
         return new FixedNumber(res, decimals);
       }
 
       if (roundingMode === undefined || roundingMode === RoundingMode.NEAREST_TO_POSITIVE) {
-        const res = this.number < 0n ? outDigits : outDigits + 1n;
+        const res = this.number < _0N ? outDigits : outDigits + _1N;
         return new FixedNumber(res, decimals);
       }
 
       if (roundingMode === RoundingMode.NEAREST_TO_NEGATIVE) {
-        const res = this.number >= 0n ? outDigits : outDigits - 1n;
+        const res = this.number >= _0N ? outDigits : outDigits - _1N;
         return new FixedNumber(res, decimals);
       }
 
       if (roundingMode === RoundingMode.NEAREST_TO_EVEN) {
-        if (outDigits % 2n === 0n) {
+        if (outDigits % _2N === _0N) {
           return new FixedNumber(outDigits, decimals);
         }
 
-        const res = outDigits < 0n ? outDigits - 1n : outDigits + 1n;
+        const res = outDigits < _0N ? outDigits - _1N : outDigits + _1N;
         return new FixedNumber(res, decimals);
       }
     }
@@ -295,7 +295,7 @@ export class FixedNumber implements ExactNumberType {
       return new FixedNumber(outDigits, decimals);
     }
 
-    const res = this.number < 0 ? outDigits - 1n : outDigits + 1n;
+    const res = this.number < _0N ? outDigits - _1N : outDigits + _1N;
     return new FixedNumber(res, decimals);
   }
 
@@ -321,7 +321,7 @@ export class FixedNumber implements ExactNumberType {
       newDecimalPos -= maxChange;
       const rem = amount - maxChange;
       if (rem > 0) {
-        newNumber *= 10n ** BigInt(rem);
+        newNumber *= _10N ** BigInt(rem);
       }
     }
 
@@ -329,11 +329,11 @@ export class FixedNumber implements ExactNumberType {
   }
 
   private countDigits() {
-    if (this.number === 0n) return 1;
+    if (this.number === _0N) return 1;
     let digits = 0;
-    let x = this.number < 0 ? -this.number : this.number;
-    while (x > 0n) {
-      x /= 10n;
+    let x = this.number < _0N ? -this.number : this.number;
+    while (x > _0N) {
+      x /= _10N;
       digits++;
     }
     return digits;
@@ -368,7 +368,7 @@ export class FixedNumber implements ExactNumberType {
   }
 
   sign(): -1 | 1 {
-    return this.number < 0n ? -1 : 1;
+    return this.number < _0N ? -1 : 1;
   }
 
   bitwiseAnd(x: number | bigint | string | ExactNumberType): ExactNumberType {
@@ -382,13 +382,13 @@ export class FixedNumber implements ExactNumberType {
       x = x.trunc();
     }
 
-    const pow = 2n ** 24n;
+    const pow = _2N ** _24N;
     let an = this.normalize().number;
     let bn = (x.trunc().normalize() as FixedNumber).number;
-    let res = 0n;
-    let shift = 1n;
+    let res = _0N;
+    let shift = _1N;
 
-    while (an > 0 && bn > 0) {
+    while (an > _0N && bn > _0N) {
       const modA = BigInt.asUintN(24, an);
       const modB = BigInt.asUintN(24, bn);
       res += BigInt(Number(modA) & Number(modB)) * shift;
@@ -411,13 +411,13 @@ export class FixedNumber implements ExactNumberType {
       x = x.trunc();
     }
 
-    const pow = 2n ** 24n;
+    const pow = _2N ** _24N;
     let an = this.normalize().number;
     let bn = (x.trunc().normalize() as FixedNumber).number;
-    let res = 0n;
-    let shift = 1n;
+    let res = _0N;
+    let shift = _1N;
 
-    while (an > 0 || bn > 0) {
+    while (an > _0N || bn > _0N) {
       const modA = BigInt.asUintN(24, an);
       const modB = BigInt.asUintN(24, bn);
       res += BigInt(Number(modA) | Number(modB)) * shift;
@@ -440,13 +440,13 @@ export class FixedNumber implements ExactNumberType {
       x = x.trunc();
     }
 
-    const pow = 2n ** 24n;
+    const pow = _2N ** _24N;
     let an = this.normalize().number;
     let bn = (x.trunc().normalize() as FixedNumber).number;
-    let res = 0n;
-    let shift = 1n;
+    let res = _0N;
+    let shift = _1N;
 
-    while (an > 0 || bn > 0) {
+    while (an > _0N || bn > _0N) {
       const modA = BigInt.asUintN(24, an);
       const modB = BigInt.asUintN(24, bn);
       res += BigInt(Number(modA) ^ Number(modB)) * shift;
@@ -467,7 +467,7 @@ export class FixedNumber implements ExactNumberType {
       throw new Error('Invalid value for bitCount');
     }
 
-    const pow = 2n ** BigInt(bitCount);
+    const pow = _2N ** BigInt(bitCount);
     return this.mul(pow);
   }
 
@@ -480,7 +480,7 @@ export class FixedNumber implements ExactNumberType {
       throw new Error('Invalid value for bitCount');
     }
 
-    const pow = 2n ** BigInt(bitCount);
+    const pow = _2N ** BigInt(bitCount);
     return new FixedNumber(this.normalize().number / pow);
   }
 
@@ -530,22 +530,22 @@ export class FixedNumber implements ExactNumberType {
   }
 
   isZero() {
-    return this.number === 0n;
+    return this.number === _0N;
   }
 
   isOne() {
     if (this.decimalPos === 0) {
-      return this.number === 1n;
+      return this.number === _1N;
     }
 
-    const exp = 10n ** BigInt(this.decimalPos);
+    const exp = _10N ** BigInt(this.decimalPos);
     const q = this.number / exp;
-    return q === 1n && q * exp === this.number;
+    return q === _1N && q * exp === this.number;
   }
 
   isInteger() {
     if (this.decimalPos === 0) return true;
-    return this.number % 10n ** BigInt(this.decimalPos) === 0n;
+    return this.number % _10N ** BigInt(this.decimalPos) === _0N;
   }
 
   serialize(): [bigint, number] {
@@ -560,18 +560,18 @@ export class FixedNumber implements ExactNumberType {
     if (this.decimalPos === 0) return this;
     let pos = this.decimalPos;
     let n = this.number;
-    while (pos > 0 && n % 10n === 0n) {
+    while (pos > 0 && n % _10N === _0N) {
       pos--;
-      n /= 10n;
+      n /= _10N;
     }
     return new FixedNumber(n, pos);
   }
 
   convertToFraction() {
     if (this.decimalPos === 0) {
-      return new Fraction(this.number, 1n);
+      return new Fraction(this.number, _1N);
     }
-    const denominator = 10n ** BigInt(this.decimalPos);
+    const denominator = _10N ** BigInt(this.decimalPos);
     return new Fraction(this.number, denominator);
   }
 

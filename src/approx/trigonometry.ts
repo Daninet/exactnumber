@@ -3,22 +3,23 @@ import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType, RoundingMode } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
-import { limitDecimals } from '../util';
+import { limitDecimals, _0N, _1N, _2N, _3N, _4N, _10N, _24N } from '../util';
 
 // TODO: https://en.wikipedia.org/wiki/Niven%27s_theorem
 // On Lambert's Proof of the Irrationality of π: https://www.jstor.org/stable/2974737
 
 // Faster solution here -> https://arxiv.org/pdf/1706.08835.pdf
 const PIcalc = (decimals: number): ExactNumberType => {
-  if (decimals === 0) return ExactNumber(3n);
+  if (decimals === 0) return ExactNumber(_3N);
 
   // PI = 3 + 3(1/2)(1/3)(1/4) + 3((1/2)(3/4))(1/5)(1/4^2) + 3((1/2)(3/4)(5/6))(1/7)(1/4^3) + ...
-  let i = 1n;
-  let x = 3n * 10n ** BigInt(decimals + 20);
+  let i = _1N;
+  let x = _3N * _10N ** BigInt(decimals + 20);
   let res = x;
-  while (x !== 0n) {
-    x = (x * i) / ((i + 1n) * 4n);
-    i += 2n;
+
+  while (x !== _0N) {
+    x = (x * i) / ((i + _1N) * _4N);
+    i += _2N;
     res += x / i;
   }
 
@@ -28,7 +29,7 @@ const PIcalc = (decimals: number): ExactNumberType => {
 const PI_CACHE = new ConstantCache(PIcalc, 1000);
 
 export const PI = (decimals: number): ExactNumberType => {
-  if (decimals === 0) return ExactNumber(3);
+  if (decimals === 0) return ExactNumber(_3N);
   return PI_CACHE.get(decimals).trunc(decimals);
 };
 
@@ -67,22 +68,21 @@ const evaluateAngle = (x: ExactNumberType, decimals: number) => {
 
 // cos x = 1 - x^2/2! + x^4/4! - ...
 function* cosGenerator(x: ExactNumberType, decimals: number) {
-  const x2 = x.round(decimals + 10, RoundingMode.NEAREST_AWAY_FROM_ZERO).pow(2n);
+  const x2 = x.round(decimals + 10, RoundingMode.NEAREST_AWAY_FROM_ZERO).pow(_2N);
 
   let xPow = x2;
 
-  let termDenominator = 2n;
-  let sum = ExactNumber(1n).sub(xPow.div(termDenominator).trunc(decimals + 10));
-  let i = 3n;
-  // let rndErrors = 1;
+  let termDenominator = _2N;
+  let sum = ExactNumber(_1N).sub(xPow.div(termDenominator).trunc(decimals + 10));
+  let i = _3N;
 
   while (true) {
     // term = x^4/4! - x^6/6!
     // = (5*6*x^4 - x^6)/6!
-    termDenominator *= i * (i + 1n);
-    i += 2n;
-    const multiplier = i * (i + 1n);
-    i += 2n;
+    termDenominator *= i * (i + _1N);
+    i += _2N;
+    const multiplier = i * (i + _1N);
+    i += _2N;
     xPow = xPow.mul(x2);
     termDenominator *= multiplier;
     let termNumerator = xPow.mul(multiplier);
@@ -90,11 +90,9 @@ function* cosGenerator(x: ExactNumberType, decimals: number) {
     termNumerator = termNumerator.sub(xPow);
 
     const term = termNumerator.div(termDenominator).trunc(decimals + 10);
-    // rndErrors++;
 
     sum = sum.add(term);
     // max lagrange error = x^(k+1)/(k+1)!
-    // const le = xPow.mul(x).div(termDenominator * i);
 
     yield { term, sum };
   }
@@ -141,7 +139,7 @@ export const cos = (_angle: number | bigint | string | ExactNumberType, decimals
 export const sin = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const pi = new FixedNumber(PI(decimals + 10));
   const x = limitDecimals(ExactNumber(angle), decimals + 5);
-  return cos(pi.div(2n).sub(x), decimals + 5).trunc(decimals);
+  return cos(pi.div(_2N).sub(x), decimals + 5).trunc(decimals);
 };
 
 export const tan = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
@@ -164,11 +162,11 @@ export const tan = (angle: number | bigint | string | ExactNumberType, decimals:
   }
 
   // tan x = sqrt((1 - cos(2x)) / 1 + cos(2x))
-  const cos2x = ExactNumber(cos(x.mul(2n), decimals + 5));
+  const cos2x = ExactNumber(cos(x.mul(_2N), decimals + 5));
 
-  const res = ExactNumber(1n)
+  const res = ExactNumber(_1N)
     .sub(cos2x)
-    .div(ExactNumber(1n).add(cos2x))
+    .div(ExactNumber(_1N).add(cos2x))
     .round(decimals + 5);
 
   const root = sqrt(res, decimals + 5).trunc(decimals);

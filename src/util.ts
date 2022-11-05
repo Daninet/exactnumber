@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { FixedNumber } from './FixedNumber';
 import { ExactNumberType, RoundingMode } from './types';
 
@@ -61,14 +62,13 @@ export const limitDecimals = (x: ExactNumberType, decimals: number) => {
   return x;
 };
 
-// export const modpow = (base: bigint, exp: bigint, mod: bigint) => {
-//   let res = 1n;
-//   while (exp > 0n) {
-//     if (exp % 2n) {
-//       res = (res * base) % mod;
-//     }
-//     base = base ** 2n % mod;
-//     exp /= 2n;
-//   }
-//   return res;
-// };
+// BigInt literals (1n) are not supported by all parsers
+// also, the BigInt() constructor is still too slow to call in a loop
+export const _0N = BigInt(0);
+export const _1N = BigInt(1);
+export const _2N = BigInt(2);
+export const _3N = BigInt(3);
+export const _4N = BigInt(4);
+export const _5N = BigInt(5);
+export const _10N = BigInt(10);
+export const _24N = BigInt(24);
