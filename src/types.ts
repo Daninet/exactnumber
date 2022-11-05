@@ -47,12 +47,12 @@ export interface ExactNumberType {
   /** Returns this number exponentiated to the given value. */
   pow(x: number | bigint | string | ExactNumberType): ExactNumberType;
 
-  /** Returns b^e mod m (modular exponentiation) */
-  // modpow(
-  //   exponent: number | bigint | string | ExactNumberType,
-  //   modulus: number | bigint | string | ExactNumberType,
-  //   type?: ModType,
-  // ): ExactNumberType;
+  /** Returns modulo of this number exponentiated to the given value (modular exponentiation) */
+  powm(
+    exponent: number | bigint | string | ExactNumberType,
+    modulus: number | bigint | string | ExactNumberType,
+    type?: ModType,
+  ): ExactNumberType;
 
   /** Returns the result of the division of this number by the given one. */
   div(x: number | bigint | string | ExactNumberType): ExactNumberType;

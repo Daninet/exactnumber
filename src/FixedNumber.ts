@@ -123,6 +123,31 @@ export class FixedNumber implements ExactNumberType {
     return exp < 0 ? res.inv() : res;
   }
 
+  powm(
+    _exp: number | bigint | string | ExactNumberType,
+    _mod: number | bigint | string | ExactNumberType,
+    modType?: ModType,
+  ): FixedNumber {
+    let exp = parseParameter(_exp).toNumber();
+    if (!Number.isSafeInteger(exp)) {
+      throw new Error('Unsupported parameter');
+    }
+
+    const mod = parseParameter(_mod);
+    let base = this as FixedNumber;
+
+    let res = new FixedNumber(_1N);
+    while (exp !== 0) {
+      if (exp % 2 !== 0) {
+        res = res.mul(base).mod(mod, modType) as FixedNumber;
+      }
+      base = base.pow(_2N).mod(mod, modType) as FixedNumber;
+      exp = Math.floor(exp / 2);
+    }
+
+    return res;
+  }
+
   div(x: number | bigint | string | ExactNumberType): ExactNumberType {
     const frac = this.convertToFraction();
     return frac.div(x);

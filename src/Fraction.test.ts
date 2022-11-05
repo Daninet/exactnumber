@@ -210,6 +210,22 @@ describe('Fraction', () => {
     expect(() => run('2', '1/7')).toThrow('Unsupported parameter');
   });
 
+  it('powm()', () => {
+    const run = (b: ExactNumberParameter, e: ExactNumberParameter, m: ExactNumberParameter) =>
+      new Fraction(b, 1n).powm(e, m).toString();
+
+    expect(run(3, 4, 5)).toBe('1');
+    expect(run(314, 23, 971)).toBe('865');
+
+    for (let b = 2; b <= 25; b++) {
+      for (let e = 0; e <= 10; e++) {
+        for (let m = 11; m <= 13; m++) {
+          expect(run(b, e, m)).toBe((b ** e % m).toString());
+        }
+      }
+    }
+  });
+
   it('round()', () => {
     const run = (a: string, decimals?: number, rndMode?: RoundingMode) =>
       new Fraction(a, 1n).round(decimals, rndMode).toFixed(decimals ?? 0);
