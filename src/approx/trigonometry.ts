@@ -33,37 +33,77 @@ export const PI = (decimals: number): ExactNumberType => {
   return PI_CACHE.get(decimals).trunc(decimals);
 };
 
-const evaluateAngle = (x: ExactNumberType, decimals: number) => {
-  const pi = new FixedNumber(PI(decimals + 5));
-  const twoPi = pi.mul(2n);
-  const roundedX = x.round(decimals + 5, RoundingMode.NEAREST_AWAY_FROM_ZERO);
-  // a number between (-1, 1)
-  let turns = roundedX.div(twoPi).fracPart();
+const getMultiplierOf = (x: ExactNumberType, y: ExactNumberType, decimals: number) => {
+  const precision = Math.max(3, decimals);
+  const input = x.trunc(precision);
+  const closestQuotient = input.div(y).round();
+  const ref = y.mul(closestQuotient).trunc(precision);
 
-  // normalize into the [0, 1) interval
-  if (turns.lt(0n)) {
-    turns = turns.add(1n);
+  if (ref.eq(input)) {
+    return closestQuotient;
   }
 
-  // limit precision
-  turns = turns.round(decimals + 5);
+  return null;
+};
 
-  const quadrant = turns.div('0.25').floor().toNumber() + 1;
+type EvaluationRes = { specialCaseDeg: number | null; quadrant: number; subHalfPiAngle: ExactNumberType | null };
 
-  let subHalfPiAngle = twoPi.mul(turns);
-  let quadrantDegrees = turns.mul(360n);
+const evaluateSpecialAngle = (angleMultiplier: ExactNumberType): EvaluationRes => {
+  let multiplier = angleMultiplier.mod(_24N).toNumber();
+  if (multiplier < 0) {
+    multiplier += 24;
+  }
+  const quadrant = Math.floor(multiplier / 6) + 1;
+
+  let specialCaseDeg = multiplier * 15;
+  if (quadrant === 4) {
+    specialCaseDeg = 360 - specialCaseDeg;
+  } else if (quadrant === 3) {
+    specialCaseDeg -= 180;
+  } else if (quadrant === 2) {
+    specialCaseDeg = 180 - specialCaseDeg;
+  }
+
+  return {
+    specialCaseDeg,
+    quadrant,
+    subHalfPiAngle: null,
+  };
+};
+
+export const evaluateAngle = (x: ExactNumberType, decimals: number): EvaluationRes => {
+  let angle = x.round(decimals + 5, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+  const pi = PI(decimals + 5);
+
+  const angleMultiplier = getMultiplierOf(angle, pi.div(12), decimals);
+  if (angleMultiplier !== null) {
+    return evaluateSpecialAngle(angleMultiplier);
+  }
+
+  const twoPi = pi.mul(_2N);
+
+  angle = angle.mod(twoPi);
+
+  if (angle.sign() === -1) {
+    angle = angle.add(twoPi);
+  }
+
+  const quadrant = angle.mul(_2N).div(pi).floor().toNumber() + 1;
+
+  let subHalfPiAngle = angle;
   if (quadrant === 4) {
     subHalfPiAngle = twoPi.sub(subHalfPiAngle);
-    quadrantDegrees = ExactNumber(360).sub(quadrantDegrees);
   } else if (quadrant === 3) {
     subHalfPiAngle = subHalfPiAngle.sub(pi);
-    quadrantDegrees = quadrantDegrees.sub(180);
   } else if (quadrant === 2) {
     subHalfPiAngle = pi.sub(subHalfPiAngle);
-    quadrantDegrees = ExactNumber(180).sub(quadrantDegrees);
   }
 
-  return { quadrantDegrees: quadrantDegrees.round(decimals), quadrant, subHalfPiAngle };
+  return {
+    specialCaseDeg: null,
+    quadrant,
+    subHalfPiAngle,
+  };
 };
 
 // cos x = 1 - x^2/2! + x^4/4! - ...
@@ -98,7 +138,11 @@ function* cosGenerator(x: ExactNumberType, decimals: number) {
   }
 }
 
-const resultHandler = (value: string | ExactNumberType, shouldNegate: boolean, decimals: number): ExactNumberType => {
+const resultHandler = (
+  value: bigint | string | ExactNumberType,
+  shouldNegate: boolean,
+  decimals: number,
+): ExactNumberType => {
   let convertedValue = ExactNumber(value);
   if (shouldNegate) {
     convertedValue = convertedValue.neg();
@@ -110,19 +154,22 @@ export const cos = (_angle: number | bigint | string | ExactNumberType, decimals
   const EXTRA_DECIMALS = decimals + 10;
 
   const angle = limitDecimals(ExactNumber(_angle), decimals + 5);
-  const { quadrantDegrees, subHalfPiAngle: x, quadrant } = evaluateAngle(angle, decimals);
+  const { specialCaseDeg, subHalfPiAngle: x, quadrant } = evaluateAngle(angle, decimals);
 
   const shouldNegate = quadrant === 2 || quadrant === 3;
 
-  if (quadrantDegrees.isZero()) return resultHandler('1', shouldNegate, decimals);
-  if (quadrantDegrees.eq(30n)) {
-    return resultHandler(ExactNumber(sqrt(3n, decimals + 5)).div(2n), shouldNegate, decimals);
+  if (specialCaseDeg !== null) {
+    if (specialCaseDeg === 0) return resultHandler(_1N, shouldNegate, decimals);
+    if (specialCaseDeg === 30) {
+      return resultHandler(ExactNumber(sqrt(_3N, decimals + 5)).div(_2N), shouldNegate, decimals);
+    }
+    if (specialCaseDeg === 45) {
+      return resultHandler(ExactNumber(sqrt(_2N, decimals + 5)).div(_2N), shouldNegate, decimals);
+    }
+    if (specialCaseDeg === 60) return resultHandler('0.5', shouldNegate, decimals);
+    if (specialCaseDeg === 90) return resultHandler(_0N, shouldNegate, decimals);
+    throw new Error();
   }
-  if (quadrantDegrees.eq(45n)) {
-    return resultHandler(ExactNumber(sqrt(2n, decimals + 5)).div(2n), shouldNegate, decimals);
-  }
-  if (quadrantDegrees.eq(60n)) return resultHandler('0.5', shouldNegate, decimals);
-  if (quadrantDegrees.eq(90n)) return resultHandler('0', shouldNegate, decimals);
 
   const maxError = ExactNumber(`1e-${EXTRA_DECIMALS}`);
 
@@ -145,20 +192,23 @@ export const sin = (angle: number | bigint | string | ExactNumberType, decimals:
 export const tan = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const angleNum = limitDecimals(ExactNumber(angle), decimals + 5);
 
-  const { quadrantDegrees, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, decimals + 5);
+  const { specialCaseDeg, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, decimals);
 
   const shouldNegate = quadrant === 1 || quadrant === 3;
 
-  if (quadrantDegrees.isZero()) return resultHandler('0', shouldNegate, decimals);
-  if (quadrantDegrees.eq(30n)) {
-    return resultHandler(ExactNumber(1n).div(sqrt(3n, decimals + 5)), shouldNegate, decimals);
-  }
-  if (quadrantDegrees.eq(45n)) {
-    return resultHandler('1', shouldNegate, decimals);
-  }
-  if (quadrantDegrees.eq(60n)) return resultHandler(sqrt(3n, decimals + 5), shouldNegate, decimals);
-  if (quadrantDegrees.eq(90n)) {
-    throw new Error('Out of range');
+  if (specialCaseDeg !== null) {
+    if (specialCaseDeg === 0) return resultHandler('0', shouldNegate, decimals);
+    if (specialCaseDeg === 30) {
+      return resultHandler(ExactNumber(_1N).div(sqrt(_3N, decimals + 5)), shouldNegate, decimals);
+    }
+    if (specialCaseDeg === 4) {
+      return resultHandler('1', shouldNegate, decimals);
+    }
+    if (specialCaseDeg === 60) return resultHandler(sqrt(_3N, decimals + 5), shouldNegate, decimals);
+    if (specialCaseDeg === 90) {
+      throw new Error('Out of range');
+    }
+    throw new Error();
   }
 
   // tan x = sqrt((1 - cos(2x)) / 1 + cos(2x))
