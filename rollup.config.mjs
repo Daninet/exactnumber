@@ -1,10 +1,12 @@
 import typescript from '@rollup/plugin-typescript';
 import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import license from 'rollup-plugin-license';
 import commonjs from '@rollup/plugin-commonjs';
-import packageJson from './package.json';
+import fs from 'fs';
+
+const packageJson = JSON.parse(fs.readFileSync('./package.json').toString());
 
 const TERSER_CONFIG = {
   output: {
