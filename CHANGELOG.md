@@ -1,4 +1,4 @@
-## 1.0.0 (November)
+## 1.0.0 (November 05, 2022)
 
 - Add modular exponentiation - `powm()`
 - Do not expose `trimTrailingZeros()` anymore. Zero trimming is still available through the third parameter at toFixed(), toExponential() and toPrecision()
