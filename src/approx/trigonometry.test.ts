@@ -18,6 +18,38 @@ describe('trigonometry', () => {
     }
   });
 
+  it('sin special values', () => {
+    const pi = PI(12);
+
+    for (let i = -4; i < 4; i++) {
+      const base = pi.mul(2 * i);
+      expect(sin(base, 10).toString()).toBe('0');
+      // quadrant 1
+      expect(sin(pi.div(6).add(base), 10).toString()).toBe('0.5');
+      expect(sin(pi.div(4).add(base), 10).toString()).toBe('0.7071067811');
+      expect(sin(pi.div(3).add(base), 10).toString()).toBe('0.8660254037');
+      expect(sin(pi.div(2).add(base), 10).toString()).toBe('1');
+
+      // quadrant 2
+      expect(sin(pi.div(6).add(pi.div(2)).add(base), 10).toString()).toBe('0.8660254037');
+      expect(sin(pi.div(4).add(pi.div(2)).add(base), 10).toString()).toBe('0.7071067811');
+      expect(sin(pi.div(3).add(pi.div(2)).add(base), 10).toString()).toBe('0.5');
+      expect(sin(pi.div(2).add(pi.div(2)).add(base), 10).toString()).toBe('0');
+
+      // quadrant 3
+      expect(sin(pi.div(6).add(pi).add(base), 10).toString()).toBe('-0.5');
+      expect(sin(pi.div(4).add(pi).add(base), 10).toString()).toBe('-0.7071067811');
+      expect(sin(pi.div(3).add(pi).add(base), 10).toString()).toBe('-0.8660254037');
+      expect(sin(pi.div(2).add(pi).add(base), 10).toString()).toBe('-1');
+
+      // quadrant 4
+      expect(sin(pi.div(6).neg().add(base), 10).toString()).toBe('-0.5');
+      expect(sin(pi.div(4).neg().add(base), 10).toString()).toBe('-0.7071067811');
+      expect(sin(pi.div(3).neg().add(base), 10).toString()).toBe('-0.8660254037');
+      expect(sin(pi.div(2).neg().add(base), 10).toString()).toBe('-1');
+    }
+  });
+
   it('sin many digits', () => {
     testStability(decimals => sin('7/12', decimals), 250);
   });
@@ -95,13 +127,62 @@ describe('trigonometry', () => {
     }
   });
 
+  it('cos special values', () => {
+    const pi = PI(12);
+
+    for (let i = -4; i < 4; i++) {
+      const base = pi.mul(2 * i);
+      expect(cos(base, 10).toString()).toBe('1');
+      // quadrant 1
+      expect(cos(pi.div(6).add(base), 10).toString()).toBe('0.8660254037');
+      expect(cos(pi.div(4).add(base), 10).toString()).toBe('0.7071067811');
+      expect(cos(pi.div(3).add(base), 10).toString()).toBe('0.5');
+      expect(cos(pi.div(2).add(base), 10).toString()).toBe('0');
+
+      // quadrant 2
+      expect(cos(pi.div(6).add(pi.div(2)).add(base), 10).toString()).toBe('-0.5');
+      expect(cos(pi.div(4).add(pi.div(2)).add(base), 10).toString()).toBe('-0.7071067811');
+      expect(cos(pi.div(3).add(pi.div(2)).add(base), 10).toString()).toBe('-0.8660254037');
+      expect(cos(pi.div(2).add(pi.div(2)).add(base), 10).toString()).toBe('-1');
+
+      // quadrant 3
+      expect(cos(pi.div(6).add(pi).add(base), 10).toString()).toBe('-0.8660254037');
+      expect(cos(pi.div(4).add(pi).add(base), 10).toString()).toBe('-0.7071067811');
+      expect(cos(pi.div(3).add(pi).add(base), 10).toString()).toBe('-0.5');
+      expect(cos(pi.div(2).add(pi).add(base), 10).toString()).toBe('0');
+
+      // quadrant 4
+      expect(cos(pi.div(6).neg().add(base), 10).toString()).toBe('0.8660254037');
+      expect(cos(pi.div(4).neg().add(base), 10).toString()).toBe('0.7071067811');
+      expect(cos(pi.div(3).neg().add(base), 10).toString()).toBe('0.5');
+      expect(cos(pi.div(2).neg().add(base), 10).toString()).toBe('0');
+    }
+  });
+
   it('cos many digits', () => {
     testStability(decimals => cos('7/12', decimals), 250);
   });
 
-  it('tan', () => {
-    // expect(tan(PI(12).div(2), 10).toFixed(10)).toBe('3.1415926535');
+  it('tan special values', () => {
+    expect(tan(0, 10).toString()).toBe('0');
+    const pi = PI(12);
 
+    for (let i = -4; i < 4; i++) {
+      const base = pi.add(pi.mul(i));
+      expect(tan(base, 10).toString()).toBe('0');
+      expect(tan(pi.div(6).add(base), 10).toString()).toBe('0.5773502691');
+      expect(tan(pi.div(4).add(base), 10).toString()).toBe('1');
+      expect(tan(pi.div(3).add(base), 10).toString()).toBe('1.7320508075');
+      expect(() => tan(pi.div(2).add(base), 10)).toThrow('Out of range');
+
+      expect(tan(pi.div(6).neg().add(base), 10).toString()).toBe('-0.5773502691');
+      expect(tan(pi.div(4).neg().add(base), 10).toString()).toBe('-1');
+      expect(tan(pi.div(3).neg().add(base), 10).toString()).toBe('-1.7320508075');
+      expect(() => tan(pi.div(2).neg().add(base), 10)).toThrow('Out of range');
+    }
+  });
+
+  it('tan', () => {
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.tan(i);

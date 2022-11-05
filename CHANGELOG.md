@@ -1,3 +1,6 @@
+## 1.0.1 (November 05, 2022)
+- Fix incorrect signs at tan() approximation and precision errors at sin()
+
 ## 1.0.0 (November 05, 2022)
 
 - Add modular exponentiation - `powm()`
