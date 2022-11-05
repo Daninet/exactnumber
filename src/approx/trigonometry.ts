@@ -1,6 +1,6 @@
 import { FixedNumber } from '../FixedNumber';
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberType, RoundingMode } from '../types';
+import { ExactNumberParameter, ExactNumberType, RoundingMode } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
 import { limitDecimals, _0N, _1N, _2N, _3N, _4N, _10N, _24N } from '../util';
@@ -150,6 +150,25 @@ const resultHandler = (
   return convertedValue.trunc(decimals);
 };
 
+const getCosSpecialValue = (angleDeg: number, shouldNegate: boolean, decimals: number) => {
+  let res: ExactNumberParameter;
+  if (angleDeg === 0) {
+    res = _1N;
+  } else if (angleDeg === 30) {
+    res = ExactNumber(sqrt(_3N, decimals + 5)).div(_2N);
+  } else if (angleDeg === 45) {
+    res = ExactNumber(sqrt(_2N, decimals + 5)).div(_2N);
+  } else if (angleDeg === 60) {
+    res = '0.5';
+  } else if (angleDeg === 90) {
+    res = _0N;
+  } else {
+    throw new Error();
+  }
+
+  return resultHandler(res, shouldNegate, decimals);
+};
+
 export const cos = (_angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const EXTRA_DECIMALS = decimals + 10;
 
@@ -159,16 +178,7 @@ export const cos = (_angle: number | bigint | string | ExactNumberType, decimals
   const shouldNegate = quadrant === 2 || quadrant === 3;
 
   if (specialCaseDeg !== null) {
-    if (specialCaseDeg === 0) return resultHandler(_1N, shouldNegate, decimals);
-    if (specialCaseDeg === 30) {
-      return resultHandler(ExactNumber(sqrt(_3N, decimals + 5)).div(_2N), shouldNegate, decimals);
-    }
-    if (specialCaseDeg === 45) {
-      return resultHandler(ExactNumber(sqrt(_2N, decimals + 5)).div(_2N), shouldNegate, decimals);
-    }
-    if (specialCaseDeg === 60) return resultHandler('0.5', shouldNegate, decimals);
-    if (specialCaseDeg === 90) return resultHandler(_0N, shouldNegate, decimals);
-    throw new Error();
+    return getCosSpecialValue(specialCaseDeg, shouldNegate, decimals);
   }
 
   const maxError = ExactNumber(`1e-${EXTRA_DECIMALS}`);
@@ -183,10 +193,19 @@ export const cos = (_angle: number | bigint | string | ExactNumberType, decimals
   return ExactNumber(0);
 };
 
-export const sin = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const pi = new FixedNumber(PI(decimals + 10));
-  const x = limitDecimals(ExactNumber(angle), decimals + 5);
-  return cos(pi.div(_2N).sub(x), decimals + 5).trunc(decimals);
+export const sin = (_angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
+  const angle = limitDecimals(ExactNumber(_angle), decimals + 5);
+  const { specialCaseDeg, quadrant } = evaluateAngle(angle, decimals);
+
+  const shouldNegate = quadrant === 3 || quadrant === 4;
+
+  if (specialCaseDeg !== null) {
+    return getCosSpecialValue(90 - specialCaseDeg, shouldNegate, decimals);
+  }
+
+  const pi = new FixedNumber(PI(decimals + 5));
+
+  return cos(pi.div(_2N).sub(angle), decimals + 5).trunc(decimals);
 };
 
 export const tan = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
@@ -194,14 +213,14 @@ export const tan = (angle: number | bigint | string | ExactNumberType, decimals:
 
   const { specialCaseDeg, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, decimals);
 
-  const shouldNegate = quadrant === 1 || quadrant === 3;
+  const shouldNegate = quadrant === 2 || quadrant === 4;
 
   if (specialCaseDeg !== null) {
     if (specialCaseDeg === 0) return resultHandler('0', shouldNegate, decimals);
     if (specialCaseDeg === 30) {
       return resultHandler(ExactNumber(_1N).div(sqrt(_3N, decimals + 5)), shouldNegate, decimals);
     }
-    if (specialCaseDeg === 4) {
+    if (specialCaseDeg === 45) {
       return resultHandler('1', shouldNegate, decimals);
     }
     if (specialCaseDeg === 60) return resultHandler(sqrt(_3N, decimals + 5), shouldNegate, decimals);
@@ -221,5 +240,5 @@ export const tan = (angle: number | bigint | string | ExactNumberType, decimals:
 
   const root = sqrt(res, decimals + 5).trunc(decimals);
 
-  return shouldNegate ? root : root.neg();
+  return shouldNegate ? root.neg() : root;
 };
