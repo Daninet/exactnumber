@@ -162,18 +162,18 @@ export interface ExactNumberType {
   /** Returns a string representing the number using fixed-point notation, rounded to the specified number of decimals.
    * Defaults to RoundingMode.TO_ZERO
    */
-  toFixed(decimals: number, roundingMode?: RoundingMode): string;
+  toFixed(decimals: number, roundingMode?: RoundingMode, trimZeros?: boolean): string;
 
   /** Returns a string representing the number in exponential notation.
    * Defaults to RoundingMode.TO_ZERO
    */
-  toExponential(digits: number, roundingMode?: RoundingMode): string;
+  toExponential(digits: number, roundingMode?: RoundingMode, trimZeros?: boolean): string;
 
   /** Returns a string representing the number using fixed-point notation, rounded to the specified number of significant digits.
    * In contrary to JS Number.toPrecision(), this function never returns exponential notation.
    * Defaults to RoundingMode.TO_ZERO
    */
-  toPrecision(digits: number, roundingMode?: RoundingMode): string;
+  toPrecision(digits: number, roundingMode?: RoundingMode, trimZeros?: boolean): string;
 
   /** Converts current value to a JavaScript Number */
   toNumber(): number;

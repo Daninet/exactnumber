@@ -1,6 +1,7 @@
 ## 1.0.0 (November)
 
 - Add modular exponentiation - `powm()`
+- Do not expose `trimTrailingZeros()` anymore. Zero trimming is still available through the third parameter at toFixed(), toExponential() and toPrecision()
 - Not using BigInt literals anymore, because they are not compatible with some FE frameworks
 - Performance improvements by memoizing common BigInt values
 - Fixed bug with zeros not being trimmed corectly

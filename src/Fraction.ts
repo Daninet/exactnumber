@@ -322,7 +322,7 @@ export class Fraction implements ExactNumberType {
   normalize(): FixedNumber | Fraction {
     const { numerator, denominator } = this.simplify();
 
-    if (denominator === 1n) {
+    if (denominator === _1N) {
       return new FixedNumber(numerator, 0);
     }
 
@@ -347,21 +347,21 @@ export class Fraction implements ExactNumberType {
   }
 
   sign(): -1 | 1 {
-    const numeratorSign = this.numerator < 0n ? -1 : 1;
-    const denominatorSign = this.denominator < 0n ? -1 : 1;
+    const numeratorSign = this.numerator < _0N ? -1 : 1;
+    const denominatorSign = this.denominator < _0N ? -1 : 1;
     return (numeratorSign * denominatorSign) as -1 | 1;
   }
 
   abs(): ExactNumberType {
     const res = new Fraction(
-      this.numerator < 0n ? -this.numerator : this.numerator,
-      this.denominator < 0n ? -this.denominator : this.denominator,
+      this.numerator < _0N ? -this.numerator : this.numerator,
+      this.denominator < _0N ? -this.denominator : this.denominator,
     );
     return res;
   }
 
   neg() {
-    return this.mul(-1n);
+    return this.mul(-_1N);
   }
 
   intPart() {
@@ -508,10 +508,10 @@ export class Fraction implements ExactNumberType {
     return { cycleLen, cycleStart };
   }
 
-  toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO): string {
+  toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO, trimZeros = false): string {
     if (!Number.isSafeInteger(decimals) || decimals < 0) throw new Error('Invalid parameter');
 
-    return this.round(decimals, roundingMode).toFixed(decimals);
+    return this.round(decimals, roundingMode).toFixed(decimals, RoundingMode.TO_ZERO, trimZeros);
   }
 
   private toRepeatingParts(maxDigits: number | undefined): [string, string, string] {
@@ -551,11 +551,11 @@ export class Fraction implements ExactNumberType {
     return res;
   }
 
-  toExponential(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
+  toExponential(digits: number, roundingMode = RoundingMode.TO_ZERO, trimZeros = false): string {
     if (!Number.isSafeInteger(digits) || digits < 0) throw new Error('Invalid parameters');
 
     const fixedNum = this.toFixedNumber(digits);
-    return fixedNum.toExponential(digits, roundingMode);
+    return fixedNum.toExponential(digits, roundingMode, trimZeros);
   }
 
   toFraction(): string {
@@ -637,10 +637,10 @@ export class Fraction implements ExactNumberType {
     return this.toBase(radix, maxDigits);
   }
 
-  toPrecision(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
+  toPrecision(digits: number, roundingMode = RoundingMode.TO_ZERO, trimZeros = false): string {
     if (!Number.isSafeInteger(digits) || digits < 1) throw new Error('Invalid parameter');
 
-    return this.roundToDigits(digits, roundingMode).toPrecision(digits);
+    return this.roundToDigits(digits, roundingMode).toPrecision(digits, RoundingMode.TO_ZERO, trimZeros);
   }
 
   valueOf(): number {
