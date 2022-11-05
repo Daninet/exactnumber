@@ -711,7 +711,8 @@ describe('FixedNumber', () => {
   });
 
   it('toFixed()', () => {
-    const run = (x: string, digits: number, rndMode?: RoundingMode) => new FixedNumber(x).toFixed(digits, rndMode);
+    const run = (x: string, digits: number, trimZeros?: boolean) =>
+      new FixedNumber(x).toFixed(digits, RoundingMode.TO_ZERO, trimZeros);
 
     expect(run('0', 0)).toBe('0');
     expect(run('0', 1)).toBe('0.0');
@@ -721,9 +722,11 @@ describe('FixedNumber', () => {
     expect(run('0.45600', 1)).toBe('0.4');
     expect(run('0.45600', 2)).toBe('0.45');
     expect(run('0.45600', 6)).toBe('0.456000');
+    expect(run('0.45600', 6, true)).toBe('0.456');
     expect(run('-123.45600', 0)).toBe('-123');
     expect(run('-123.45600', 1)).toBe('-123.4');
     expect(run('-123.45600', 6)).toBe('-123.456000');
+    expect(run('123000', 2, true)).toBe('123000');
 
     expect(() => run('-1.45', -1)).toThrow('Invalid parameter');
     expect(() => run('-1.45', 0.5)).toThrow('Invalid parameter');
@@ -742,7 +745,8 @@ describe('FixedNumber', () => {
   });
 
   it('toPrecision()', () => {
-    const run = (x: string, digits: number) => new FixedNumber(x).toPrecision(digits);
+    const run = (x: string, digits: number, trimZeros?: boolean) =>
+      new FixedNumber(x).toPrecision(digits, RoundingMode.TO_ZERO, trimZeros);
 
     expect(run('0', 1)).toBe('0');
     expect(run('0', 2)).toBe('0.0');
@@ -755,6 +759,8 @@ describe('FixedNumber', () => {
     expect(run('-0.0045600', 2)).toBe('-0.0045');
     expect(run('0.0045600', 3)).toBe('0.00456');
     expect(run('0.0045600', 6)).toBe('0.00456000');
+    expect(run('0.0045600', 6, true)).toBe('0.00456');
+    expect(run('123000', 2, true)).toBe('120000');
 
     expect(() => run('-1.45', -1)).toThrow('Invalid parameter');
     expect(() => run('-1.45', 0)).toThrow('Invalid parameter');
@@ -778,7 +784,8 @@ describe('FixedNumber', () => {
   });
 
   it('toExponential()', () => {
-    const run = (a: string, digits: number) => new FixedNumber(a).toExponential(digits);
+    const run = (a: string, digits: number, trimZeros?: boolean) =>
+      new FixedNumber(a).toExponential(digits, RoundingMode.TO_ZERO, trimZeros);
 
     expect(run('0', 0)).toBe('0e+0');
     expect(run('-0', 0)).toBe('0e+0');
@@ -804,6 +811,11 @@ describe('FixedNumber', () => {
     expect(run('.0123', 0)).toBe('1e-2');
     expect(run('.0123', 1)).toBe('1.2e-2');
     expect(run('-.0123', 3)).toBe('-1.230e-2');
+
+    expect(run('0.0045600', 6, true)).toBe('4.56e-3');
+    expect(run('123000', 2, true)).toBe('1.23e+5');
+    expect(run('123000', 10, false)).toBe('1.2300000000e+5');
+    expect(run('123000', 10, true)).toBe('1.23e+5');
 
     expect(() => run('-1.45', -1)).toThrow('Invalid parameter');
     expect(() => run('-1.45', 0.5)).toThrow('Invalid parameter');

@@ -604,15 +604,15 @@ export class FixedNumber implements ExactNumberType {
     return Number(this.toPrecision(20));
   }
 
-  toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO): string {
+  toFixed(decimals: number, roundingMode = RoundingMode.TO_ZERO, trimZeros = false): string {
     if (!Number.isSafeInteger(decimals) || decimals < 0) throw new Error('Invalid parameter');
 
     const rounded = this._round(decimals, roundingMode);
 
-    return bigIntToStr(rounded.number, rounded.decimalPos, decimals, false);
+    return bigIntToStr(rounded.number, rounded.decimalPos, decimals, trimZeros);
   }
 
-  toExponential(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
+  toExponential(digits: number, roundingMode = RoundingMode.TO_ZERO, trimZeros = false): string {
     if (!Number.isSafeInteger(digits) || digits < 0) throw new Error('Invalid parameter');
 
     const rounded = this.roundToDigits(digits + 1, roundingMode).normalize();
@@ -628,6 +628,9 @@ export class FixedNumber implements ExactNumberType {
 
     if (slicedString.length > 1) {
       strWithPoint = `${slicedString.slice(0, 1)}.${slicedString.slice(1)}`;
+      if (trimZeros) {
+        strWithPoint = trimTrailingZerosFromFixed(strWithPoint);
+      }
     }
 
     const fractionalDigitsBefore = absNumber.decimalPos;
@@ -702,7 +705,7 @@ export class FixedNumber implements ExactNumberType {
     return this.toBase(radix, maxDigits);
   }
 
-  toPrecision(digits: number, roundingMode = RoundingMode.TO_ZERO): string {
+  toPrecision(digits: number, roundingMode = RoundingMode.TO_ZERO, trimZeros = false): string {
     if (!Number.isSafeInteger(digits) || digits < 1) throw new Error('Invalid parameter');
 
     const rounded = this.roundToDigits(digits, roundingMode);
@@ -726,6 +729,9 @@ export class FixedNumber implements ExactNumberType {
     if (frac.length + prefix.length + suffixLength > 0) {
       const suffix = '0'.repeat(suffixLength);
       res += `.${prefix}${frac}${suffix}`;
+      if (trimZeros) {
+        res = trimTrailingZerosFromFixed(res);
+      }
     }
 
     return isNegative ? `-${res}` : res;
