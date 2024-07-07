@@ -465,7 +465,7 @@ describe('FixedNumber', () => {
     expect(run('0.834631259841', 2, RoundingMode.AWAY_FROM_ZERO)).toBe('0.84');
     expect(run('0.640652', 2, RoundingMode.NEAREST_TO_ZERO)).toBe('0.64');
 
-    expect(() => run('1.23', 0, 3)).toThrow(
+    expect(() => run('1.23', 0, 3 as any)).toThrow(
       'Invalid rounding mode. Use the predefined values from the RoundingMode enum.',
     );
   });
@@ -816,6 +816,9 @@ describe('FixedNumber', () => {
     expect(run('123000', 2, true)).toBe('1.23e+5');
     expect(run('123000', 10, false)).toBe('1.2300000000e+5');
     expect(run('123000', 10, true)).toBe('1.23e+5');
+
+    expect(run('0.00000898959115147590', 4)).toBe('8.9895e-6');
+    expect(run('0.00000898959115147590', 5)).toBe('8.98959e-6');
 
     expect(() => run('-1.45', -1)).toThrow('Invalid parameter');
     expect(() => run('-1.45', 0.5)).toThrow('Invalid parameter');

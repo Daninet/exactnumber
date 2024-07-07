@@ -380,6 +380,29 @@ describe('Fraction', () => {
     expect(run('9'.repeat(300), '1'.repeat(300))).toBe(9);
   });
 
+  it('toExponential()', () => {
+    const run = (a: string, b: string, digits: number, trimZeros?: boolean) =>
+      new Fraction(a, b).toExponential(digits, RoundingMode.TO_ZERO, trimZeros);
+
+    expect(run('10', '2', 4)).toBe('5.0000e+0');
+    expect(run('-1000', '2', 4)).toBe('-5.0000e+2');
+
+    expect(run('1', '2', 4)).toBe('5.0000e-1');
+    expect(run('-1', '2', 4)).toBe('-5.0000e-1');
+    expect(run('1', '-2', 4)).toBe('-5.0000e-1');
+
+    expect(run('1', '3', 4)).toBe('3.3333e-1');
+
+    expect(run('0.00000898959115147590', '1', 4)).toBe('8.9895e-6');
+    expect(run('-0.00000898959115147590', '1', 5)).toBe('-8.98959e-6');
+
+    expect(run('898959115147.5903', '1', 5)).toBe('8.98959e+11');
+
+    expect(run('0', '2', 4)).toBe('0.0000e+0');
+    expect(run('3', '1', 4)).toBe('3.0000e+0');
+    expect(run('123', '1', 4)).toBe('1.2300e+2');
+  });
+
   it('toString()', () => {
     const run = (x: string) => new Fraction(x, 1n).toString();
 

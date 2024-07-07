@@ -1,3 +1,6 @@
+## 1.0.2 (July 07, 2024)
+- Fix bug at fraction's toExponential()
+
 ## 1.0.1 (November 05, 2022)
 - Fix incorrect signs at tan() approximation and precision errors at sin()
 

@@ -565,8 +565,20 @@ export class Fraction implements ExactNumberType {
   }
 
   private toFixedNumber(digits: number): FixedNumber {
-    const numerator = this.numerator * _10N ** BigInt(digits);
-    const fixedNum = new FixedNumber(numerator / this.denominator, digits);
+    if (this.numerator === _0N) return new FixedNumber(0, 0);
+    if (this.denominator === _1N) return new FixedNumber(this.numerator, 0);
+
+    let requiredDigits = digits;
+    let absNumerator = this.numerator < 0 ? -this.numerator : this.numerator;
+    while (absNumerator < this.denominator) {
+      absNumerator *= _10N;
+      requiredDigits++;
+    }
+
+    const factor = _10N ** BigInt(requiredDigits);
+    const numerator = this.numerator * factor;
+    const div = numerator / this.denominator;
+    const fixedNum = new FixedNumber(div, requiredDigits);
     return fixedNum;
   }
 
