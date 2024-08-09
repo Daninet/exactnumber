@@ -1,6 +1,6 @@
 import { Fraction } from './Fraction';
 import { FixedNumber } from './FixedNumber';
-import { ExactNumberParameter, ExactNumberType } from './types';
+import { ExactNumberType } from './types';
 import { _0N, _1N } from './util';
 
 export function parseParameter(x: number | bigint | string | ExactNumberType): ExactNumberType {
@@ -34,6 +34,7 @@ type ExactNumberInterface = {
   min: (...params: (number | bigint | string | ExactNumberType)[]) => ExactNumberType;
   max: (...params: (number | bigint | string | ExactNumberType)[]) => ExactNumberType;
   fromBase: (num: string, radix: number) => ExactNumberType;
+  isExactNumber: (x: any) => boolean;
   range: (
     start: number | bigint | string | ExactNumberType,
     end: number | bigint | string | ExactNumberType,
@@ -66,7 +67,7 @@ export const ExactNumber = <ExactNumberInterface>((
   return new Fraction(xVal, _1N).div(new Fraction(yVal, _1N));
 });
 
-ExactNumber.min = <ExactNumberInterface>((...params) => {
+ExactNumber.min = <ExactNumberInterface['min']>((...params) => {
   if ((params as any).length === 0) {
     throw new Error('Got empty array');
   }
@@ -82,7 +83,7 @@ ExactNumber.min = <ExactNumberInterface>((...params) => {
   return minVal;
 });
 
-ExactNumber.max = <ExactNumberInterface>((...params) => {
+ExactNumber.max = <ExactNumberInterface['max']>((...params) => {
   if ((params as any).length === 0) {
     throw new Error('Got empty array');
   }
@@ -114,7 +115,7 @@ const parseDigitsInBase = (str: string, radix: number) => {
   return res;
 };
 
-ExactNumber.fromBase = <ExactNumberInterface>((num: string, radix: number) => {
+ExactNumber.fromBase = <ExactNumberInterface['fromBase']>((num, radix) => {
   if (typeof num !== 'string') {
     throw new Error('First parameter must be string');
   }
@@ -170,11 +171,7 @@ ExactNumber.fromBase = <ExactNumberInterface>((num: string, radix: number) => {
  * E.g. Iterating from -2 to 3 with 0.5 increments:
  * for(const x of ExactNumber.range(-2, 3, '0.5')) {} */
 // eslint-disable-next-line func-names
-ExactNumber.range = function* (
-  _start: ExactNumberParameter,
-  _end: ExactNumberParameter,
-  _increment: ExactNumberParameter,
-) {
+ExactNumber.range = <ExactNumberInterface['range']>function* (_start, _end, _increment) {
   const end = ExactNumber(_end);
   const increment = ExactNumber(_increment ?? 1);
   let i = ExactNumber(_start);
@@ -184,7 +181,11 @@ ExactNumber.range = function* (
   }
 };
 
-ExactNumber.gcd = <ExactNumberInterface>((a, b) => {
+ExactNumber.isExactNumber = <ExactNumberInterface['isExactNumber']>(
+  (x => x instanceof FixedNumber || x instanceof Fraction)
+);
+
+ExactNumber.gcd = <ExactNumberInterface['gcd']>((a, b) => {
   const aNum = ExactNumber(a).abs();
   const bNum = ExactNumber(b).abs();
 
@@ -199,7 +200,7 @@ ExactNumber.gcd = <ExactNumberInterface>((a, b) => {
   }
 });
 
-ExactNumber.lcm = <ExactNumberInterface>((a, b) => {
+ExactNumber.lcm = <ExactNumberInterface['lcm']>((a, b) => {
   const aNum = ExactNumber(a).abs();
   const bNum = ExactNumber(b).abs();
   const product = aNum.mul(bNum);

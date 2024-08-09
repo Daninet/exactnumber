@@ -142,4 +142,16 @@ describe('ExactNumber interface', () => {
     expect(ExactNumber.lcm('-0.8', '-0.12').toString()).toBe('2.4');
     expect(ExactNumber.lcm('0.1', '0.12').toString()).toBe('0.6');
   });
+
+  it('isExactNumber()', () => {
+    expect(ExactNumber.isExactNumber(1)).toBe(false);
+    expect(ExactNumber.isExactNumber(1n)).toBe(false);
+    expect(ExactNumber.isExactNumber(undefined)).toBe(false);
+    expect(ExactNumber.isExactNumber(null)).toBe(false);
+    expect(ExactNumber.isExactNumber(true)).toBe(false);
+    expect(ExactNumber.isExactNumber({})).toBe(false);
+    expect(ExactNumber.isExactNumber(ExactNumber)).toBe(false);
+    expect(ExactNumber.isExactNumber(ExactNumber(1))).toBe(true);
+    expect(ExactNumber.isExactNumber(ExactNumber(1).div(3))).toBe(true);
+  });
 });
