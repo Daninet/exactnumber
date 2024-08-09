@@ -341,6 +341,30 @@ describe('Fraction', () => {
     expect(run('401.65/9').toRepeatingDigits(undefined)).toBe('44.62(7)');
   });
 
+  it('ceil()', () => {
+    const run = (a: string, b = 1n) => new Fraction(a, b).ceil().toString();
+
+    expect(run('0')).toBe('0');
+    expect(run('0.99')).toBe('1');
+    expect(run('3.099')).toBe('4');
+    expect(run('3.678')).toBe('4');
+    expect(run('4.0000')).toBe('4');
+    expect(run('1234')).toBe('1234');
+
+    expect(run('-0')).toBe('0');
+    expect(run('-0.99')).toBe('0');
+    expect(run('-3.099')).toBe('-3');
+    expect(run('-3.678')).toBe('-3');
+    expect(run('-4.0000')).toBe('-4');
+    expect(run('-4.0001')).toBe('-4');
+    expect(run('-1234')).toBe('-1234');
+
+    expect(run('-1', 2n)).toBe('0');
+    expect(run('-3', 2n)).toBe('-1');
+    expect(run('-3661', 86400n)).toBe('0');
+    expect(run('-3661', -86400n)).toBe('1');
+  });
+
   it('correct transients', () => {
     const run = (a: string) => expect(new Fraction(a, 1n).toString()).toBe(a);
 

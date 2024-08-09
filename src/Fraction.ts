@@ -244,7 +244,12 @@ export class Fraction implements ExactNumberType {
     // 0.105 might got cutted to 0.1, which might round incorrectly
     // solution: add one digit to the end
 
-    const correctedFixedNum = new FixedNumber(`${fixedPart.toFixed(decimals + 1)}1`);
+    let correctedFixedNum = new FixedNumber(`${fixedPart.toFixed(decimals + 1)}1`);
+
+    // 0 loses negative sign, so it needs to be corrected
+    if (fixedPart.isNegative() && !correctedFixedNum.isNegative()) {
+      correctedFixedNum = correctedFixedNum.neg();
+    }
 
     const res = correctedFixedNum.round(decimals, roundingMode);
     return res;
