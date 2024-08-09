@@ -89,6 +89,9 @@ export interface ExactNumberType {
   /** Returns true if the number does not have a fractional part. */
   isInteger(): boolean;
 
+  /** Returns true if the number is negative. */
+  isNegative(): boolean;
+
   /** Returns the largest number, but less than or equal to the current number. Same as round(RoundingMode.TO_NEGATIVE). */
   floor(decimals?: number): ExactNumberType;
 

@@ -399,7 +399,7 @@ export class FixedNumber implements ExactNumberType {
   bitwiseAnd(x: number | bigint | string | ExactNumberType): ExactNumberType {
     x = ExactNumber(x);
 
-    if (!this.isInteger() || this.sign() === -1 || !x.isInteger() || x.sign() === -1) {
+    if (!this.isInteger() || this.isNegative() || !x.isInteger() || x.isNegative()) {
       throw new Error('Only positive integers are supported');
     }
 
@@ -428,7 +428,7 @@ export class FixedNumber implements ExactNumberType {
   bitwiseOr(x: number | bigint | string | ExactNumberType): ExactNumberType {
     x = ExactNumber(x);
 
-    if (!this.isInteger() || this.sign() === -1 || !x.isInteger() || x.sign() === -1) {
+    if (!this.isInteger() || this.isNegative() || !x.isInteger() || x.isNegative()) {
       throw new Error('Only positive integers are supported');
     }
 
@@ -457,7 +457,7 @@ export class FixedNumber implements ExactNumberType {
   bitwiseXor(x: number | bigint | string | ExactNumberType): ExactNumberType {
     x = ExactNumber(x);
 
-    if (!this.isInteger() || this.sign() === -1 || !x.isInteger() || x.sign() === -1) {
+    if (!this.isInteger() || this.isNegative() || !x.isInteger() || x.isNegative()) {
       throw new Error('Only positive integers are supported');
     }
 
@@ -484,7 +484,7 @@ export class FixedNumber implements ExactNumberType {
   }
 
   shiftLeft(bitCount: number): ExactNumberType {
-    if (!this.isInteger() || this.sign() === -1) {
+    if (!this.isInteger() || this.isNegative()) {
       throw new Error('Only positive integers are supported');
     }
 
@@ -497,7 +497,7 @@ export class FixedNumber implements ExactNumberType {
   }
 
   shiftRight(bitCount: number): ExactNumberType {
-    if (!this.isInteger() || this.sign() === -1) {
+    if (!this.isInteger() || this.isNegative()) {
       throw new Error('Only positive integers are supported');
     }
 
@@ -573,6 +573,10 @@ export class FixedNumber implements ExactNumberType {
     return this.number % _10N ** BigInt(this.decimalPos) === _0N;
   }
 
+  isNegative() {
+    return this.sign() === -1;
+  }
+
   serialize(): [bigint, number] {
     return [this.number, this.decimalPos];
   }
@@ -617,7 +621,7 @@ export class FixedNumber implements ExactNumberType {
 
     const rounded = this.roundToDigits(digits + 1, roundingMode).normalize();
 
-    const isNegative = rounded.sign() === -1;
+    const isNegative = rounded.isNegative();
     const absNumber = rounded.abs();
     const str = absNumber.number.toString();
 
@@ -655,7 +659,7 @@ export class FixedNumber implements ExactNumberType {
     let intPart = num.intPart() as FixedNumber;
     let fracPart = num.sub(intPart);
 
-    const isNegative = num.sign() === -1;
+    const isNegative = num.isNegative();
     if (isNegative) {
       intPart = intPart.neg() as FixedNumber;
       fracPart = fracPart.neg();
@@ -712,7 +716,7 @@ export class FixedNumber implements ExactNumberType {
 
     const { subZeroNum, exponentDiff } = rounded.toSubZeroNum();
 
-    const isNegative = subZeroNum.sign() === -1;
+    const isNegative = subZeroNum.isNegative();
     let subZeroStr = bigIntToStr(subZeroNum.number, subZeroNum.decimalPos, subZeroNum.decimalPos, false);
     subZeroStr = subZeroStr.slice(isNegative ? 3 : 2); // '-0.' or '0.'
 

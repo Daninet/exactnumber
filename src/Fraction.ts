@@ -150,11 +150,11 @@ export class Fraction implements ExactNumberType {
     }
 
     if (type === ModType.FLOORED) {
-      return Number(this.sign() === -1) ^ Number(rFrac.sign() === -1) ? res.add(rFrac) : res;
+      return Number(this.isNegative()) ^ Number(rFrac.isNegative()) ? res.add(rFrac) : res;
     }
 
     if (type === ModType.EUCLIDEAN) {
-      return res.sign() === -1 ? res.add(rFrac.sign() === -1 ? rFrac.neg() : rFrac) : res;
+      return res.isNegative() ? res.add(rFrac.isNegative() ? rFrac.neg() : rFrac) : res;
     }
 
     throw new Error('Invalid ModType');
@@ -277,7 +277,7 @@ export class Fraction implements ExactNumberType {
 
     roundedNumber = roundedNumber._incExponent(divisions);
 
-    return this.sign() === -1 ? roundedNumber.neg() : roundedNumber;
+    return this.isNegative() ? roundedNumber.neg() : roundedNumber;
   }
 
   private gcd(numerator: bigint, denominator: bigint): bigint {
@@ -428,6 +428,10 @@ export class Fraction implements ExactNumberType {
     return this.numerator % this.denominator === _0N;
   }
 
+  isNegative() {
+    return this.sign() === -1;
+  }
+
   serialize(): [bigint, bigint] {
     return [this.numerator, this.denominator];
   }
@@ -441,7 +445,7 @@ export class Fraction implements ExactNumberType {
   }
 
   private getNumberForBitwiseOp() {
-    if (!this.isInteger() || this.sign() === -1) {
+    if (!this.isInteger() || this.isNegative()) {
       throw new Error('Only positive integers are supported');
     }
     return this.intPart();
@@ -602,7 +606,7 @@ export class Fraction implements ExactNumberType {
     let intPart = num.intPart();
     let fracPart = num.sub(intPart);
 
-    const isNegative = num.sign() === -1;
+    const isNegative = num.isNegative();
     if (isNegative) {
       intPart = intPart.neg();
       fracPart = fracPart.neg();
