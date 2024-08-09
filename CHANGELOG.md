@@ -1,3 +1,9 @@
+## 1.0.3 (August 09, 2024)
+- Fixed bug with invalid rounding at some fractional values
+- Added isNegative()
+- Added ExactNumber.isExactNumber()
+- Updating dependencies
+
 ## 1.0.2 (July 07, 2024)
 - Fix bug at fraction's toExponential()
 
