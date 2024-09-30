@@ -1,3 +1,7 @@
+## 1.0.4 (September 30, 2024)
+- Fix Typescript types path
+- Update dependencies
+
 ## 1.0.3 (August 09, 2024)
 - Fixed bug with invalid rounding at some fractional values
 - Added isNegative()
