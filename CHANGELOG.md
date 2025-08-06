@@ -1,3 +1,6 @@
+## 2.0.1 (August 06, 2025)
+- Fix TS type path
+
 ## 2.0.0 (August 06, 2025)
 - Add limitDecimals()
 - Add missing tests for Fractions
