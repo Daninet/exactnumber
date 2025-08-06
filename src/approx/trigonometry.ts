@@ -3,7 +3,7 @@ import { ExactNumber } from '../ExactNumber';
 import { ExactNumberParameter, ExactNumberType, RoundingMode } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
-import { limitDecimals, _0N, _1N, _2N, _3N, _4N, _10N, _24N } from '../util';
+import {  _0N, _1N, _2N, _3N, _4N, _10N, _24N } from '../util';
 
 // TODO: https://en.wikipedia.org/wiki/Niven%27s_theorem
 // On Lambert's Proof of the Irrationality of π: https://www.jstor.org/stable/2974737
@@ -172,13 +172,18 @@ const getCosSpecialValue = (angleDeg: number, shouldNegate: boolean, decimals: n
 export const cos = (_angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const EXTRA_DECIMALS = decimals + 10;
 
-  const angle = limitDecimals(ExactNumber(_angle), decimals + 5);
+  const angle = ExactNumber(_angle).limitDecimals(decimals + 5);
   const { specialCaseDeg, subHalfPiAngle: x, quadrant } = evaluateAngle(angle, decimals);
 
   const shouldNegate = quadrant === 2 || quadrant === 3;
 
   if (specialCaseDeg !== null) {
     return getCosSpecialValue(specialCaseDeg, shouldNegate, decimals);
+  }
+
+  if (decimals <= 13) {
+    const jsRes = ExactNumber(Math.cos(x.toNumber()).toString()).round(decimals + 2, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+    return resultHandler(jsRes, shouldNegate, decimals);
   }
 
   const maxError = ExactNumber(`1e-${EXTRA_DECIMALS}`);
@@ -194,8 +199,8 @@ export const cos = (_angle: number | bigint | string | ExactNumberType, decimals
 };
 
 export const sin = (_angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const angle = limitDecimals(ExactNumber(_angle), decimals + 5);
-  const { specialCaseDeg, quadrant } = evaluateAngle(angle, decimals);
+  const angle = ExactNumber(_angle).limitDecimals(decimals + 5);
+  const { specialCaseDeg, quadrant, subHalfPiAngle: x } = evaluateAngle(angle, decimals);
 
   const shouldNegate = quadrant === 3 || quadrant === 4;
 
@@ -203,13 +208,18 @@ export const sin = (_angle: number | bigint | string | ExactNumberType, decimals
     return getCosSpecialValue(90 - specialCaseDeg, shouldNegate, decimals);
   }
 
+  if (decimals <= 13) {
+    const jsRes = ExactNumber(Math.sin(x.toNumber()).toString()).round(decimals + 2, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+    return resultHandler(jsRes, shouldNegate, decimals);
+  }
+
   const pi = new FixedNumber(PI(decimals + 5));
 
-  return cos(pi.div(_2N).sub(angle), decimals + 5).trunc(decimals);
+  return cos(pi.div(_2N).sub(angle), decimals).trunc(decimals);
 };
 
 export const tan = (angle: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const angleNum = limitDecimals(ExactNumber(angle), decimals + 5);
+  const angleNum = ExactNumber(angle);
 
   const { specialCaseDeg, quadrant, subHalfPiAngle: x } = evaluateAngle(angleNum, decimals);
 
@@ -228,6 +238,12 @@ export const tan = (angle: number | bigint | string | ExactNumberType, decimals:
       throw new Error('Out of range');
     }
     throw new Error();
+  }
+
+  const xNumber = x.toNumber();
+  if (decimals <= 13 && Math.abs(xNumber) < 1.56) { // 1.56 = arctan(99)
+    const jsRes = ExactNumber(Math.tan(xNumber).toString()).round(decimals + 2, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+    return resultHandler(jsRes, shouldNegate, decimals);
   }
 
   // tan x = sqrt((1 - cos(2x)) / 1 + cos(2x))

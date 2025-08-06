@@ -2,7 +2,7 @@ import { FixedNumber } from '../FixedNumber';
 import { ExactNumberType } from '../types';
 import { Fraction } from '../Fraction';
 import { ExactNumber } from '../ExactNumber';
-import { limitDecimals, _0N, _1N } from '../util';
+import { _0N, _1N } from '../util';
 
 const approximateNthRoot = (n: number, x: ExactNumberType): string => {
   let xNum = x.toNumber();
@@ -63,7 +63,7 @@ export const nthroot = (
   if (n < 0) throw new Error('Negative N is not supported');
   if (n === 0) throw new Error('N cannot be zero');
 
-  const xNum = limitDecimals(ExactNumber(x), decimals);
+  const xNum = ExactNumber(x);
   if (n === 1) {
     return xNum.trunc(decimals);
   }

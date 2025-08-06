@@ -1,4 +1,4 @@
-import { limitDecimals, _0N, _1N, _2N, _4N } from '../util';
+import {  _0N, _1N, _2N, _4N } from '../util';
 import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType } from '../types';
 import { log } from './logarithm';
@@ -30,8 +30,7 @@ function* expGenerator(x: ExactNumberType, decimals: number) {
 
 // TODO: try computing via exp(x) = sinh(x) + sqrt(1 + sinh(x) ** 2)
 export const exp = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const xVal = limitDecimals(ExactNumber(x), decimals);
-
+  const xVal = ExactNumber(x);
   const maxError = ExactNumber(`1e-${decimals + 5}`);
 
   const gen = expGenerator(xVal, decimals);
@@ -49,8 +48,8 @@ export const pow = (
   _exponent: number | bigint | string | ExactNumberType,
   decimals: number,
 ): ExactNumberType => {
-  const base = limitDecimals(ExactNumber(_base), decimals);
-  const exponent = limitDecimals(ExactNumber(_exponent), decimals);
+  const base = ExactNumber(_base);
+  const exponent = ExactNumber(_exponent);
 
   if (exponent.isInteger() && Number.isSafeInteger(exponent.toNumber())) {
     return base.pow(exponent).trunc(decimals);

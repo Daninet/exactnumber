@@ -111,6 +111,12 @@ export interface ExactNumberType {
    */
   roundToDigits(digits: number, roundingMode: RoundingMode): ExactNumberType;
 
+  /** Ensures that number can be represented with specified amount of decimals.
+   * In contrary to round(), this function keeps the repeating decimals in place if cycle length fits into the limit.
+   * RoundingMode.NEAREST_TO_POSITIVE is the default
+   */
+  limitDecimals(maxDecimals: number, roundingMode?: RoundingMode): ExactNumberType;
+
   /** Returns the integer bitwise-and combined with another integer. */
   bitwiseAnd(x: number | bigint | string | ExactNumberType): ExactNumberType;
 

@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { FixedNumber } from './FixedNumber';
-import { ExactNumberType, RoundingMode } from './types';
 
 /** Trims trailing zeros from numbers in fixed-point format (1.23000 -> 1.23) */
 export const trimTrailingZerosFromFixed = (num: string): string => {
@@ -50,16 +48,6 @@ export const bigIntToStr = (num: bigint, inputDecimals: number, outputDecimals: 
   }
 
   return isNegative ? `-${str}` : str;
-};
-
-// used by the approximation functions to limit input precision (speed optimization)
-export const limitDecimals = (x: ExactNumberType, decimals: number) => {
-  x = x.normalize();
-  if (x instanceof FixedNumber) {
-    return x.round(decimals, RoundingMode.NEAREST_AWAY_FROM_ZERO);
-  }
-
-  return x;
 };
 
 // BigInt literals (1n) are not supported by all parsers

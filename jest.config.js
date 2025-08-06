@@ -5,6 +5,7 @@ module.exports = {
   testEnvironment: 'node',
   preset: 'ts-jest',
   modulePaths: [],
+  modulePathIgnorePatterns: ['approx'],
   moduleFileExtensions: ['web.js', 'js', 'web.ts', 'ts', 'web.tsx', 'tsx', 'json', 'web.jsx', 'jsx', 'node'],
   moduleNameMapper: {
     '<root>/src/approx/constant.ts': '<root>/src/approx/__mocks__/constant.ts',

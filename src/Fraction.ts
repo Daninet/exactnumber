@@ -285,6 +285,21 @@ export class Fraction implements ExactNumberType {
     return this.isNegative() ? roundedNumber.neg() : roundedNumber;
   }
 
+  limitDecimals(maxDecimals: number, roundingMode?: RoundingMode): ExactNumberType {
+    if (this.denominator === _1N) {
+      return new FixedNumber(this.numerator, 0);
+    }
+
+    const { cycleLen, cycleStart } = this.getDecimalFormat(maxDecimals);
+
+    if (cycleLen !== null && cycleStart + cycleLen <= maxDecimals) {
+      return this;
+    }
+
+    const roundedNumber = this.round(maxDecimals, roundingMode);
+    return roundedNumber;
+  }
+
   private gcd(numerator: bigint, denominator: bigint): bigint {
     let a = numerator < _0N ? -numerator : numerator;
     let b = denominator < _0N ? -denominator : denominator;
@@ -476,8 +491,8 @@ export class Fraction implements ExactNumberType {
     return this.getNumberForBitwiseOp().shiftRight(bitCount);
   }
 
-  private getDecimalFormat(maxDigits: number | undefined): { cycleLen: number | null; cycleStart: number } {
-    maxDigits = maxDigits === undefined ? Number.MAX_SAFE_INTEGER : maxDigits;
+  private getDecimalFormat(maxDigits?: number): { cycleLen: number | null; cycleStart: number } {
+    maxDigits = maxDigits ?? Number.MAX_SAFE_INTEGER;
 
     let d = this.denominator < _0N ? -this.denominator : this.denominator;
 

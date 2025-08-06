@@ -10,6 +10,7 @@
     "build": "npm run build-rollup",
     "eslint": "eslint ./src --ext .js,.ts",
     "test": "jest --coverage --",
+    "test-main-coverage": "npx jest --coverage --testPathIgnorePatterns=\"src/approx/*\"",
     "typedoc": "typedoc",
     "typedoc-serve": "npm run typedoc && npx serve -n docs"
   },
@@ -32,8 +33,7 @@
     "biginteger",
     "bigdecimal",
     "bigint",
-    "bitwise",
-    "approximation"
+    "bitwise"
   ],
   "bugs": {
     "url": "https://github.com/Daninet/exactnumber/issues"

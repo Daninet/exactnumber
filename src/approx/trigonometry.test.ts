@@ -10,7 +10,15 @@ describe('trigonometry', () => {
     testStability(decimals => PI(decimals), 1000);
   });
 
-  it('sin', () => {
+  it('sin low precision', () => {
+    const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
+    for (let i = range[0]; i <= range[1]; i += 0.01) {
+      const jsResult = Math.sin(i).toString();
+      compareError(sin(i.toString(), 10), jsResult, 6);
+    }
+  });
+
+  it('sin high precision', () => {
     const range = [Math.floor(Math.PI * -4), Math.ceil(Math.PI * 4)];
     for (let i = range[0]; i <= range[1]; i += 0.01) {
       const jsResult = Math.sin(i).toString();

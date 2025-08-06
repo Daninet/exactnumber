@@ -1,4 +1,4 @@
-import { limitDecimals, _0N, _1N, _2N, _3N } from '../util';
+import {  _0N, _1N, _2N, _3N } from '../util';
 import { ExactNumber } from '../ExactNumber';
 import { ExactNumberType } from '../types';
 import { sqrt } from './roots';
@@ -31,7 +31,7 @@ function* atanGenerator(x: ExactNumberType, decimals: number) {
 }
 
 export const atan = (value: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  let x = limitDecimals(ExactNumber(value), decimals);
+  let x = ExactNumber(value);
 
   if (x.isZero()) return ExactNumber(0);
   if (x.abs().isOne()) {
@@ -65,7 +65,7 @@ export const atan = (value: number | bigint | string | ExactNumberType, decimals
 };
 
 export const asin = (value: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const x = limitDecimals(ExactNumber(value), decimals);
+  const x = ExactNumber(value);
 
   if (x.isZero()) return ExactNumber(_0N);
   if (x.abs().isOne()) {
@@ -86,7 +86,7 @@ export const asin = (value: number | bigint | string | ExactNumberType, decimals
 };
 
 export const acos = (value: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
-  const x = limitDecimals(ExactNumber(value), decimals);
+  const x = ExactNumber(value);
 
   if (x.isZero()) return ExactNumber(PI(decimals)).div(_2N).trunc(decimals);
 

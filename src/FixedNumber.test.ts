@@ -509,6 +509,18 @@ describe('FixedNumber', () => {
     expect(() => run('1.23', '1' as any, RoundingMode.TO_ZERO)).toThrow('Invalid value for digits');
   });
 
+  it('limitDecimals()', () => {
+    const run = (a: string, maxDigits: number) => new FixedNumber(a).limitDecimals(maxDigits).toString();
+
+    expect(run('1.50750', 0)).toBe('2');
+    expect(run('1.50750', 1)).toBe('1.5');
+    expect(run('1.50750', 2)).toBe('1.51');
+    expect(run('1.50750', 3)).toBe('1.508');
+    expect(run('1.50750', 4)).toBe('1.5075');
+    expect(run('1.50750', 5)).toBe('1.5075');
+    expect(run('1.50750', 6)).toBe('1.5075');
+  });
+
   it('intPart()', () => {
     const run = (a: string) => new FixedNumber(a).intPart().toString();
 

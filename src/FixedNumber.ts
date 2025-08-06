@@ -333,6 +333,10 @@ export class FixedNumber implements ExactNumberType {
     return this._round(decimals, roundingMode).normalize();
   }
 
+  limitDecimals(maxDecimals: number, roundingMode?: RoundingMode): ExactNumberType {
+    return this.round(maxDecimals, roundingMode);
+  }
+
   _incExponent(amount: number): FixedNumber {
     if (amount === 0) return this;
     let newNumber = this.number;

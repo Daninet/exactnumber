@@ -226,6 +226,14 @@ describe('Fraction', () => {
     }
   });
 
+  it('inv()', () => {
+    const run = (a: string) => new Fraction(a, 1n).inv().toFraction();
+
+    expect(run('5/6')).toBe('6/5');
+    expect(run('1/3')).toBe('3/1');
+    expect(run('-3/1')).toBe('-1/3');
+  });
+
   it('round()', () => {
     const run = (a: string, decimals?: number, rndMode?: RoundingMode) =>
       new Fraction(a, 1n).round(decimals, rndMode).toFixed(decimals ?? 0);
@@ -287,6 +295,62 @@ describe('Fraction', () => {
     expect(run('45.452/1', 6, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('45.452');
   });
 
+    it('limitDecimals()', () => {
+    const run = (a: string, maxDigits: number) => new Fraction(a, 1n).limitDecimals(maxDigits).toString();
+
+    expect(run('0.001', 2)).toBe('0');
+    expect(run('0.(3)', 0)).toBe('0');
+    expect(run('0.(3)', 1)).toBe('0.(3)');
+    expect(run('-0.(3)', 1)).toBe('-0.(3)');
+    expect(run('2.91(4)', 2)).toBe('2.91');
+    expect(run('2.91(6)', 2)).toBe('2.92');
+    expect(run('2.91(6)', 3)).toBe('2.91(6)');
+    expect(run('-2.91(6)', 3)).toBe('-2.91(6)');
+    expect(run('2.91(6)', 4)).toBe('2.91(6)');
+
+    expect(run('-19.51(7890)', 0)).toBe('-20');
+    expect(run('-19.51(7890)', 1)).toBe('-19.5');
+    expect(run('-19.51(7890)', 2)).toBe('-19.52');
+    expect(run('-19.51(7890)', 3)).toBe('-19.518');
+    expect(run('-19.51(7890)', 4)).toBe('-19.5179');
+    expect(run('-19.51(7890)', 5)).toBe('-19.51789');
+    expect(run('-19.51(7890)', 6)).toBe('-19.51(7890)');
+    expect(run('-19.51(7890)', 7)).toBe('-19.51(7890)');
+  });
+
+  it('sign()', () => {
+    const run = (a: string) => new Fraction(a, 1n).sign();
+
+    expect(run('0')).toBe(1);
+    expect(run('-0')).toBe(1);
+    expect(run('1/2')).toBe(1);
+    expect(run('-1/2')).toBe(-1);
+    expect(run('1/-2')).toBe(-1);
+    expect(run('-1/-2')).toBe(1);
+  });
+
+  it('abs()', () => {
+    const run = (a: string) => new Fraction(a, 1n).abs().toFraction();
+
+    expect(run('0')).toBe('0/1');
+    expect(run('-0')).toBe('0/1');
+    expect(run('1/2')).toBe('1/2');
+    expect(run('-1/2')).toBe('1/2');
+    expect(run('1/-2')).toBe('1/2');
+    expect(run('-1/-2')).toBe('1/2');
+  });
+
+  it('neg()', () => {
+    const run = (a: string) => new Fraction(a, 1n).neg().toFraction();
+
+    expect(run('0')).toBe('0/1');
+    expect(run('-0')).toBe('0/1');
+    expect(run('1/2')).toBe('-1/2');
+    expect(run('-1/2')).toBe('1/2');
+    expect(run('1/-2')).toBe('1/2');
+    expect(run('-1/-2')).toBe('-1/2');
+  });
+
   it('intPart()', () => {
     const run = (a: string) => new Fraction(a, 1n).intPart().toString();
 
@@ -307,6 +371,114 @@ describe('Fraction', () => {
     expect(run('10/7')).toBe('3/7');
     expect(run('-27/7')).toBe('-6/7');
     expect(run('111/11')).toBe('1/11');
+  });
+
+  it('cmp()', () => {
+    const run = (a: string, b: string) => new Fraction(a, 1n).cmp(new Fraction(b, 1n));
+
+    expect(run('0', '0')).toBe(0);
+    expect(run('0', '-0')).toBe(0);
+    expect(run('5/6', '5/6')).toBe(0);
+    expect(run('5/6', '10/12')).toBe(0);
+    expect(run('-5/6', '-10/12')).toBe(0);
+    expect(run('1/2', '-1/2')).toBe(1);
+    expect(run('-1/2', '1/2')).toBe(-1);
+    expect(run('2/5', '3/5')).toBe(-1);
+    expect(run('3/5', '2/5')).toBe(1);
+    expect(run('2/3', '3/2')).toBe(-1);
+    expect(run('1', '1/1')).toBe(0);
+    expect(run('2', '3/1')).toBe(-1);
+    expect(run('4', '2')).toBe(1);
+  });
+
+  it('eq()', () => {
+    const run = (a: string, b: string) => new Fraction(a, 1n).eq(new Fraction(b, 1n));
+    expect(run('0', '1')).toBe(false);
+    expect(run('0', '0')).toBe(true);
+    expect(run('0', '-0')).toBe(true);
+    expect(run('5/6', '5/6')).toBe(true);
+    expect(run('5/6', '10/12')).toBe(true);
+    expect(run('-5/6', '-10/12')).toBe(true);
+    expect(run('1', '1/1')).toBe(true);
+  });
+
+  it('lt()', () => {
+    const run = (a: string, b: string) => new Fraction(a, 1n).lt(new Fraction(b, 1n));
+    expect(run('1', '2')).toBe(true);
+    expect(run('-1', '0')).toBe(true);
+    expect(run('-2', '-1')).toBe(true);
+    expect(run('2/5', '3/5')).toBe(true);
+    expect(run('5/6', '5/6')).toBe(false);
+    expect(run('10/12', '5/6')).toBe(false);
+    expect(run('2', '1')).toBe(false);
+  });
+
+  it('lte()', () => {
+    const run = (a: string, b: string) => new Fraction(a, 1n).lte(new Fraction(b, 1n));
+    expect(run('1', '2')).toBe(true);
+    expect(run('5/6', '10/12')).toBe(true);
+    expect(run('-2', '-1')).toBe(true);
+    expect(run('5/6', '5/6')).toBe(true);
+    expect(run('3/5', '2/5')).toBe(false);
+  });
+
+  it('gt()', () => {
+    const run = (a: string, b: string) => new Fraction(a, 1n).gt(new Fraction(b, 1n));
+    expect(run('2', '1')).toBe(true);
+    expect(run('1/2', '-1/2')).toBe(true);
+    expect(run('-1', '-2')).toBe(true);
+    expect(run('3/5', '2/5')).toBe(true);
+    expect(run('5/6', '5/6')).toBe(false);
+    expect(run('5/6', '10/12')).toBe(false);
+  });
+
+  it('gte()', () => {
+    const run = (a: string, b: string) => new Fraction(a, 1n).gte(new Fraction(b, 1n));
+    expect(run('2', '1')).toBe(true);
+    expect(run('5/6', '5/6')).toBe(true);
+    expect(run('5/6', '10/12')).toBe(true);
+    expect(run('3/5', '2/5')).toBe(true);
+    expect(run('1', '2')).toBe(false);
+  });
+
+  it('clamp()', () => {
+    const run = (a: string, min: string, max: string) => new Fraction(a, 1n).clamp(new Fraction(min, 1n), new Fraction(max, 1n)).toFraction();
+    expect(run('1/2', '0', '2')).toBe('1/2');
+    expect(run('3/4', '1/2', '5/4')).toBe('3/4');
+    expect(run('1/2', '1/2', '2')).toBe('1/2');
+    expect(run('3/5', '2/5', '4/5')).toBe('3/5');
+    expect(run('1/5', '2/5', '4/5')).toBe('2/5');
+    expect(run('2', '0', '2')).toBe('2/1');
+    expect(run('-1', '0', '2')).toBe('0/1');
+    expect(run('-100', '-10', '10')).toBe('-10/1');
+    expect(run('5', '0', '2')).toBe('2/1');
+    expect(run('100', '-10', '10')).toBe('10/1');
+    expect(run('-5', '-10', '-2')).toBe('-5/1');
+    expect(run('-1', '-10', '-2')).toBe('-2/1');
+    expect(run('-20', '-10', '-2')).toBe('-10/1');
+    expect(run('5', '3', '3')).toBe('3/1');
+    expect(run('2', '3', '3')).toBe('3/1');
+    expect(run('4', '3', '3')).toBe('3/1');
+  });
+
+  it('isZero()', () => {
+    const run = (a: string) => new Fraction(a, 1n).isZero();
+    expect(run('0')).toBe(true);
+    expect(run('-0')).toBe(true);
+    expect(run('1')).toBe(false);
+    expect(run('0/2')).toBe(true);
+    expect(run('-0/2')).toBe(true);
+  });
+
+  it('isOne()', () => {
+    const run = (a: string) => new Fraction(a, 1n).isOne();
+    expect(run('0')).toBe(false);
+    expect(run('1')).toBe(true);
+    expect(run('-1')).toBe(false);
+    expect(run('1/2')).toBe(false);
+    expect(run('2/2')).toBe(true);
+    expect(run('-2/-2')).toBe(true);
+    expect(run('2/-2')).toBe(false);
   });
 
   it('toFixed()', () => {
@@ -390,6 +562,8 @@ describe('Fraction', () => {
     expect(run('-19.51(7890)', 6)).toBe('-19.51(7890)');
     expect(run('-19.51(7890)', 7)).toBe('-19.51(7890)');
   });
+
+
 
   it('toNumber()', () => {
     const run = (a: string, b: string) => new Fraction(a, b).toNumber();
