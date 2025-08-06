@@ -45,7 +45,7 @@ describe('ExactNumber interface', () => {
       'Floating point values as numbers are unsafe. Please provide them as a string.',
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+    // biome-ignore lint/correctness/noPrecisionLoss: it's a test
     expect(() => ExactNumber(123123123123123123123)).toThrow(
       'Floating point values as numbers are unsafe. Please provide them as a string.',
     );
@@ -100,7 +100,7 @@ describe('ExactNumber interface', () => {
     expect(ExactNumber.fromBase('.0(2)', 5).toString()).toBe('0.1');
 
     const nums = ['0', '-0.02', '123.457(13)', '-5.(1)', '-0.0(1)'];
-    nums.forEach(num => {
+    nums.forEach((num) => {
       for (let base = 2; base <= 16; base++) {
         const inBase = ExactNumber(num).toString(base);
         expect(ExactNumber.fromBase(inBase, base).toString()).toBe(num);

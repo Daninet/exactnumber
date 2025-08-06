@@ -1,7 +1,7 @@
 import { bigIntToStr, trimTrailingZerosFromFixed, _0N, _10N, _1N, _24N, _2N } from './util';
 import { Fraction } from './Fraction';
 import { ExactNumber, parseParameter } from './ExactNumber';
-import { ExactNumberType, ModType, RoundingMode } from './types';
+import { type ExactNumberType, ModType, RoundingMode } from './types';
 
 export class FixedNumber implements ExactNumberType {
   public readonly type = 'fixed';

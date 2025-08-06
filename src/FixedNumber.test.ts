@@ -1,6 +1,6 @@
 import { FixedNumber } from './FixedNumber';
 import { Fraction } from './Fraction';
-import { ExactNumberParameter, ModType, RoundingMode } from './types';
+import { type ExactNumberParameter, ModType, RoundingMode } from './types';
 
 describe('FixedNumber', () => {
   it('parses string', () => {
@@ -369,7 +369,7 @@ describe('FixedNumber', () => {
   });
 
   const testRoundTable = (values: string[], table: Record<RoundingMode, string[]>, digits?: number) => {
-    Object.keys(table).forEach(rndMode => {
+    Object.keys(table).forEach((rndMode) => {
       const tableRow = table[Number(rndMode)];
 
       values.forEach((num, i) => {

@@ -1,4 +1,4 @@
-import { ExactNumberType } from '../types';
+import type { ExactNumberType } from '../types';
 import { ExactNumber } from '../ExactNumber';
 import { cos, evaluateAngle, PI, sin, tan } from './trigonometry';
 import { compareError, testStability } from '../testHelper.test';
@@ -7,7 +7,7 @@ describe('trigonometry', () => {
   it('PI', () => {
     expect(PI(10).toFixed(10)).toBe('3.1415926535');
 
-    testStability(decimals => PI(decimals), 1000);
+    testStability((decimals) => PI(decimals), 1000);
   });
 
   it('sin low precision', () => {
@@ -59,7 +59,7 @@ describe('trigonometry', () => {
   });
 
   it('sin many digits', () => {
-    testStability(decimals => sin('7/12', decimals), 250);
+    testStability((decimals) => sin('7/12', decimals), 250);
   });
 
   it('evaluates angles', () => {
@@ -168,7 +168,7 @@ describe('trigonometry', () => {
   });
 
   it('cos many digits', () => {
-    testStability(decimals => cos('7/12', decimals), 250);
+    testStability((decimals) => cos('7/12', decimals), 250);
   });
 
   it('tan special values', () => {
@@ -199,6 +199,6 @@ describe('trigonometry', () => {
   });
 
   it('tan many digits', () => {
-    testStability(decimals => tan('7/12', decimals), 250);
+    testStability((decimals) => tan('7/12', decimals), 250);
   });
 });

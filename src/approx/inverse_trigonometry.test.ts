@@ -15,7 +15,7 @@ describe('inverse trigonometry', () => {
   });
 
   it('atan many digits', () => {
-    testStability(decimals => atan('7/12', decimals), 150);
+    testStability((decimals) => atan('7/12', decimals), 150);
   });
 
   it('asin', () => {
@@ -35,7 +35,7 @@ describe('inverse trigonometry', () => {
   });
 
   it('asin many digits', () => {
-    testStability(decimals => asin('7/12', decimals), 120);
+    testStability((decimals) => asin('7/12', decimals), 120);
   });
 
   it('acos', () => {
@@ -55,6 +55,6 @@ describe('inverse trigonometry', () => {
   });
 
   it('acos many digits', () => {
-    testStability(decimals => acos('7/12', decimals), 110);
+    testStability((decimals) => acos('7/12', decimals), 110);
   });
 });

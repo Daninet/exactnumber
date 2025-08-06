@@ -1,5 +1,5 @@
 import { FixedNumber } from '../FixedNumber';
-import { ExactNumberType } from '../types';
+import type { ExactNumberType } from '../types';
 import { Fraction } from '../Fraction';
 import { ExactNumber } from '../ExactNumber';
 import { _0N, _1N } from '../util';

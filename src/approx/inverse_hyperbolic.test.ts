@@ -12,7 +12,7 @@ describe('hyperbolic', () => {
   });
 
   it('asinh 7/12', () => {
-    testStability(decimals => asinh('7/12', decimals), 150);
+    testStability((decimals) => asinh('7/12', decimals), 150);
   });
 
   it('acosh', () => {
@@ -26,7 +26,7 @@ describe('hyperbolic', () => {
   });
 
   it('acosh 17/12', () => {
-    testStability(decimals => acosh('17/12', decimals), 150);
+    testStability((decimals) => acosh('17/12', decimals), 150);
   });
 
   it('atanh', () => {
@@ -41,6 +41,6 @@ describe('hyperbolic', () => {
   });
 
   it('atanh 7/12', () => {
-    testStability(decimals => atanh('7/12', decimals), 150);
+    testStability((decimals) => atanh('7/12', decimals), 150);
   });
 });

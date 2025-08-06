@@ -1,13 +1,13 @@
 import { ExactNumber } from './ExactNumber';
-import { ExactNumberParameter, ExactNumberType, RoundingMode } from './types';
+import { type ExactNumberParameter, type ExactNumberType, RoundingMode } from './types';
 
-export const compareError = (a: ExactNumberParameter, b: ExactNumberParameter, digits = 12) => {
+const compareError = (a: ExactNumberParameter, b: ExactNumberParameter, digits = 12) => {
   const aConv = ExactNumber(a).roundToDigits(digits, RoundingMode.NEAREST_AWAY_FROM_ZERO);
   const bConv = ExactNumber(b).roundToDigits(digits, RoundingMode.NEAREST_AWAY_FROM_ZERO);
   expect(aConv.toString()).toBe(bConv.toString());
 };
 
-export const testStability = (fn: (decimals: number) => ExactNumberType, max: number) => {
+const testStability = (fn: (decimals: number) => ExactNumberType, max: number) => {
   const ref = fn(max).toFixed(max);
 
   for (let i = 1; i < max; i++) {
@@ -16,13 +16,13 @@ export const testStability = (fn: (decimals: number) => ExactNumberType, max: nu
 };
 
 it('compareError()', () => {
-  expect(() => compareError('1', '2')).toThrowError();
-  expect(() => compareError('0.00123', '0.001239', 3)).toThrowError();
-  expect(() => compareError('0.00123', '0.00124', 3)).toThrowError();
-  expect(() => compareError('0.0123', '0.0125', 3)).toThrowError();
-  expect(() => compareError('1.23', '1.239', 3)).toThrowError();
-  expect(() => compareError('-1.23', '-1.239', 3)).toThrowError();
-  expect(() => compareError('123.45', '123.66', 3)).toThrowError();
+  expect(() => compareError('1', '2')).toThrow();
+  expect(() => compareError('0.00123', '0.001239', 3)).toThrow();
+  expect(() => compareError('0.00123', '0.00124', 3)).toThrow();
+  expect(() => compareError('0.0123', '0.0125', 3)).toThrow();
+  expect(() => compareError('1.23', '1.239', 3)).toThrow();
+  expect(() => compareError('-1.23', '-1.239', 3)).toThrow();
+  expect(() => compareError('123.45', '123.66', 3)).toThrow();
 
   compareError('0.00123', '0.0012345', 3);
   compareError('0.00123', '0.001229', 3);

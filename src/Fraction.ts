@@ -1,4 +1,4 @@
-import { CommonNumberFields, ExactNumberType, ModType, RoundingMode } from './types';
+import { type CommonNumberFields, type ExactNumberType, ModType, RoundingMode } from './types';
 import { FixedNumber } from './FixedNumber';
 import { trimTrailingZerosFromFixed, _0N, _10N, _1N, _2N, _5N } from './util';
 import { ExactNumber } from './ExactNumber';

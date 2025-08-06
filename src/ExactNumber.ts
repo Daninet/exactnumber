@@ -1,6 +1,6 @@
 import { Fraction } from './Fraction';
 import { FixedNumber } from './FixedNumber';
-import { ExactNumberType } from './types';
+import type { ExactNumberType } from './types';
 import { _0N, _1N } from './util';
 
 export function parseParameter(x: number | bigint | string | ExactNumberType): ExactNumberType {
@@ -50,22 +50,21 @@ type ExactNumberInterface = {
   ) => ExactNumberType;
 };
 
-export const ExactNumber = <ExactNumberInterface>((
-  x: number | bigint | string | ExactNumberType,
-  y?: number | bigint | string | ExactNumberType,
-) => {
-  if (x === undefined) {
-    throw new Error('First parameter cannot be undefined');
-  }
+export const ExactNumber = <ExactNumberInterface>(
+  ((x: number | bigint | string | ExactNumberType, y?: number | bigint | string | ExactNumberType) => {
+    if (x === undefined) {
+      throw new Error('First parameter cannot be undefined');
+    }
 
-  const xVal = parseParameter(x);
-  if (y === undefined) {
-    return xVal;
-  }
+    const xVal = parseParameter(x);
+    if (y === undefined) {
+      return xVal;
+    }
 
-  const yVal = parseParameter(y);
-  return new Fraction(xVal, _1N).div(new Fraction(yVal, _1N));
-});
+    const yVal = parseParameter(y);
+    return new Fraction(xVal, _1N).div(new Fraction(yVal, _1N));
+  })
+);
 
 ExactNumber.min = <ExactNumberInterface['min']>((...params) => {
   if ((params as any).length === 0) {
@@ -182,7 +181,7 @@ ExactNumber.range = <ExactNumberInterface['range']>function* (_start, _end, _inc
 };
 
 ExactNumber.isExactNumber = <ExactNumberInterface['isExactNumber']>(
-  (x => x instanceof FixedNumber || x instanceof Fraction)
+  ((x) => x instanceof FixedNumber || x instanceof Fraction)
 );
 
 ExactNumber.gcd = <ExactNumberInterface['gcd']>((a, b) => {

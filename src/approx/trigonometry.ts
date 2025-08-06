@@ -1,9 +1,9 @@
 import { FixedNumber } from '../FixedNumber';
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberParameter, ExactNumberType, RoundingMode } from '../types';
+import { type ExactNumberParameter, type ExactNumberType, RoundingMode } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
-import {  _0N, _1N, _2N, _3N, _4N, _10N, _24N } from '../util';
+import { _0N, _1N, _2N, _3N, _4N, _10N, _24N } from '../util';
 
 // TODO: https://en.wikipedia.org/wiki/Niven%27s_theorem
 // On Lambert's Proof of the Irrationality of π: https://www.jstor.org/stable/2974737
@@ -182,7 +182,10 @@ export const cos = (_angle: number | bigint | string | ExactNumberType, decimals
   }
 
   if (decimals <= 13) {
-    const jsRes = ExactNumber(Math.cos(x.toNumber()).toString()).round(decimals + 2, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+    const jsRes = ExactNumber(Math.cos(x.toNumber()).toString()).round(
+      decimals + 2,
+      RoundingMode.NEAREST_AWAY_FROM_ZERO,
+    );
     return resultHandler(jsRes, shouldNegate, decimals);
   }
 
@@ -209,7 +212,10 @@ export const sin = (_angle: number | bigint | string | ExactNumberType, decimals
   }
 
   if (decimals <= 13) {
-    const jsRes = ExactNumber(Math.sin(x.toNumber()).toString()).round(decimals + 2, RoundingMode.NEAREST_AWAY_FROM_ZERO);
+    const jsRes = ExactNumber(Math.sin(x.toNumber()).toString()).round(
+      decimals + 2,
+      RoundingMode.NEAREST_AWAY_FROM_ZERO,
+    );
     return resultHandler(jsRes, shouldNegate, decimals);
   }
 
@@ -241,7 +247,8 @@ export const tan = (angle: number | bigint | string | ExactNumberType, decimals:
   }
 
   const xNumber = x.toNumber();
-  if (decimals <= 13 && Math.abs(xNumber) < 1.56) { // 1.56 = arctan(99)
+  if (decimals <= 13 && Math.abs(xNumber) < 1.56) {
+    // 1.56 = arctan(99)
     const jsRes = ExactNumber(Math.tan(xNumber).toString()).round(decimals + 2, RoundingMode.NEAREST_AWAY_FROM_ZERO);
     return resultHandler(jsRes, shouldNegate, decimals);
   }

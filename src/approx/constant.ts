@@ -1,4 +1,4 @@
-import { ExactNumberType } from '../types';
+import type { ExactNumberType } from '../types';
 import { FixedNumber } from '../FixedNumber';
 
 export class ConstantCache {

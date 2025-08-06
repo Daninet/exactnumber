@@ -1,5 +1,5 @@
 import { Fraction } from './Fraction';
-import { ExactNumberParameter, ModType, RoundingMode } from './types';
+import { type ExactNumberParameter, ModType, RoundingMode } from './types';
 
 describe('Fraction', () => {
   it('parse string', () => {
@@ -295,7 +295,7 @@ describe('Fraction', () => {
     expect(run('45.452/1', 6, RoundingMode.NEAREST_AWAY_FROM_ZERO)).toBe('45.452');
   });
 
-    it('limitDecimals()', () => {
+  it('limitDecimals()', () => {
     const run = (a: string, maxDigits: number) => new Fraction(a, 1n).limitDecimals(maxDigits).toString();
 
     expect(run('0.001', 2)).toBe('0');
@@ -442,7 +442,8 @@ describe('Fraction', () => {
   });
 
   it('clamp()', () => {
-    const run = (a: string, min: string, max: string) => new Fraction(a, 1n).clamp(new Fraction(min, 1n), new Fraction(max, 1n)).toFraction();
+    const run = (a: string, min: string, max: string) =>
+      new Fraction(a, 1n).clamp(new Fraction(min, 1n), new Fraction(max, 1n)).toFraction();
     expect(run('1/2', '0', '2')).toBe('1/2');
     expect(run('3/4', '1/2', '5/4')).toBe('3/4');
     expect(run('1/2', '1/2', '2')).toBe('1/2');
@@ -562,8 +563,6 @@ describe('Fraction', () => {
     expect(run('-19.51(7890)', 6)).toBe('-19.51(7890)');
     expect(run('-19.51(7890)', 7)).toBe('-19.51(7890)');
   });
-
-
 
   it('toNumber()', () => {
     const run = (a: string, b: string) => new Fraction(a, b).toNumber();

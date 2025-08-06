@@ -1,8 +1,8 @@
 import { FixedNumber } from '../FixedNumber';
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberType } from '../types';
+import type { ExactNumberType } from '../types';
 import { sqrt } from './roots';
-import {  _0N, _1N, _2N, _3N } from '../util';
+import { _0N, _1N, _2N, _3N } from '../util';
 
 // sinh x = x + x^3/3! + x^5/5! + ...
 function* sinhGenerator(x: ExactNumberType, decimals: number) {

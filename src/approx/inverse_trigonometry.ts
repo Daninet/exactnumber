@@ -1,6 +1,6 @@
-import {  _0N, _1N, _2N, _3N } from '../util';
+import { _0N, _1N, _2N, _3N } from '../util';
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberType } from '../types';
+import type { ExactNumberType } from '../types';
 import { sqrt } from './roots';
 import { PI } from './trigonometry';
 

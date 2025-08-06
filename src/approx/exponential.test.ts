@@ -30,7 +30,7 @@ describe('exponential', () => {
     for (let b = -2; b < 2; b += 0.3) {
       for (let e = -12; e < 8; e += 0.2) {
         // eslint-disable-next-line prefer-exponentiation-operator, no-restricted-properties
-        const jsResult = Math.pow(b, e).toString();
+        const jsResult = (b ** e).toString();
         if (jsResult === 'NaN') {
           // TODO
           // expect(() => pow(b.toString(), e.toString(), 9)).toThrow('Complex numbers are not supported');
@@ -62,10 +62,10 @@ describe('exponential', () => {
   });
 
   it('exp 1 many digits', () => {
-    testStability(decimals => exp(1, decimals), 500);
+    testStability((decimals) => exp(1, decimals), 500);
   });
 
   it('exp 3/7 many digits', () => {
-    testStability(decimals => exp('3/7', decimals), 500);
+    testStability((decimals) => exp('3/7', decimals), 500);
   });
 });

@@ -1,7 +1,7 @@
-import {  _0N, _10N, _1N, _2N } from '../util';
+import { _0N, _10N, _1N, _2N } from '../util';
 import { ExactNumber } from '../ExactNumber';
 import { FixedNumber } from '../FixedNumber';
-import { ExactNumberType } from '../types';
+import type { ExactNumberType } from '../types';
 import { ConstantCache } from './constant';
 import { sqrt } from './roots';
 
@@ -70,7 +70,7 @@ export const logn = (n: number, x: number | bigint | string | ExactNumberType, d
   return res.trunc(decimals);
 };
 
-const LOG_2 = new ConstantCache(decimals => log(_2N, decimals), 200);
+const LOG_2 = new ConstantCache((decimals) => log(_2N, decimals), 200);
 
 export const log2 = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const res = new FixedNumber(log(x, decimals + 10)).div(LOG_2.get(decimals + 10));
@@ -78,7 +78,7 @@ export const log2 = (x: number | bigint | string | ExactNumberType, decimals: nu
   return res.trunc(decimals);
 };
 
-const LOG_10 = new ConstantCache(decimals => log(_10N, decimals), 200);
+const LOG_10 = new ConstantCache((decimals) => log(_10N, decimals), 200);
 
 export const log10 = (x: number | bigint | string | ExactNumberType, decimals: number): ExactNumberType => {
   const res = new FixedNumber(log(x, decimals + 10)).div(LOG_10.get(decimals + 10));

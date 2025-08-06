@@ -122,8 +122,8 @@ describe('Bitwise operations', () => {
   it('shift invalid types', () => {
     const fns = ['shiftLeft', 'shiftRight'];
     const values = ['1', 1n, -1];
-    fns.forEach(fn => {
-      values.forEach(val => {
+    fns.forEach((fn) => {
+      values.forEach((val) => {
         expect(() => new FixedNumber(1)[fn](val)).toThrow('Invalid value for bitCount');
         expect(() => new Fraction(1n, 1n)[fn](val)).toThrow('Invalid value for bitCount');
       });
@@ -132,7 +132,7 @@ describe('Bitwise operations', () => {
 
   it('invalid types', () => {
     const fns = ['bitwiseAnd', 'bitwiseOr', 'bitwiseXor', 'shiftLeft', 'shiftRight'];
-    fns.forEach(fn => {
+    fns.forEach((fn) => {
       expect(() => new FixedNumber('1.1')[fn](1)).toThrow('Only positive integers are supported');
       expect(() => new FixedNumber('-2')[fn](1)).toThrow('Only positive integers are supported');
       expect(() => new Fraction('1.1', 1n)[fn](1)).toThrow('Only positive integers are supported');

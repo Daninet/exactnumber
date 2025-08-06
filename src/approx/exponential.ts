@@ -1,6 +1,6 @@
-import {  _0N, _1N, _2N, _4N } from '../util';
+import { _0N, _1N, _2N, _4N } from '../util';
 import { ExactNumber } from '../ExactNumber';
-import { ExactNumberType } from '../types';
+import type { ExactNumberType } from '../types';
 import { log } from './logarithm';
 
 // e^x = 1 + x + x^2/2! + x^3/3! + ...

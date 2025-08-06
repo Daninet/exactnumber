@@ -1,5 +1,5 @@
-import { Fraction } from './Fraction';
-import { FixedNumber } from './FixedNumber';
+import type { Fraction } from './Fraction';
+import type { FixedNumber } from './FixedNumber';
 
 // a random, hard to guess number
 const ROUNDING_MODE_BASE = 201000;

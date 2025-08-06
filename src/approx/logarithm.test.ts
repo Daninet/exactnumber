@@ -19,12 +19,12 @@ describe('logarithm', () => {
   });
 
   it('log 3 many digits', () => {
-    testStability(decimals => log(3, decimals), 120);
+    testStability((decimals) => log(3, decimals), 120);
   });
 
   it('log 73/7 many digits', () => {
     const fraction = new Fraction(73n, 7n);
-    testStability(decimals => log(fraction, decimals), 120);
+    testStability((decimals) => log(fraction, decimals), 120);
   });
 
   it('log2', () => {

@@ -22,12 +22,12 @@ describe('roots', () => {
 
   it('sqrt 2', () => {
     expect(sqrt(2, 0).toFixed(0)).toBe('1');
-    testStability(decimals => sqrt(2, decimals), 1000);
+    testStability((decimals) => sqrt(2, decimals), 1000);
   });
 
   it('sqrt 3', () => {
     expect(sqrt(3, 0).toFixed(0)).toBe('1');
-    testStability(decimals => sqrt(3, decimals), 1000);
+    testStability((decimals) => sqrt(3, decimals), 1000);
   });
 
   it('cbrt', () => {
@@ -44,12 +44,12 @@ describe('roots', () => {
 
   it('cbrt 2', () => {
     expect(cbrt(2, 0).toFixed(0)).toBe('1');
-    testStability(decimals => cbrt(2, decimals), 500);
+    testStability((decimals) => cbrt(2, decimals), 500);
   });
 
   it('cbrt 3', () => {
     expect(cbrt(3, 0).toFixed(0)).toBe('1');
-    testStability(decimals => cbrt(3, decimals), 500);
+    testStability((decimals) => cbrt(3, decimals), 500);
   });
 
   it('nthroot', () => {
