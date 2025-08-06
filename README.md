@@ -16,7 +16,6 @@ Arbitrary-precision decimals. Enables making math calculations with rational num
 - **No special values** like `NaN`, `Infinity` or `-0`.
 - **No silent errors**: it throws errors immediatelly when a confusing parameter is received (e.g. 0/0)
 - Supports bitwise operators (`and`, `or`, `xor`, `shiftLeft`, `shiftRight`)
-- Includes approximation algorithms for irrational numbers like `PI`, `sin(1)`.
 - Supports all modern browsers, web workers, Node.js and Deno
 - Includes TypeScript type definitions: [documentation](https://daninet.github.io/exactnumber)
 - Zero external dependencies
@@ -81,16 +80,6 @@ N('0b1100').bitwiseAnd('0b1010').toString(2); // 1000
 N.max('1/1', '10/2', 3).toString(); // 5
 N.fromBase('123', 4).toString(); // 27
 
-// approximations
-
-import { PI, sin, pow } from 'exactnumber';
-PI(10).toString(); // 3.1415926535
-
-const PI_OVER_2 = PI(10).div(2);
-sin(PI_OVER_2, 5).toString(); // 1.00000
-
-// 0.1232323 raised to the power of 2.193333, approximated with 10 decimals
-pow('0.1(23)', '2.19(3)', 10).toString(); // 0.0101310867
 ```
 
 ## Functions
@@ -138,22 +127,8 @@ pow('0.1(23)', '2.19(3)', 10).toString(); // 0.0101310867
 
 Read more about them [here](https://en.wikipedia.org/wiki/Modulo_operation).
 
-## Approximation algorithms
-
-These functions approximate irrational numbers with arbitrary number of decimals.
-The last parameter is always used to specify the number of correct decimals in the result.
-
-- Roots: `sqrt()`, `cbrt()`, `nthroot()`
-- Exponentials: `pow()`, `exp()`
-- Logarithms: `log()`, `logn()`, `log10()`, `log2()`,
-- Constants: `PI()`
-- Trigonometric functions: `sin()`, `cos()`, `tan()`
-- Inverse trigonometric functions: `asin()`, `acos()`, `atan()`
-- Hyperbolic functions: `sinh()`, `cosh()`, `tanh()`
-- Inverse hyperbolic functions: `asinh()`, `acosh()`, `atanh()`
-
 ## Copyright
 
 License: MIT
 
-Copyright © 2022 Dani Biró
+Copyright © 2025 Dani Biró
