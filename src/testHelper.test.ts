@@ -1,5 +1,5 @@
 import { ExactNumber } from './ExactNumber';
-import { type ExactNumberParameter, type ExactNumberType, RoundingMode } from './types';
+import { type ExactNumberParameter, RoundingMode } from './types';
 
 const compareError = (a: ExactNumberParameter, b: ExactNumberParameter, digits = 12) => {
   const aConv = ExactNumber(a).roundToDigits(digits, RoundingMode.NEAREST_AWAY_FROM_ZERO);
@@ -7,13 +7,13 @@ const compareError = (a: ExactNumberParameter, b: ExactNumberParameter, digits =
   expect(aConv.toString()).toBe(bConv.toString());
 };
 
-const testStability = (fn: (decimals: number) => ExactNumberType, max: number) => {
-  const ref = fn(max).toFixed(max);
+// const testStability = (fn: (decimals: number) => ExactNumberType, max: number) => {
+//   const ref = fn(max).toFixed(max);
 
-  for (let i = 1; i < max; i++) {
-    expect(fn(i).toFixed(i)).toBe(ref.slice(0, i + 2));
-  }
-};
+//   for (let i = 1; i < max; i++) {
+//     expect(fn(i).toFixed(i)).toBe(ref.slice(0, i + 2));
+//   }
+// };
 
 it('compareError()', () => {
   expect(() => compareError('1', '2')).toThrow();

@@ -1,3 +1,9 @@
+## 2.0.0 (August 06, 2025)
+- Add limitDecimals()
+- Add missing tests for Fractions
+- Comment out all approximations. It takes too much effort to make it fast and correct in all edge cases.
+- Migrate from ESLint and Prettier to Biome
+
 ## 1.0.4 (September 30, 2024)
 - Fix Typescript types path
 - Update dependencies
