@@ -10,8 +10,10 @@
     "resolveJsonModule": true,
     "emitDeclarationOnly": true,
     "declaration": true,
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "outDir": "./dist/types"
+    "outDir": "./dist"
   },
-  "include": ["src", "test"]
+  "include": ["src", "test"],
+  "exclude": ["node_modules"]
 }
